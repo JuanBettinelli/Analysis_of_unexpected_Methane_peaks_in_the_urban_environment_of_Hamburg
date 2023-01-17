@@ -1,10 +1,19 @@
+# Script to plt the meteorological data
+# This script is not up to date, a more compleat script is avaiable
+# to use: change input path of data files
+# Author Juan Bettinelli
+
 library(lubridate)
 library(pacman)
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
                stringr, tidyr) 
 
-#Load all the Met data into the skript
+# Ste working directory
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
+
+
+#Load all the Met data into the script
 Wind_txt <- import("Metro Data/stundenwerte_FF_01975_akt/produkt_ff_stunde_20200224_20210826_01975.txt")
 Niederschlag_txt <- import("Metro Data/stundenwerte_RR_01975_akt/produkt_rr_stunde_20200224_20210826_01975.txt")
 TempFeuch_txt <- import("Metro Data/stundenwerte_TU_01975_akt/produkt_tu_stunde_20200224_20210826_01975.txt")
