@@ -1,3 +1,8 @@
+# Script to plot a timeline of the Water level in Hamburg
+# Author: Juan Bettinelli
+
+
+
 library(pacman)
 library(lubridate)
 library(readr)
@@ -8,8 +13,8 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
                stringr, tidyr) 
 
-setwd("/Users/juanbettinelli/Desktop/TUM/2021_Hamburg Campaign/Isotope Measuments")
-mydir = "Waterlevel1"
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
+mydir = "4_Data/4_Waterlevel/Waterlevel(26.07.21-16.09.21)"
 myfiles = list.files(path=mydir, pattern="*.csv", full.names=TRUE)
 
 WLTotal <- data.frame(stringsAsFactors=FALSE) 

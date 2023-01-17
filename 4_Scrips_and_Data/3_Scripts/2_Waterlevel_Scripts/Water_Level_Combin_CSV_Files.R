@@ -1,11 +1,14 @@
+# Script to combine all the data from multipe CSV files into one dataset
+# Author Juan Bettinelli
+
 library(lubridate)
 library(readr)
 library("plyr")
 library(tidyverse)
 
 
-setwd("/Users/juanbettinelli/Desktop/TUM/2021_Hamburg Campaign/Isotope Measuments")
-mydir = "Waterlevel1"
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
+mydir = "4_Data/4_Waterlevel/Waterlevel(26.07.21-16.09.21)"
 myfiles = list.files(path=mydir, pattern="*.csv", full.names=TRUE)
 
 WLTotal <- data.frame(
