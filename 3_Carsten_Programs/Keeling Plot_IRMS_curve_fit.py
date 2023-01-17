@@ -123,7 +123,7 @@ def Keeling(data, peak,ips_l,ips_r, species):
     #return [x,dx,y,dy]
     
 
-filepath='D:\carsten\Documents\HH Code\Data\Isotope\\'
+filepath='/Users/juanbettinelli/Documents/Uni/MasterThesis/3_Carsten_Programs' #'D:\carsten\Documents\HH Code\Data\Isotope\\'
 
 filename = 'Hamburg AIR 01082021'
 

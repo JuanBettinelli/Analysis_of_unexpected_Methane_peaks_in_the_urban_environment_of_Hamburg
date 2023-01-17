@@ -1,3 +1,9 @@
+#Program to Generate plots of the CH4 Concentration measuren in the geomatikum.
+#Skript du be used in the Paper "Quantification of methane emissions in Hamburg using a network of FTIR spectrometers and an inverse modeling approach"
+#data from the hamburg campaign 2021-2022.
+
+#Script Author: Juan Bettinelli 
+
 library(pacman)
 library(lubridate)
 library(readr)
@@ -14,15 +20,14 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
 
 
 #Set Working Directory
-setwd("~/Documents/TUM/GIT/Isotrope Plots")
-
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
 ####################Isotrope Data###################
 
 #Read Concentration Data of the CSV Files
-CH4_2H <-read.csv2("CH4 2H 20210816.csv",TRUE, ";")
-CH4_13C <-read.csv2("CH4 13C 20210816.csv",TRUE, ";")
-CH4_concentrations <-read.csv2("CH4 concentrations 20210816.csv",TRUE, ";")
+CH4_2H <-read.csv2("./4_Data/2_Geomatikum_CH4_Concentrations/2_CH4Concentration(1.8.2021-17.09.2021)/CH4 2H 20210816.csv",TRUE, ";")
+CH4_13C <-read.csv2("./4_Data/2_Geomatikum_CH4_Concentrations/2_CH4Concentration(1.8.2021-17.09.2021)/CH4 13C 20210816.csv",TRUE, ";")
+CH4_concentrations <-read.csv2("./4_Data/2_Geomatikum_CH4_Concentrations/2_CH4Concentration(1.8.2021-17.09.2021)/CH4 concentrations 20210816.csv",TRUE, ";")
 
 
 #Convert the date into a readable format
