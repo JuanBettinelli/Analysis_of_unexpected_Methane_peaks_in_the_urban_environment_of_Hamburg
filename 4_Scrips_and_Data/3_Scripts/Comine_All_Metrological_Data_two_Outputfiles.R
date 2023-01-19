@@ -1,11 +1,12 @@
 # Script to combine all meterological Data.
+#Creates two CSV files one for 1h measumens one for 10min measuments
 # Author Juan Bettinelli
 
 #Caution very slow
 
-
 library(lubridate)
 library(pacman)
+library(plyr)
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
                stringr, tidyr) 
@@ -59,7 +60,7 @@ soil_temperature_txt_Recent_Hour <- import("4_Data/3_DWD_Meteorological_Data/DWD
 
 #solar
 solar_txt_Historical_Hour <- import("4_Data/3_DWD_Meteorological_Data/DWD_Wetherdata/Hourly/Historical/solar_stundenwerte_ST_01975_row/produkt_st_stunde_20050101_20221231_01975.txt")
-# solar_txt_Recent_Hour <- import("4_Data/3_DWD_Meteorological_Data/DWD_Wetherdata/Hourly/Recent/solar_stundenwerte_ST_01975_row/produkt_st_stunde_20050101_20220228_01975.txt")
+# solar_txt_Recent_Hour <- import("4_Data/3_DWD_Meteorological_Data/DWD_Wetherdata/Hourly/Recent/solar_stundenwerte_ST_01975_row/produkt_st_stunde_20050101_20221231_01975.txt")
 solar_txt_Historical_10min <- import("4_Data/3_DWD_Meteorological_Data/DWD_Wetherdata/10_minutes/Historical/solar_produkt_zehn_min_sd_20200101_20211231_01975.txt")
 solar_txt_Recent_10min <- import("4_Data/3_DWD_Meteorological_Data/DWD_Wetherdata/10_minutes/Recent/solar_produkt_zehn_min_sd_20201105_20220508_01975.txt")
 
@@ -186,148 +187,202 @@ extreme_temperatur_10min$UTCDateTime <- as.POSIXlt(as.character(extreme_temperat
 
 
 ##########Create Complete Dataframe#########
+
+
 TotalData <- data.frame()
 
-TotalData <- merge( Wind_1h, cloud_type_1h, 
+
+TotalData <- merge( Wind_1h[ , c("F", "D", "UTCDateTime")], cloud_type_1h[ , c("V_N", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
 
-TotalData <- merge( TotalData, cloudiness_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("F", "D", "V_N")] <- c("Wind_Speed", "Wind_Direction", "Cloud_Cover")
 
-TotalData <- merge( TotalData, dew_point_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
+# TotalData <- merge( TotalData, cloudiness_1h,
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
 
-TotalData <- merge( TotalData, extreme_wind_1h, 
+TotalData <- merge( TotalData, dew_point_1h[ , c("TT", "TD", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("TT", "TD")] <- c("dew_point_temperatuer", "airtemperature")
 
-TotalData <- merge( TotalData, moisture_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
 
-TotalData <- merge( TotalData, precipitation_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
+# TotalData <- merge( TotalData, extreme_wind_1h, 
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# 
 
-TotalData <- merge( TotalData, pressure_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
 
-TotalData <- merge( TotalData, soil_temperature_1h, 
+TotalData <- merge( TotalData, moisture_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
 
-TotalData <- merge( TotalData, solar_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
 
-TotalData <- merge( TotalData, sun_1h, 
+TotalData <- merge( TotalData, pressure_1h[ , c("P", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
-TotalData <- merge( TotalData, Temperature_1h, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("P")] <- c("pressure_air_sea_level")
 
-TotalData <- merge( TotalData, visibility_1h, 
+
+TotalData <- merge( TotalData, soil_temperature_1h[ , c("V_TE005", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("V_TE005")] <- c("temperature_soil_mean_005cm")
 
-TotalData <- merge( TotalData, weather_phenomena_1h, 
+
+TotalData <- merge( TotalData, solar_1h[ , c("FG_LBERG", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("FG_LBERG")] <- c("radiaion_global")
 
-TotalData <- merge( TotalData, wind_synop_1h, 
+
+TotalData <- merge( TotalData, sun_1h[ , c("SD_SO", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("SD_SO")] <- c("sunshine_duration")
 
-TotalData <- merge( TotalData, Wind_10min, 
+# TotalData <- merge( TotalData, Temperature_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTime")],
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("1h_humidity_absolute", "1h_pressure_vapor")
+
+# 
+# TotalData <- merge( TotalData, visibility_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("1h_humidity_absolute", "1h_pressure_vapor")
+
+# 
+# TotalData <- merge( TotalData, weather_phenomena_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTime")],
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
+
+# 
+# TotalData <- merge( TotalData, wind_synop_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
+
+TotalData <- merge( TotalData, precipitation_1h[ , c("R1", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = FALSE)
+colnames(TotalData)[colnames(TotalData) %in% c("SR1")] <- c("sunshine_duration")
 
-TotalData <- merge( TotalData, extreme_wind_10min, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
 
-TotalData <- merge( TotalData, precipitation_10min, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
-
-TotalData <- merge( TotalData, solar_10min, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
-
-TotalData <- merge( TotalData, Temperature_10min, 
-                    by.x = "UTCDateTime",
-                    by.y = "UTCDateTime",
-                    all.x = TRUE,
-                    all.y = TRUE,
-                    sort = FALSE)
-
-TotalData <- merge( TotalData, extreme_temperatur_10min, 
+TotalData <- merge( TotalData, precipitation_1h[ , c("R1", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+colnames(TotalData)[colnames(TotalData) %in% c("R1")] <- c("precipitation_height")
 
-write.csv(TotalData,"4_Data/OutputData/DWDMeteorologicalData.csv", row.names = FALSE)
+# ###### 10 Minutes ####
+
+TotalData_10min <- data.frame()
+
+TotalData_10min <- merge( precipitation_10min[ , c("RWS_10", "UTCDateTime")], Wind_10min[ , c("FF_10", "DD_10", "UTCDateTime")],
+                    by.x = "UTCDateTime",
+                    by.y = "UTCDateTime",
+                    all.x = TRUE,
+                    all.y = TRUE,
+                    sort = FALSE)
+colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("RWS_10", "FF_10", "DD_10")] <- c( "precipitation_height", "Wind_Speed", "Wind_Direction")
+
+# 
+# TotalData_10min <- merge( TotalData_10min, extreme_wind_10min[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
+
+# 
+# TotalData_10min <- merge( TotalData_10min, precipitation_10min[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = FALSE)
+# colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
+
+
+TotalData_10min <- merge( TotalData_10min, solar_10min[ , c("GS_10", "UTCDateTime")],
+                    by.x = "UTCDateTime",
+                    by.y = "UTCDateTime",
+                    all.x = TRUE,
+                    all.y = TRUE,
+                    sort = FALSE)
+colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("GS_10")] <- c("radiation_global")
+
+
+TotalData_10min <- merge( TotalData_10min, Temperature_10min[ , c("PP_10", "TT_10", "RF_10", "TD_10", "UTCDateTime")],
+                    by.x = "UTCDateTime",
+                    by.y = "UTCDateTime",
+                    all.x = TRUE,
+                    all.y = TRUE,
+                    sort = FALSE)
+colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("PP_10", "TT_10", "RF_10", "TD_10")] <- c("pressure_air_site", "temperature_air_mean_200", "humidity", "temperature_dew_point_mean_200")
+
+# 
+# TotalData_10min <- merge( TotalData_10min, extreme_temperatur_10min[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
+#                     by.x = "UTCDateTime",
+#                     by.y = "UTCDateTime",
+#                     all.x = TRUE,
+#                     all.y = TRUE,
+#                     sort = TRUE)
+# colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
+
+
+write.csv(TotalData,"4_Data/OutputData/DWDMeteorologicalData_1h.csv", row.names = FALSE)
+
+write.csv(TotalData_10min,"4_Data/OutputData/DWDMeteorologicalData_10min.csv", row.names = FALSE)
 
 # #Plot the Data
 # plot(Wind_New$UTCDateTime,
