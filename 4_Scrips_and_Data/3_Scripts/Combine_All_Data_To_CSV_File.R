@@ -41,7 +41,7 @@ FinishTime <- as.POSIXct('2022-03-29 00:00:00',
 #RORPROriginal|*|
 
 #import data from csv File an adjust Date time formart
-WSV_Waterlevel <- import("4_Data/4_Waterlevel/Water_Level_(20210701-20220505).csv")
+WSV_Waterlevel <- import("4_Data/4_Waterlevel/Water_Level_(20210701-20220505).csv", dec = ",")
 colnames(WSV_Waterlevel) <- c("CET", "Water_Level")
 WSV_Waterlevel$CET <- as.POSIXct(as.character(WSV_Waterlevel$CET), 
                                  tz = "Etc/GMT-1",  
@@ -53,6 +53,9 @@ WSV_Waterlevel$UTC <- with_tz(WSV_Waterlevel$CET,
 #Filter the usable Days
 WSV_Waterlevel <- filter(WSV_Waterlevel, WSV_Waterlevel$UTC > StartTime & WSV_Waterlevel$UTC < FinishTime, .preserve = FALSE)
 WSV_Waterlevel$CET      <- NULL
+WSV_Waterlevel$Water_Level <- sapply(WSV_Waterlevel$Water_Level, gsub, pattern = ",", replacement= ".")
+WSV_Waterlevel$Water_Level <- sapply(WSV_Waterlevel$Water_Level, as.numeric)
+WSV_Waterlevel <- WSV_Waterlevel[!is.na(WSV_Waterlevel$UTC),]
 
 
 
@@ -67,6 +70,8 @@ Geomatikum_csv$UTC <- as.POSIXct(as.character(Geomatikum_csv$UTC),
                                  tz = "UTC")
 #Filter the usable Days
 Geomatikum_csv <- filter(Geomatikum_csv, Geomatikum_csv$UTC > StartTime & Geomatikum_csv$UTC < FinishTime, .preserve = FALSE)
+Geomatikum_csv <- Geomatikum_csv[!is.na(Geomatikum_csv$UTC),]
+
 
 ### Wether Mast 
 #Load the data from the csv file, and Convert the datetime to the correct format
@@ -76,7 +81,7 @@ Mast_csv$UTC <- as.POSIXct(as.character(Mast_csv$UTC),
                            tz = "utc")
 #Filter the usable Days
 Mast_csv <- filter(Mast_csv, Mast_csv$UTC > StartTime & Mast_csv$UTC < FinishTime, .preserve = FALSE)
-
+Mast_csv <- Mast_csv[!is.na(Mast_csv$UTC),]
 
 
 
@@ -92,11 +97,15 @@ DWD_Data_10min$UTCDateTime <- as.POSIXct(as.character(DWD_Data_10min$UTCDateTime
 DWD_Data_1h$UTCDateTime <- as.POSIXct(as.character(DWD_Data_1h$UTCDateTime), 
                                       format = "%Y-%m-%d %H:%M:%S", 
                                       tz = "utc")
+# DWD_Data_10min <- sapply(DWD_Data_10min, gsub, pattern = ",", replacement= ".")
+# DWD_Data_1h <- sapply(DWD_Data_1h, gsub, pattern = ",", replacement= ".")
+
 #Filter the usable Days
 DWD_Data_10min <- filter(DWD_Data_10min, DWD_Data_10min$UTCDateTime > StartTime & DWD_Data_10min$UTCDateTime < FinishTime, .preserve = FALSE)
 DWD_Data_1h <- filter(DWD_Data_1h, DWD_Data_1h$UTCDateTime > StartTime & DWD_Data_1h$UTCDateTime < FinishTime, .preserve = FALSE)
 
-
+DWD_Data_10min <- DWD_Data_10min[!is.na(DWD_Data_10min$UTCDateTime),]
+DWD_Data_1h <- DWD_Data_1h[!is.na(DWD_Data_1h$UTCDateTime),]
 
 ########################### Water Level data WSV #############################
 ### Not used as no compleate data set exist (19.1.23)
@@ -130,6 +139,8 @@ DWD_Data_1h <- filter(DWD_Data_1h, DWD_Data_1h$UTCDateTime > StartTime & DWD_Dat
 
 #Load the data from the csv file, and Convert the datetime to the correct format
 CH4_concentrations <-read.csv2("4_Data/2_Geomatikum_CH4_Concentrations/3_CH4Concentration(1.8.2021-28.3.2022)/Hamburg Methan Measuments 01082021 - 28032022.csv")
+# CH4_concentrations <- sapply(CH4_concentrations, gsub, pattern = ",", replacement= ".")
+
 CH4_concentrations$fill.time.utc <- as.POSIXct(as.character(CH4_concentrations$fill.time.utc), 
                                                format = "%d.%m.%y %H:%M", 
                                                tz = "utc")
@@ -152,7 +163,27 @@ CH4_concentrations$fill.time.utc.2 <- as.POSIXct(CH4_concentrations$fill.time.ut
 CH4_concentrations$X      <- NULL
 CH4_concentrations$X.1      <- NULL
 
+CH4_concentrations$X.CH4..13C <- sapply(CH4_concentrations$X.CH4..13C, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$d13C.VPDB <- sapply(CH4_concentrations$d13C.VPDB, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$sd..CH4. <- sapply(CH4_concentrations$sd..CH4., gsub, pattern = ",", replacement= ".")
+CH4_concentrations$sd.d13C <- sapply(CH4_concentrations$sd.d13C, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$X.CH4..2H <- sapply(CH4_concentrations$X.CH4..2H, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$d2H.VPDB <- sapply(CH4_concentrations$d2H.VPDB, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$sd..CH4..1 <- sapply(CH4_concentrations$sd..CH4..1, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$sd.d2H <- sapply(CH4_concentrations$sd.d2H, gsub, pattern = ",", replacement= ".")
+CH4_concentrations$X.CH4. <- sapply(CH4_concentrations$X.CH4., gsub, pattern = ",", replacement= ".")
 
+CH4_concentrations$X.CH4..13C <- sapply(CH4_concentrations$X.CH4..13C, as.numeric)
+CH4_concentrations$d13C.VPDB <- sapply(CH4_concentrations$d13C.VPDB, as.numeric)
+CH4_concentrations$sd..CH4. <- sapply(CH4_concentrations$sd..CH4., as.numeric)
+CH4_concentrations$sd.d13C <- sapply(CH4_concentrations$sd.d13C, as.numeric)
+CH4_concentrations$X.CH4..2H <- sapply(CH4_concentrations$X.CH4..2H, as.numeric)
+CH4_concentrations$d2H.VPDB <- sapply(CH4_concentrations$d2H.VPDB, as.numeric)
+CH4_concentrations$sd..CH4..1 <- sapply(CH4_concentrations$sd..CH4..1, as.numeric)
+CH4_concentrations$sd.d2H <- sapply(CH4_concentrations$sd.d2H, as.numeric)
+CH4_concentrations$X.CH4. <- sapply(CH4_concentrations$X.CH4., as.numeric)
+
+# CH4_concentrations <- CH4_concentrations[!is.na(CH4_concentrations$fill.time.utc),]
 
 
 ################### Merge all Data into one Dataframe #######################
@@ -167,6 +198,8 @@ TotalData <- merge( Geomatikum_csv, Mast_csv,
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
 
 TotalData <- merge( TotalData, WSV_Waterlevel[ , c("UTC", "Water_Level")], 
                     by.x = "UTC",
@@ -174,6 +207,8 @@ TotalData <- merge( TotalData, WSV_Waterlevel[ , c("UTC", "Water_Level")],
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
 
 TotalData <- merge( TotalData, CH4_concentrations[ , c("fill.time.utc", "X.CH4..13C", "d13C.VPDB", "sd..CH4.", "sd.d13C")], 
                     by.x = "UTC",
@@ -181,6 +216,8 @@ TotalData <- merge( TotalData, CH4_concentrations[ , c("fill.time.utc", "X.CH4..
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
 
 TotalData <- merge( TotalData, CH4_concentrations[ , c("fill.time.utc.1", "X.CH4..2H", "d2H.VPDB", "sd..CH4..1", "sd.d2H")], 
                     by.x = "UTC",
@@ -188,6 +225,8 @@ TotalData <- merge( TotalData, CH4_concentrations[ , c("fill.time.utc.1", "X.CH4
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
 
 TotalData <- merge( TotalData, CH4_concentrations[ , c("fill.time.utc.2", "X.CH4.")], 
                     by.x = "UTC",
@@ -195,6 +234,8 @@ TotalData <- merge( TotalData, CH4_concentrations[ , c("fill.time.utc.2", "X.CH4
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
 
 TotalData <- merge( TotalData, DWD_Data_10min, 
                     by.x = "UTC",
@@ -202,6 +243,7 @@ TotalData <- merge( TotalData, DWD_Data_10min,
                     all.x = TRUE,
                     all.y = TRUE,
                     sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
 
 
 

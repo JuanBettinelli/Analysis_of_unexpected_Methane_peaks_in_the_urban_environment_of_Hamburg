@@ -97,68 +97,68 @@ StartDate_10min <- 202107260000
 EndDate_10min <- 202203290000
 
 #Select only the relevant data
-Wind_1h <- Wind_txt_Historical_Hour[(Wind_txt_Historical_Hour$MESS_DATUM > StartDate),]
-Wind_1h <- rbind(Wind_1h, Wind_txt_Recent_Hour[(Wind_txt_Recent_Hour$MESS_DATUM < EndDate),])
+Wind_1h <- Wind_txt_Historical_Hour[(Wind_txt_Historical_Hour$MESS_DATUM > StartDate & Wind_txt_Historical_Hour$MESS_DATUM < EndDate),]
+Wind_1h <- rbind(Wind_1h, Wind_txt_Recent_Hour[(Wind_txt_Recent_Hour$MESS_DATUM > StartDate & Wind_txt_Recent_Hour$MESS_DATUM < EndDate),]) 
 
-cloud_type_1h <- cloud_type_txt_Historical_Hour[(cloud_type_txt_Historical_Hour$MESS_DATUM > StartDate),]
-cloud_type_1h <- rbind(cloud_type_1h, cloud_type_txt_Recent_Hour[(cloud_type_txt_Recent_Hour$MESS_DATUM < EndDate),])
+cloud_type_1h <- cloud_type_txt_Historical_Hour[(cloud_type_txt_Historical_Hour$MESS_DATUM > StartDate & cloud_type_txt_Historical_Hour$MESS_DATUM < EndDate),]
+cloud_type_1h <- rbind(cloud_type_1h, cloud_type_txt_Recent_Hour[(cloud_type_txt_Recent_Hour$MESS_DATUM > StartDate & cloud_type_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-cloudiness_1h <- cloudiness_txt_Historical_Hour[(cloudiness_txt_Historical_Hour$MESS_DATUM > StartDate),]
-cloudiness_1h <- rbind(cloudiness_1h, cloudiness_txt_Recent_Hour[(cloudiness_txt_Recent_Hour$MESS_DATUM < EndDate),])
+cloudiness_1h <- cloudiness_txt_Historical_Hour[(cloudiness_txt_Historical_Hour$MESS_DATUM > StartDate & cloudiness_txt_Historical_Hour$MESS_DATUM < EndDate),]
+cloudiness_1h <- rbind(cloudiness_1h, cloudiness_txt_Recent_Hour[(cloudiness_txt_Recent_Hour$MESS_DATUM > StartDate & cloudiness_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-dew_point_1h <- dew_point_txt_Historical_Hour[(dew_point_txt_Historical_Hour$MESS_DATUM > StartDate),]
-dew_point_1h <- rbind(dew_point_1h, dew_point_txt_Recent_Hour[(dew_point_txt_Recent_Hour$MESS_DATUM < EndDate),])
+dew_point_1h <- dew_point_txt_Historical_Hour[(dew_point_txt_Historical_Hour$MESS_DATUM > StartDate & dew_point_txt_Historical_Hour$MESS_DATUM < EndDate),]
+dew_point_1h <- rbind(dew_point_1h, dew_point_txt_Recent_Hour[(dew_point_txt_Recent_Hour$MESS_DATUM > StartDate & dew_point_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-extreme_wind_1h <- extreme_wind_txt_Historical_Hour[(extreme_wind_txt_Historical_Hour$MESS_DATUM > StartDate),]
-extreme_wind_1h <- rbind(extreme_wind_1h, extreme_wind_txt_Recent_Hour[(extreme_wind_txt_Recent_Hour$MESS_DATUM < EndDate),])
+extreme_wind_1h <- extreme_wind_txt_Historical_Hour[(extreme_wind_txt_Historical_Hour$MESS_DATUM > StartDate & extreme_wind_txt_Historical_Hour$MESS_DATUM < EndDate),]
+extreme_wind_1h <- rbind(extreme_wind_1h, extreme_wind_txt_Recent_Hour[(extreme_wind_txt_Recent_Hour$MESS_DATUM > StartDate & extreme_wind_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-moisture_1h <- moisture_txt_Historical_Hour[(moisture_txt_Historical_Hour$MESS_DATUM > StartDate),]
-moisture_1h <- rbind(moisture_1h, moisture_txt_Recent_Hour[(moisture_txt_Recent_Hour$MESS_DATUM < EndDate),])
+moisture_1h <- moisture_txt_Historical_Hour[(extreme_wind_txt_Recent_Hour$MESS_DATUM > StartDate & extreme_wind_txt_Recent_Hour$MESS_DATUM < EndDate),]
+moisture_1h <- rbind(moisture_1h, moisture_txt_Recent_Hour[(moisture_txt_Recent_Hour$MESS_DATUM > StartDate & moisture_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-precipitation_1h <- precipitation_txt_Historical_Hour[(precipitation_txt_Historical_Hour$MESS_DATUM > StartDate),]
-precipitation_1h <- rbind(precipitation_1h, precipitation_txt_Recent_Hour[(precipitation_txt_Recent_Hour$MESS_DATUM < EndDate),])
+precipitation_1h <- precipitation_txt_Historical_Hour[(precipitation_txt_Historical_Hour$MESS_DATUM > StartDate & precipitation_txt_Historical_Hour$MESS_DATUM < EndDate),]
+precipitation_1h <- rbind(precipitation_1h, precipitation_txt_Recent_Hour[(precipitation_txt_Recent_Hour$MESS_DATUM > StartDate & precipitation_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-pressure_1h <- pressure_txt_Historical_Hour[(pressure_txt_Historical_Hour$MESS_DATUM > StartDate),]
-pressure_1h <- rbind(pressure_1h, pressure_txt_Recent_Hour[(pressure_txt_Recent_Hour$MESS_DATUM < EndDate),])
+pressure_1h <- pressure_txt_Historical_Hour[(pressure_txt_Historical_Hour$MESS_DATUM > StartDate & pressure_txt_Historical_Hour$MESS_DATUM < EndDate),]
+pressure_1h <- rbind(pressure_1h, pressure_txt_Recent_Hour[(pressure_txt_Recent_Hour$MESS_DATUM > StartDate & pressure_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-soil_temperature_1h <- soil_temperature_txt_Historical_Hour[(soil_temperature_txt_Historical_Hour$MESS_DATUM > StartDate),]
-soil_temperature_1h <- rbind(soil_temperature_1h, soil_temperature_txt_Recent_Hour[(soil_temperature_txt_Recent_Hour$MESS_DATUM < EndDate),])
+soil_temperature_1h <- soil_temperature_txt_Historical_Hour[(soil_temperature_txt_Historical_Hour$MESS_DATUM > StartDate & soil_temperature_txt_Historical_Hour$MESS_DATUM < EndDate),]
+soil_temperature_1h <- rbind(soil_temperature_1h, soil_temperature_txt_Recent_Hour[(soil_temperature_txt_Recent_Hour$MESS_DATUM > StartDate & soil_temperature_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
 solar_1h <- solar_txt_Historical_Hour[((solar_txt_Historical_Hour$MESS_DATUM > StartDate & solar_txt_Historical_Hour$MESS_DATUM < EndDate)),]
 # solar_1h <- rbind(solar_1h, solar_txt_Recent_Hour[(solar_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-sun_1h <- sun_txt_Historical_Hour[(sun_txt_Historical_Hour$MESS_DATUM > StartDate),]
-sun_1h <- rbind(sun_1h, sun_txt_Recent_Hour[(sun_txt_Recent_Hour$MESS_DATUM < EndDate),])
+sun_1h <- sun_txt_Historical_Hour[(sun_txt_Historical_Hour$MESS_DATUM > StartDate & sun_txt_Historical_Hour$MESS_DATUM < EndDate),]
+sun_1h <- rbind(sun_1h, sun_txt_Recent_Hour[(sun_txt_Recent_Hour$MESS_DATUM > StartDate & sun_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-Temperature_1h <- Temperature_txt_Historical_Hour[(Temperature_txt_Historical_Hour$MESS_DATUM > StartDate),]
-Temperature_1h <- rbind(Temperature_1h, Temperature_txt_Recent_Hour[(Temperature_txt_Recent_Hour$MESS_DATUM < EndDate),])
+Temperature_1h <- Temperature_txt_Historical_Hour[(Temperature_txt_Historical_Hour$MESS_DATUM > StartDate & Temperature_txt_Historical_Hour$MESS_DATUM < EndDate),]
+Temperature_1h <- rbind(Temperature_1h, Temperature_txt_Recent_Hour[(Temperature_txt_Recent_Hour$MESS_DATUM > StartDate & Temperature_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-visibility_1h <- visibility_txt_Historical_Hour[(visibility_txt_Historical_Hour$MESS_DATUM > StartDate),]
-visibility_1h <- rbind(visibility_1h, visibility_txt_Recent_Hour[(visibility_txt_Recent_Hour$MESS_DATUM < EndDate),])
+visibility_1h <- visibility_txt_Historical_Hour[(visibility_txt_Historical_Hour$MESS_DATUM > StartDate & visibility_txt_Historical_Hour$MESS_DATUM < EndDate),]
+visibility_1h <- rbind(visibility_1h, visibility_txt_Recent_Hour[(visibility_txt_Recent_Hour$MESS_DATUM > StartDate & visibility_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-weather_phenomena_1h <- weather_phenomena_txt_Historical_Hour[(weather_phenomena_txt_Historical_Hour$MESS_DATUM > StartDate),]
-weather_phenomena_1h <- rbind(weather_phenomena_1h, weather_phenomena_txt_Recent_Hour[(weather_phenomena_txt_Recent_Hour$MESS_DATUM < EndDate),])
+weather_phenomena_1h <- weather_phenomena_txt_Historical_Hour[(weather_phenomena_txt_Historical_Hour$MESS_DATUM > StartDate & weather_phenomena_txt_Historical_Hour$MESS_DATUM < EndDate),]
+weather_phenomena_1h <- rbind(weather_phenomena_1h, weather_phenomena_txt_Recent_Hour[(weather_phenomena_txt_Recent_Hour$MESS_DATUM > StartDate & weather_phenomena_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-wind_synop_1h <- wind_synop_txt_Historical_Hour[(wind_synop_txt_Historical_Hour$MESS_DATUM > StartDate),]
-wind_synop_1h <- rbind(wind_synop_1h, wind_synop_txt_Recent_Hour[(wind_synop_txt_Recent_Hour$MESS_DATUM < EndDate),])
+wind_synop_1h <- wind_synop_txt_Historical_Hour[(wind_synop_txt_Historical_Hour$MESS_DATUM > StartDate & wind_synop_txt_Historical_Hour$MESS_DATUM < EndDate),]
+wind_synop_1h <- rbind(wind_synop_1h, wind_synop_txt_Recent_Hour[(wind_synop_txt_Recent_Hour$MESS_DATUM > StartDate & wind_synop_txt_Recent_Hour$MESS_DATUM < EndDate),])
 
-Wind_10min <- Wind_txt_Historical_10min[(Wind_txt_Historical_10min$MESS_DATUM > StartDate_10min),]
-Wind_10min <- rbind(Wind_10min, Wind_txt_Recent_10min[(Wind_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
+Wind_10min <- Wind_txt_Historical_10min[(Wind_txt_Historical_10min$MESS_DATUM > StartDate_10min & Wind_txt_Historical_10min$MESS_DATUM < EndDate_10min),]
+Wind_10min <- rbind(Wind_10min, Wind_txt_Recent_10min[(Wind_txt_Recent_10min$MESS_DATUM > StartDate_10min & Wind_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
 
-extreme_wind_10min <- extreme_wind_txt_Historical_10min[(extreme_wind_txt_Historical_10min$MESS_DATUM > StartDate_10min),]
-extreme_wind_10min <- rbind(extreme_wind_10min, extreme_wind_txt_Recent_10min[(extreme_wind_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
+extreme_wind_10min <- extreme_wind_txt_Historical_10min[(extreme_wind_txt_Historical_10min$MESS_DATUM > StartDate_10min & extreme_wind_txt_Historical_10min$MESS_DATUM < EndDate_10min),]
+extreme_wind_10min <- rbind(extreme_wind_10min, extreme_wind_txt_Recent_10min[(extreme_wind_txt_Recent_10min$MESS_DATUM > StartDate_10min & extreme_wind_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
 
-precipitation_10min <- precipitation_txt_Historical_10min[(precipitation_txt_Historical_10min$MESS_DATUM > StartDate_10min),]
-precipitation_10min <- rbind(precipitation_10min, precipitation_txt_Recent_10min[(precipitation_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
+precipitation_10min <- precipitation_txt_Historical_10min[(precipitation_txt_Historical_10min$MESS_DATUM > StartDate_10min & precipitation_txt_Historical_10min$MESS_DATUM < EndDate_10min),]
+precipitation_10min <- rbind(precipitation_10min, precipitation_txt_Recent_10min[(precipitation_txt_Recent_10min$MESS_DATUM > StartDate_10min & precipitation_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
 
-solar_10min <- solar_txt_Historical_10min[(solar_txt_Historical_10min$MESS_DATUM > StartDate_10min),]
-solar_10min <- rbind(solar_10min, solar_txt_Recent_10min[(solar_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
+solar_10min <- solar_txt_Historical_10min[(solar_txt_Historical_10min$MESS_DATUM > StartDate_10min & solar_txt_Historical_10min$MESS_DATUM < EndDate_10min),]
+solar_10min <- rbind(solar_10min, solar_txt_Recent_10min[(solar_txt_Recent_10min$MESS_DATUM > StartDate_10min & solar_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
 
-Temperature_10min <- Temperature_txt_Historical_10min[(Temperature_txt_Historical_10min$MESS_DATUM > StartDate_10min),]
-Temperature_10min <- rbind(Temperature_10min, Temperature_txt_Recent_10min[(Temperature_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
+Temperature_10min <- Temperature_txt_Historical_10min[(Temperature_txt_Historical_10min$MESS_DATUM > StartDate_10min & Temperature_txt_Historical_10min$MESS_DATUM < EndDate_10min),]
+Temperature_10min <- rbind(Temperature_10min, Temperature_txt_Recent_10min[(Temperature_txt_Recent_10min$MESS_DATUM > StartDate_10min & Temperature_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
 
-extreme_temperatur_10min <- extreme_temperature_txt_Historical_10min[(extreme_temperature_txt_Historical_10min$MESS_DATUM > StartDate_10min),]
-extreme_temperatur_10min <- rbind(extreme_temperatur_10min, extreme_temperature_txt_Recent_10min[(extreme_temperature_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
+extreme_temperatur_10min <- extreme_temperature_txt_Historical_10min[(extreme_temperature_txt_Historical_10min$MESS_DATUM > StartDate_10min & extreme_temperature_txt_Historical_10min$MESS_DATUM < EndDate_10min),]
+extreme_temperatur_10min <- rbind(extreme_temperatur_10min, extreme_temperature_txt_Recent_10min[(extreme_temperature_txt_Recent_10min$MESS_DATUM > StartDate_10min & extreme_temperature_txt_Recent_10min$MESS_DATUM < EndDate_10min),])
 
 #Convert the TimeDate in DataFrame
 Wind_1h$UTCDateTime <- as.POSIXlt(as.character(Wind_1h$MESS_DATUM), format = "%Y%m%d%H")
@@ -177,12 +177,12 @@ visibility_1h$UTCDateTime <- as.POSIXlt(as.character(visibility_1h$MESS_DATUM), 
 weather_phenomena_1h$UTCDateTime <- as.POSIXlt(as.character(weather_phenomena_1h$MESS_DATUM), format = "%Y%m%d%H")
 wind_synop_1h$UTCDateTime <- as.POSIXlt(as.character(wind_synop_1h$MESS_DATUM), format = "%Y%m%d%H")
 
-Wind_10min$UTCDateTime <- as.POSIXlt(as.character(Wind_10min$MESS_DATUM), format = "%Y%m%d%H%M")
-extreme_wind_10min$UTCDateTime <- as.POSIXlt(as.character(extreme_wind_10min$MESS_DATUM), format = "%Y%m%d%H%M")
-precipitation_10min$UTCDateTime <- as.POSIXlt(as.character(precipitation_10min$MESS_DATUM), format = "%Y%m%d%H%M")
-solar_10min$UTCDateTime <- as.POSIXlt(as.character(solar_10min$MESS_DATUM), format = "%Y%m%d%H%M")
-Temperature_10min$UTCDateTime <- as.POSIXlt(as.character(Temperature_10min$MESS_DATUM), format = "%Y%m%d%H%M")
-extreme_temperatur_10min$UTCDateTime <- as.POSIXlt(as.character(extreme_temperatur_10min$MESS_DATUM), format = "%Y%m%d%H%M")
+Wind_10min$UTCDateTime <- as.POSIXct(as.character(Wind_10min$MESS_DATUM), format = "%Y%m%d%H%M")
+extreme_wind_10min$UTCDateTime <- as.POSIXct(as.character(extreme_wind_10min$MESS_DATUM), format = "%Y%m%d%H%M")
+precipitation_10min$UTCDateTime <- as.POSIXct(as.character(precipitation_10min$MESS_DATUM), format = "%Y%m%d%H%M")
+solar_10min$UTCDateTime <- as.POSIXct(as.character(solar_10min$MESS_DATUM), format = "%Y%m%d%H%M")
+Temperature_10min$UTCDateTime <- as.POSIXct(as.character(Temperature_10min$MESS_DATUM), format = "%Y%m%d%H%M")
+extreme_temperatur_10min$UTCDateTime <- as.POSIXct(as.character(extreme_temperatur_10min$MESS_DATUM), format = "%Y%m%d%H%M")
 
 
 
@@ -197,24 +197,26 @@ TotalData <- merge( Wind_1h[ , c("F", "D", "UTCDateTime")], cloud_type_1h[ , c("
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 
 colnames(TotalData)[colnames(TotalData) %in% c("F", "D", "V_N")] <- c("Wind_Speed", "Wind_Direction", "Cloud_Cover")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 # TotalData <- merge( TotalData, cloudiness_1h,
 #                     by.x = "UTCDateTime",
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 
 TotalData <- merge( TotalData, dew_point_1h[ , c("TT", "TD", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("TT", "TD")] <- c("dew_point_temperatuer", "airtemperature")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 
 # TotalData <- merge( TotalData, extreme_wind_1h, 
@@ -222,7 +224,7 @@ colnames(TotalData)[colnames(TotalData) %in% c("TT", "TD")] <- c("dew_point_temp
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # 
 
 
@@ -231,8 +233,9 @@ TotalData <- merge( TotalData, moisture_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTi
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 
 TotalData <- merge( TotalData, pressure_1h[ , c("P", "UTCDateTime")],
@@ -240,8 +243,9 @@ TotalData <- merge( TotalData, pressure_1h[ , c("P", "UTCDateTime")],
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("P")] <- c("pressure_air_sea_level")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 
 TotalData <- merge( TotalData, soil_temperature_1h[ , c("V_TE005", "UTCDateTime")],
@@ -249,8 +253,9 @@ TotalData <- merge( TotalData, soil_temperature_1h[ , c("V_TE005", "UTCDateTime"
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("V_TE005")] <- c("temperature_soil_mean_005cm")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 
 TotalData <- merge( TotalData, solar_1h[ , c("FG_LBERG", "UTCDateTime")],
@@ -258,8 +263,9 @@ TotalData <- merge( TotalData, solar_1h[ , c("FG_LBERG", "UTCDateTime")],
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("FG_LBERG")] <- c("radiaion_global")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 
 TotalData <- merge( TotalData, sun_1h[ , c("SD_SO", "UTCDateTime")],
@@ -267,15 +273,16 @@ TotalData <- merge( TotalData, sun_1h[ , c("SD_SO", "UTCDateTime")],
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("SD_SO")] <- c("sunshine_duration")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 # TotalData <- merge( TotalData, Temperature_1h[ , c("ABSF_STD", "VP_STD", "UTCDateTime")],
 #                     by.x = "UTCDateTime",
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("1h_humidity_absolute", "1h_pressure_vapor")
 
 # 
@@ -284,7 +291,7 @@ colnames(TotalData)[colnames(TotalData) %in% c("SD_SO")] <- c("sunshine_duration
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("1h_humidity_absolute", "1h_pressure_vapor")
 
 # 
@@ -293,7 +300,7 @@ colnames(TotalData)[colnames(TotalData) %in% c("SD_SO")] <- c("sunshine_duration
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
 
 # 
@@ -302,7 +309,7 @@ colnames(TotalData)[colnames(TotalData) %in% c("SD_SO")] <- c("sunshine_duration
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # colnames(TotalData)[colnames(TotalData) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
 
 TotalData <- merge( TotalData, precipitation_1h[ , c("R1", "UTCDateTime")],
@@ -310,8 +317,9 @@ TotalData <- merge( TotalData, precipitation_1h[ , c("R1", "UTCDateTime")],
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("SR1")] <- c("sunshine_duration")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 
 TotalData <- merge( TotalData, precipitation_1h[ , c("R1", "UTCDateTime")],
@@ -321,26 +329,28 @@ TotalData <- merge( TotalData, precipitation_1h[ , c("R1", "UTCDateTime")],
                     all.y = TRUE,
                     sort = TRUE)
 colnames(TotalData)[colnames(TotalData) %in% c("R1")] <- c("precipitation_height")
+TotalData <- TotalData[!duplicated(TotalData), ]
 
 # ###### 10 Minutes ####
 
 TotalData_10min <- data.frame()
+
 
 TotalData_10min <- merge( precipitation_10min[ , c("RWS_10", "UTCDateTime")], Wind_10min[ , c("FF_10", "DD_10", "UTCDateTime")],
                     by.x = "UTCDateTime",
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("RWS_10", "FF_10", "DD_10")] <- c( "precipitation_height", "Wind_Speed", "Wind_Direction")
-
+TotalData_10min <- TotalData_10min[!duplicated(TotalData_10min), ]
 # 
 # TotalData_10min <- merge( TotalData_10min, extreme_wind_10min[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
 #                     by.x = "UTCDateTime",
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
 
 # 
@@ -349,7 +359,7 @@ colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("RWS_10", "FF_10", "D
 #                     by.y = "UTCDateTime",
 #                     all.x = TRUE,
 #                     all.y = TRUE,
-#                     sort = FALSE)
+#                     sort = TRUE)
 # colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
 
 
@@ -358,8 +368,9 @@ TotalData_10min <- merge( TotalData_10min, solar_10min[ , c("GS_10", "UTCDateTim
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("GS_10")] <- c("radiation_global")
+TotalData_10min <- TotalData_10min[!duplicated(TotalData_10min), ]
 
 
 TotalData_10min <- merge( TotalData_10min, Temperature_10min[ , c("PP_10", "TT_10", "RF_10", "TD_10", "UTCDateTime")],
@@ -367,8 +378,9 @@ TotalData_10min <- merge( TotalData_10min, Temperature_10min[ , c("PP_10", "TT_1
                     by.y = "UTCDateTime",
                     all.x = TRUE,
                     all.y = TRUE,
-                    sort = FALSE)
+                    sort = TRUE)
 colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("PP_10", "TT_10", "RF_10", "TD_10")] <- c("pressure_air_site", "temperature_air_mean_200", "humidity", "temperature_dew_point_mean_200")
+TotalData_10min <- TotalData_10min[!duplicated(TotalData_10min), ]
 
 # 
 # TotalData_10min <- merge( TotalData_10min, extreme_temperatur_10min[ , c("ABSF_STD", "VP_STD", "UTCDateTime")], 
@@ -379,6 +391,8 @@ colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("PP_10", "TT_10", "RF
 #                     sort = TRUE)
 # colnames(TotalData_10min)[colnames(TotalData_10min) %in% c("ABSF_STD", "VP_STD")] <- c("humidity_absolute", "pressure_vapor")
 
+TotalData <- TotalData[!is.na(TotalData$UTCDateTime),]
+TotalData_10min <- TotalData_10min[!is.na(TotalData_10min$UTCDateTime),]
 
 write.csv(TotalData,"4_Data/OutputData/DWDMeteorologicalData_1h.csv", row.names = FALSE)
 

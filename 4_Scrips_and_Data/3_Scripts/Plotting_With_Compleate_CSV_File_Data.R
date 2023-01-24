@@ -2,7 +2,22 @@
 # Author Juan Bettinelli
 # Last change: 19.1.23
 
-library("ggplot2")  
+library(pacman)
+library(lubridate)
+library(readr)
+library(plyr)
+library(tidyverse)
+library(ggplot2)   
+library(hexbin)
+library(gridExtra)
+library(reshape2)
+
+StartTime <- as.POSIXct('2021-08-01 22:00:00', 
+                        format = "%Y-%m-%d %H:%M:%S", 
+                        tz ="utc")
+FinishTime <- as.POSIXct('2022-03-29 00:00:00', 
+                         format = "%Y-%m-%d %H:%M:%S", 
+                         tz ="utc")
 
 
 ########### Read the CSV File #############
@@ -12,53 +27,78 @@ TotalData$UTC <- as.POSIXct(as.character(TotalData$UTC),
                                  format = "%Y-%m-%d %H:%M:%S", 
                                  tz = "UTC")
 
+TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
+
+TotalData <- filter(TotalData, TotalData$UTC > StartTime & TotalData$UTC < FinishTime, .preserve = FALSE)
+
+TotalData$UTC <- as.POSIXct(TotalData$UTC, 
+                                               format = "%d-%m-%Y %H:%M:%S", 
+                                               tz = "utc")
+
 
 ########### Plot CH4 Concentration Timeseries ##############
+CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),]
 
-TimeLine <- ggplot(TotalData, aes(x = UTC, y = X.CH4.)) +
-  geom_line() + 
+CH4_TimeLine <- ggplot(CH4Data, aes(x = UTC, y = X.CH4.)) +
+  geom_line() +
   labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "CH4 mole fraction vs. Time") +
-  scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%m-%Y", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2022-03-28 00:00:00"))) +
+  scale_x_datetime(date_breaks = "20 day", date_labels = "%d-%m-%Y", limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))) +
   theme(axis.text.x=element_text(angle=60, hjust=1))
-TimeLine
+CH4_TimeLine
 
-
-
-# plot(TotalData$UTC,TotalData$X.CH4.)
 
 
 ########## ?????????????? #########
 # cor(TotalData$WindSpeed,TotalData$WindDirction)
 
-# ######## Plot CH4/Water level#############
-# par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
-# # first plot
-# plot(TotalData$UTC, TotalData$WaterLevel,
-#      type = "p",
-#      pch='.',
-#      cex = 2,
-#      xlab = "Date/Time UTC",
-#      ylab = "Elbe Waterlevel, mm",
-#      xlim = c(StartTime, FinishTime))
-# 
-# par(new = TRUE)
-# plot(TotalData$UTC, TotalData$CH4,
-#      main = "WaterLevel(WSV)/CH4 Concentation Vs. Time",
-#      type = "l",
-#      col="red",
-#      axes = FALSE,
-#      bty = "n",
-#      xlab = "",
-#      ylab = "",
-#      xlim = c(c(StartTime, FinishTime)))
-# 
-# axis(side=4,
-#      col.axis="red",
-#      col="red")
-# mtext("CH4 Concentration",
-#       col="red",
-#       side=4,
-#       line=3)
+######## Plot CH4/Water level#############
+TotalData_CH4 <- TotalData[complete.cases(TotalData[ , "X.CH4."]),]
+TotalData_CH4 <- TotalData_CH4[,c("UTC", "X.CH4.", "Water_Level")]
+WL_CH4_Data <- melt(TotalData_CH4, id.var="UTC")
+
+
+par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
+# first plot
+plot(TotalData$UTC, TotalData$Water_Level,
+     type = "p",
+     pch='.',
+     cex = 2,
+     xlab = "Date/Time UTC",
+     ylab = "Elbe Waterlevel, mm",
+     xlim = c(StartTime, FinishTime))
+
+par(new = TRUE)
+plot(TotalData$UTC, TotalData$X.CH4.,
+     main = "WaterLevel(WSV)/CH4 Concentation Vs. Time",
+     type = "p",
+     pch='.',
+     cex = 2,
+     col="red",
+     axes = FALSE,
+     bty = "n",
+     xlab = "",
+     ylab = "",
+     xlim = c(c(StartTime, FinishTime)))
+
+axis(side=4,
+     col.axis="red",
+     col="red")
+mtext("CH4 Concentration",
+      col="red",
+      side=4,
+      line=3)
+
+CH4_WL_TimeLine <- ggplot(data=WL_CH4_Data, aes(UTC, value,colour=variable)) +
+  geom_line() +
+  scale_colour_manual(values=c("red","blue"))+
+  labs(x="games",y="variance")
+  # geom_line() +
+  # labs(x = "Fill Time [UTC]", y ="Elbe Waterlevel, mm", title = "Elbe Waterlevel, mm vs. Time") +
+  # scale_x_datetime(date_breaks = "20 day", date_labels = "%d-%m-%Y", limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))) +
+  # theme(axis.text.x=element_text(angle=60, hjust=1))
+CH4_WL_TimeLine
+# grid.arrange(CH4_TimeLine, CH4_WL_TimeLine)
+
 
 # ######## Plot Wind Direction (DWD)/Speed/CH4#############
 # 
