@@ -1,8 +1,11 @@
-#Program to Generate plots of the CH4 Concentration measuren in the geomatikum.
-#Skript du be used in the Paper "Quantification of methane emissions in Hamburg using a network of FTIR spectrometers and an inverse modeling approach"
-#data from the hamburg campaign 2021-2022.
+# Program to Generate plots of the CH4 Concentration measuren in the geomatikum.
+# Script du be used in the Paper "Quantification of methane emissions in Hamburg using a network of FTIR spectrometers and an inverse modeling approach"
+# data from the hamburg campaign 2021-2022.
+# This Script is not Up to Data, Updated Versions Exist!!!!!
 
-#Script Author: Juan Bettinelli 
+# Script Author: Juan Bettinelli
+# Last Change: 24.01.23
+
 
 library(pacman)
 library(lubridate)
@@ -72,13 +75,13 @@ TotalData$c2H <- 1/TotalData$X.CH4..2H
 
 ################## Save the Data ##################
 
-write.csv(TotalData,"./4_Data/OutputData/CombineCH4Data.csv", row.names = FALSE)
+# write.csv(TotalData,"./4_Data/OutputData/CombineCH4Data.csv", row.names = FALSE)
 
 ################## Plot CH4Concentration ##################
 
 p <- ggplot(TotalData, aes(x = fill.time.utc, y = X.CH4.)) +
         geom_line() + 
-        labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "CH4 mole fraction vs. Time") +
+        labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "Stationary in-Situ Measurement") +
         scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%m-%Y") + #, limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
         theme(axis.text.x=element_text(angle=60, hjust=1))
 

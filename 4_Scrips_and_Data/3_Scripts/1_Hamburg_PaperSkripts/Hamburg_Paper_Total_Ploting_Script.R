@@ -6,6 +6,7 @@
 # Data from the Hamburg campaign 2021-2022.
 # This Script is used for a Keeling analysed and a Total Time series, with the data collected in Hamburg Geomatikum in 2021.
 
+# This Script is old and not in use??????
 
 library(pacman)
 library(lubridate)
@@ -76,7 +77,7 @@ write.csv(TotalData,"4_Data/OutputData/CombineCH4Data(1.8.2021-17.09.2021).csv",
 # Plot CH4 Concentration
 p <- ggplot(TotalData, aes(x = fill.time.utc, y = X.CH4.)) +
         geom_line() + 
-        labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "CH4 mole fraction vs. Time") +
+        labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "Stationary in-Situ Measurement") +
         scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%m-%Y", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
         theme(axis.text.x=element_text(angle=60, hjust=1))
 p

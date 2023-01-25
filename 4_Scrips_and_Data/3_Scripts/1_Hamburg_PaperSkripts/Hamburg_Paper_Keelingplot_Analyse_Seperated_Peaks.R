@@ -77,7 +77,7 @@ write.csv(TotalData,"CombineCH4Data.csv", row.names = FALSE)
 # Plot CH4 Concentration
 p <- ggplot(TotalData, aes(x = fill.time.utc, y = X.CH4.)) +
         geom_line() + 
-        labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "CH4 mole fraction vs. Time") +
+        labs(x = "Fill Time [UTC]", y ="CH4 mole fraction [ppb]", title = "Stationary in-Situ Measurement") +
         scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%m-%Y", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
         theme(axis.text.x=element_text(angle=60, hjust=1))
 p
@@ -147,18 +147,36 @@ message("Excluding the peaks: \n 12C, δ(13)C (mean =", r_c13C_coef[[1]],"‰ ±
 
 
 # Plot Keeling Plot Only Peaks
-q <- ggplot(p, aes(x = c13C, y = d13C.VPDB)) +
+KP_13C_Peaks <- ggplot(p, aes(x = c13C, y = d13C.VPDB)) +
   geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
   expand_limits(x = 0) +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-  labs(x = "Mole Fraction", y = "Isotopic Signatures", title = " Keeling Plot, 12C, δ(13)C (mean = -59.2‰ ± 0.15‰ s.e)") +
+  labs(x = "Mole Fraction", y = "Isotopic Signatures", title = " (Only Peaks) Keeling Plot, 12C, δ(13)C (mean = -‰ ± ‰ s.e)") +
   theme(axis.text.x=element_text(angle=60, hjust=1))
 
-k <- ggplot(p, aes(x = c2H, y = d2H.VPDB)) +
+KP_2H_Peaks <- ggplot(p, aes(x = c2H, y = d2H.VPDB)) +
   expand_limits(x = 0) +
   geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-  labs(x = "Mole Fraction", y = "Isotopic Signatures", title = " Keeling Plot, 2H, δ(2)H (mean = -304.4‰ ± 1.5‰ s.e.)") +
+  labs(x = "Mole Fraction", y = "Isotopic Signatures", title = " (Only Peaks) Keeling Plot, 2H, δ(2)H (mean = -‰ ± ‰ s.e.)") +
   theme(axis.text.x=element_text(angle=60, hjust=1))
 
-grid.arrange(q,k, ncol = 2)
+grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2)
+
+
+# Plot Keeling Plot No Peaks
+KP_13C_NoPeaks <- ggplot(r, aes(x = c13C, y = d13C.VPDB)) +
+  geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
+  expand_limits(x = 0) +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = "Mole Fraction", y = "Isotopic Signatures", title = " (No Peaks) Keeling Plot, 12C, δ(13)C (mean = -‰ ± ‰ s.e)") +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+KP_2H_NoPeaks <- ggplot(r, aes(x = c2H, y = d2H.VPDB)) +
+  expand_limits(x = 0) +
+  geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = "Mole Fraction", y = "Isotopic Signatures", title = " (No Peaks) Keeling Plot, 2H, δ(2)H (mean = -‰ ± ‰ s.e.)") +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2)

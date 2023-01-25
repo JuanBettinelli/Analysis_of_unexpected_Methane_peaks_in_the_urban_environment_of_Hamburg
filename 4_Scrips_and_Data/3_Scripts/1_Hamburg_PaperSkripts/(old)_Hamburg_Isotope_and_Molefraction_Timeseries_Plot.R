@@ -3,6 +3,7 @@
 # Data from the Hamburg campaign 2021-2022.
 
 # Script Author: Juan Bettinelli 
+# Last Changes: 24.01.23
 
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
@@ -66,12 +67,12 @@ legend(x = "topright",
 par(mar = c(4, 4, 0, 4) + 0.3)  # Leave space for z axis
 #first plot
 plot(CH4_2H_w_d$fill.time.utc, CH4_2H_w_d$d2H.VPDB,
-     main = "CH4 isotopes [‰]",
+     main = "Isotopes [‰]",
      type = "l",
      col="red",
      cex = 5,
      xlab = "Date/Time UTC",
-     ylab = "CH4 isotopes [‰]",
+     ylab = "Isotopes [‰]",
      xlim = c(as.POSIXct('2021-08-01 22:03:00', format = "%Y-%m-%d %H:%M:%S"),as.POSIXct('2021-09-17 10:21:00', format = "%Y-%m-%d %H:%M:%S")))
 
 
