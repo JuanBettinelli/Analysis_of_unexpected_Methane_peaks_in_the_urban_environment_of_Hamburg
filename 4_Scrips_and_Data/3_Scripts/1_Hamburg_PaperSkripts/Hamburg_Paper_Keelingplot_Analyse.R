@@ -93,8 +93,8 @@ TotalData <- TotalData[!is.na(TotalData$fill.time.utc),]
 
 # Plot CH4 Concentration Timeline
 
-# Total CH4 Concentration Timeline
-Timeline_Total_CH4 <- ggplot(TotalData, aes(x = fill.time.utc, y = X.CH4.)) +
+# Total CH4 Concentration Timeline (Without a Gap)
+Timeline_Total_CH4 <- ggplot(TotalData[!is.na(TotalData$X.CH4..13C), ], aes(x = fill.time.utc, y = X.CH4.)) +
         geom_line() + 
         labs(x = "Fill Time [UTC]", y = expression(CH[4] * " [ppb]"), title = "(Compleate Timeline) Stationary in-Situ Measurement") +
         scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%b", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
@@ -120,24 +120,71 @@ grid.arrange(Timeline_Total_CH4,Timeline_13C_CH4, Timeline_2H_CH4, nrow = 3)
 
 
 
+
+# Total CH4 Concentration Timeline (With a Gap)
+
+#introduce a NA value to produce a gap
+TotalData_13C_CH4 <- TotalData[!is.na(TotalData$X.CH4..13C), ]
+test <- TotalData_13C_CH4[0, ]
+test[1, 1] <- as.POSIXct("2021-08-26 00:00:00")
+TotalData_13C_CH4 <- rbind(TotalData_13C_CH4, test)
+TotalData_13C_CH4 <- TotalData_13C_CH4[order(TotalData_13C_CH4$fill.time.utc),]
+
+TotalData_2HC_CH4 <- TotalData[!is.na(TotalData$X.CH4..2H), ]
+test <- TotalData_2HC_CH4[0, ]
+test[1, 1] <- as.POSIXct("2021-08-26 00:00:00")
+TotalData_2HC_CH4 <- rbind(TotalData_2HC_CH4, test)
+TotalData_2HC_CH4 <- TotalData_2HC_CH4[order(TotalData_2HC_CH4$fill.time.utc),]
+
+
+Timeline_Total_CH4 <- ggplot(TotalData, aes(x = fill.time.utc, y = X.CH4.)) +
+  geom_line() + 
+  labs(x = "Fill Time [UTC]", y = expression(CH[4] * " [ppb]"), title = "(Compleate Timeline) Stationary in-Situ Measurement") +
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%b", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+# Only CH4 concentration at 13C Measurement
+Timeline_13C_CH4 <- ggplot(TotalData_13C_CH4, aes(x = fill.time.utc, y = X.CH4..13C)) +
+  geom_line() + 
+  labs(x = "Fill Time [UTC]", y = expression(CH[4] * " [ppb]"), title = "(Only 13C Timeline) Stationary in-Situ Measurement") +
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%b", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+# Only CH4 concentration at 2H Measurement
+Timeline_2H_CH4 <- ggplot(TotalData_2HC_CH4, aes(x = fill.time.utc, y = X.CH4..2H)) +
+  geom_line() + 
+  labs(x = "Fill Time [UTC]", y = expression(CH[4] * " [ppb]"), title = "(Only 2H Timeline) Stationary in-Situ Measurement") +
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%d-%b", limit=c(as.POSIXct("2021-08-01 22:00:00"),as.POSIXct("2021-09-06 00:00:00"))) +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+# Combine The Three timelines in one Plot
+grid.arrange(Timeline_Total_CH4,Timeline_13C_CH4, Timeline_2H_CH4, nrow = 3)
+
+
+
+
+
+
+
 # Keeling Plot
 q <- ggplot(TotalData, aes(x = c13C, y = d13C.VPDB)) +
         geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
         expand_limits(x = 0) +
         geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-        labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = " Keeling Plot, 12C, δ(13)C (mean = -59.2‰ ± 0.15‰ s.e)") +
+        labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = " Keeling Plot, 12C, δ(13)C \n (mean = -59.2‰ ± 0.15‰ s.e)") +
         theme(axis.text.x=element_text(angle=60, hjust=1))
       
 k <- ggplot(TotalData, aes(x = c2H, y = d2H.VPDB)) +
       expand_limits(x = 0) +
       geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
       geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-      labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = " Keeling Plot, 2H, δ(2)H (mean = -304.4‰ ± 1.5‰ s.e.)") +
+      labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = " Keeling Plot, 2H, δ(2)H \n (mean = -304.4‰ ± 1.5‰ s.e.)") +
       theme(axis.text.x=element_text(angle=60, hjust=1))
+grid.arrange(q,k, ncol = 2)
 
 # Combine The Three timelines in one Plot
-grid.arrange(q,Timeline_13C_CH4, nrow = 2)
-grid.arrange(k,Timeline_2H_CH4, nrow = 2)
+# grid.arrange(q,Timeline_13C_CH4, nrow = 2)
+# grid.arrange(k,Timeline_2H_CH4, nrow = 2)
 
 
 # Select Only dayes during campaign
@@ -180,6 +227,40 @@ r_c13C_se <- coef(summary(r_c13C_Line))[, "Std. Error"]
 r_c2H_Line <- lm(d2H.VPDB ~ c2H, r )
 r_c2H_coef <- coef(summary(r_c2H_Line))[, "Estimate"]
 r_c2H_se <- coef(summary(r_c2H_Line))[, "Std. Error"] 
+
+# Plot Keeling Plot Only Peaks
+KP_13C_Peaks <- ggplot(p, aes(x = c13C, y = d13C.VPDB)) +
+  geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
+  expand_limits(x = 0) +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = "(Only Peaks) Keeling Plot, 12C, δ(13)C \n (mean = -61.5‰ ± 0.2‰ s.e)") +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+KP_2H_Peaks <- ggplot(p, aes(x = c2H, y = d2H.VPDB)) +
+  expand_limits(x = 0) +
+  geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = "(Only Peaks) Keeling Plot, 2H, δ(2)H \n (mean =-319.6 ‰ ± 2.5‰ s.e.)") +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2)
+
+# Plot Keeling Plot No Peaks
+KP_13C_NoPeaks <- ggplot(r, aes(x = c13C, y = d13C.VPDB)) +
+  geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
+  expand_limits(x = 0) +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = "(No Peaks) Keeling Plot, 12C, δ(13)C \n (mean = -55.6‰ ± 0.3‰ s.e)") +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+KP_2H_NoPeaks <- ggplot(r, aes(x = c2H, y = d2H.VPDB)) +
+  expand_limits(x = 0) +
+  geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = "(No Peaks) Keeling Plot, 2H, δ(2)H \n (mean = -291.0‰ ± 2.1‰ s.e.)") +
+  theme(axis.text.x=element_text(angle=60, hjust=1))
+
+grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2)
 
 ##### Show Keely analyse Data in output Console ######
 message("\n \nTotal timeseries: \n 12C, δ(13)C (mean = ", c13C_coef[[1]],"‰ ± ", c13C_se[[1]],"‰ s.e; n = 1)","\n 2H, δ(2)H  (mean =", c2H_coef[[1]],"‰ ±", c2H_se[[1]],"‰ s.e; n = 1)")

@@ -306,7 +306,7 @@ TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
 
 # plot(TotalData$UTC,TotalData$X.CH4.)
 
-write.csv(TotalData,"4_Data/OutputData/CombineMeteorologicalData.csv", row.names = FALSE)
+# write.csv(TotalData,"4_Data/OutputData/CombineMeteorologicalData.csv", row.names = FALSE)
 
 ########## ?????????????? #########
 # cor(TotalData$WindSpeed,TotalData$WindDirction)
@@ -314,7 +314,7 @@ write.csv(TotalData,"4_Data/OutputData/CombineMeteorologicalData.csv", row.names
 # ######## Plot CH4/Water level#############
 # par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
 # # first plot
-# plot(TotalData$UTC, TotalData$WaterLevel,
+# plot(TotalData$UTC, TotalData$Water_Level,
 #      type = "p",
 #      pch='.',
 #      cex = 2,
@@ -323,7 +323,7 @@ write.csv(TotalData,"4_Data/OutputData/CombineMeteorologicalData.csv", row.names
 #      xlim = c(StartTime, FinishTime))
 # 
 # par(new = TRUE)
-# plot(TotalData$UTC, TotalData$CH4,
+# plot(TotalData$UTC, TotalData$X.CH4.,
 #      main = "WaterLevel(WSV)/CH4 Concentation Vs. Time",
 #      type = "l",
 #      col="red",

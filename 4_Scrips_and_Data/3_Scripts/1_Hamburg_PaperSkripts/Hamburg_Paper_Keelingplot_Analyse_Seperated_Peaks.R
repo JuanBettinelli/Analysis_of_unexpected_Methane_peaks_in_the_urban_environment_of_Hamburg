@@ -8,6 +8,10 @@
 # Data from the Hamburg campaign 2021-2022.
 # This Script is used for a Keeling analysed of the data collected in Hamburg Geomatikum in 2021.
 
+###### this script is not up to date a new script exists
+
+
+
 library(pacman)
 library(lubridate)
 library(readr)
@@ -83,6 +87,7 @@ p <- ggplot(TotalData, aes(x = fill.time.utc, y = X.CH4.)) +
 p
 
 # Plot Keeling Plot
+
 q <- ggplot(TotalData, aes(x = c13C, y = d13C.VPDB)) +
         geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
         expand_limits(x = 0) +
