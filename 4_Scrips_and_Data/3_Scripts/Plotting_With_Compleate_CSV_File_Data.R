@@ -20,6 +20,7 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
+source("3_Scripts/Functions.R")
 
 StartTime <- as.POSIXct('2021-08-01 22:03:00', 
                         format = "%Y-%m-%d %H:%M:%S", 
@@ -69,111 +70,11 @@ CH4_TimeLine
 ########## ?????????????? #########
 # cor(TotalData$WindSpeed,TotalData$WindDirction)
 
-######## Plot CH4/Water level#############
 
+### Comparison Plots #####
+Compare_Timeline(TotalData, 0) # Use 0 for fixed Panels integer for rest
 
-###Basic Plot #####
-# par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
-# plot(TotalData_CH4$UTC, TotalData_CH4$Water_Level,
-#      type = "l",
-#      cex = 2,
-#      xlab = "Date/Time UTC",
-#      ylab = "Elbe Waterlevel, mm",
-#      xlim = c(StartTime, FinishTime))
-# 
-# par(new = TRUE)
-# plot(TotalData_CH4$UTC, TotalData_CH4$X.CH4.,
-#      main = "WaterLevel(WSV)/CH4 Concentation Vs. Time",
-#      type = "l",
-#      cex = 2,
-#      col="red",
-#      axes = FALSE,
-#      bty = "n",
-#      xlab = "",
-#      ylab = "",
-#      xlim = c(c(StartTime, FinishTime)))
-# 
-# axis(side=4,
-#      col.axis="red",
-#      col="red")
-# mtext("CH4 Concentration",
-#       col="red",
-#       side=4,
-#       line=3)
-
-TotalData_CH4_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
-
-n <- 4
-TotalData_CH4_WL <- TotalData_CH4_WL %>% mutate(panel = as.integer(((row_number()-1)/nrow(TotalData_CH4_WL))*n))
-
-CH4_TimeLine <- ggplot(TotalData_CH4_WL) +
-  geom_line(aes(x = UTC,
-                y = X.CH4.),
-            col = "red") +
-  labs(x = "Fill Time [UTC]",
-       y ="CH4 Concentration [ppb]",
-       title = "CH4 Concentration & Elbe Waterlevel vs. Time") +
-  scale_x_datetime(date_breaks = "1 day",
-                   date_labels = "%d-%b") +
-  theme(axis.text.x=element_text(angle=60, hjust=1),
-        axis.title.y = element_text(color = "red",
-                                    size=13),
-        axis.text.y = element_text(color = "red"),
-        axis.title.y.right = element_text(color = "blue",
-                                          size=13),
-        axis.text.y.right = element_text(color = "blue"),
-        strip.text.x = element_blank()) +
-  geom_line(aes(x = UTC,
-                y = Water_Level*5),
-            col = "blue") +
-  scale_y_continuous(sec.axis = sec_axis(trans = ~./5,
-                                         name="Water Level, mm"))+
-  facet_wrap(~panel, scales = 'free', nrow = n)
-CH4_TimeLine
-
-ggsave("CH4_WL.png", CH4_TimeLine, path = "4_Data/OutputData", width = 10, height = 5)
-
-
-
-
-TotalData_Wind <- TotalData[complete.cases(TotalData[ , c("UTC", "Wind_Direction", "Wind_Speed")]),]
-n <- 4
-TotalData_Wind <- TotalData_Wind %>% mutate(panel = as.integer(((row_number()-1)/nrow(TotalData_Wind))*n))
-
-
-Wind_TimeLine <- ggplot(TotalData_Wind) +
-  geom_line(aes(x = UTC,
-                y = Wind_Direction),
-            col = "black") +
-  labs(x = "Fill Time [UTC]",
-       y ="Wind Direction, °",
-       title = "Wind Speed & Wind Direction vs. Time") +
-  scale_x_datetime(date_breaks = "1 day",
-                   date_labels = "%d-%b") +
-  theme(axis.text.x=element_text(angle=60, hjust=1),
-        axis.title.y = element_text(color = "black",
-                                    size=13),
-        axis.text.y = element_text(color = "black"),
-        axis.title.y.right = element_text(color = "green",
-                                          size=13),
-        axis.text.y.right = element_text(color = "green"),
-        strip.text.x = element_blank()) +
-  geom_line(aes(x = UTC,
-                y = Wind_Speed*70),
-            col = "green") +
-  scale_y_continuous(sec.axis = sec_axis(trans = ~./70,
-                                         name="Wind Speed, m/s"))+
-  facet_wrap(~panel, scales = 'free', nrow = n)
-Wind_TimeLine
-
-ggsave("Wind_D_S.png", Wind_TimeLine, path = "4_Data/OutputData", width = 10, height = 5)
-
-
-
-# TotalData_CH4 <- TotalData[complete.cases(TotalData[ , "X.CH4."]),]
-# TotalData_CH4 <- TotalData_CH4[,c("UTC", "X.CH4.", "Water_Level")]
-# WL_CH4_Data <- melt(TotalData_CH4, id.var="UTC")
-
+# Compare_Timeline_Basic(TotalData)
 
 
 ######## Plot Wind Direction (DWD)/Speed/CH4#############

@@ -66,7 +66,7 @@ TotalData$Speed[TotalData$Speed > 99] <- NA
 ######## Plot CH4/Water level#############
 
 # 
-TotalData_CH4_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+# TotalData_CH4_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
 # 
 # n <- 4
 # TotalData_CH4_WL <- TotalData_CH4_WL %>% mutate(panel = as.integer(((row_number()-1)/nrow(TotalData_CH4_WL))*n))
@@ -102,35 +102,70 @@ TotalData_CH4_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
 #  limit=c(StartTime, 
 #          FinishTime)
   
-  
 
-  p1 <- ggplot(TotalData_CH4_WL, aes(x = UTC,
-                                     y = Direction*10)) + 
-    geom_point() +
-    theme(axis.line = element_line())
+TotalData$panel[TotalData$UTC <= "2021-08-10 23:59:00"] <- 0
+TotalData$panel[TotalData$UTC >= "2021-08-11 00:00:00" & TotalData$UTC <= "2021-08-18 23:59:00"] <- 1
+TotalData$panel[TotalData$UTC >= "2021-08-19 00:00:00" & TotalData$UTC <= "2021-08-28 23:59:00"] <- 2
+TotalData$panel[TotalData$UTC >= "2021-08-29 00:00:00"] <- 3
+
+TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),c("UTC", "X.CH4.","panel")]
+# names(TotalData_CH4)[names(TotalData_CH4)=="UTC"] <- "UTC1"
+TotalData_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "Water_Level")]),c("UTC", "Water_Level","panel")]
+# names(TotalData_WL)[names(TotalData_WL)=="UTC"] <- "UTC2"
+TotalData_Wind <- TotalData[complete.cases(TotalData[ , c("UTC", "Direction", "Speed")]),c("UTC", "Direction", "Speed","panel")]
+# names(TotalData_Wind)[names(TotalData_Wind)=="UTC"] <- "UTC3"
+
+
+n <-4
+for(i in 0:(n-1)){
+  p1 <- ggplot(TotalData_CH4[TotalData_CH4$panel == i,], aes(x = UTC,
+                                                              y = X.CH4.)) + 
+    ylim(1600, 4300) +
+    labs(y ="CH4 Concentration")+
+    geom_line() +
+    theme(axis.line = element_line(),
+          plot.margin = margin(0, 0, 0, 0))
   p1
   
-  p2 <- ggplot(TotalData_CH4_WL, aes(x = UTC,
+  p2 <- ggplot(TotalData_WL[TotalData_WL$panel == i,], aes(x = UTC,
                                      y = Water_Level)) +
-    geom_point() +
-    theme(axis.line = element_line())
-  p2
-  
-  p3 <- ggplot(TotalData_CH4_WL, aes(x = UTC,
-                       y = X.CH4.)) + 
-    geom_point(aes(color = "CH4")) +
-    geom_point(aes(y = Water_Level*5, color = "WL")) +
-    scale_y_continuous(sec.axis = sec_axis(trans = ~./5,
-                                            name="Water Level, mm"))+
-    geom_point(aes(y = Direction*10, color = "WD")) +
+    geom_line() +
     theme(axis.line = element_line(),
-          plot.margin = margin(10, 10, 10, 30))
+          plot.margin = margin(0, 0, 0, 0))
+  p2
+    
+  p3 <- ggplot(data = TotalData_Wind[TotalData_Wind$panel == i,], aes(x = UTC, y = Direction)) +
+    geom_line(aes(color = "Wind Dircection")) + 
+    ylim(0, 360) +
+    labs(x = "UTC",
+         y ="Wind Direction, °",
+         title = "Wind Direction, Waterlevel, CH4 Concentration vs. Time") +
+    geom_line(data = TotalData_WL[TotalData_WL$panel == i,], aes(x = UTC, y = (Water_Level/1.5-200), color = "Water Level")) +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b")+
+    geom_line(TotalData_CH4[TotalData_CH4$panel == i,], mapping = aes(x = UTC, y = (X.CH4./7-250) , color = "CH4.")) +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~(.*1.5+200),
+                                           name="Waterlevel, mm"))+
+    theme(axis.line = element_line(), 
+          plot.margin = margin(0, 0, 0, 20),
+          axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "black",
+                                      size=13),
+          axis.text.y = element_text(color = "black"),
+          strip.text.x = element_blank(),
+          legend.position = "bottom",
+          legend.title=element_blank())
   p3
-  wrap_elements(get_plot_component(p1, "ylab-l")) +
-    wrap_elements(get_y_axis(p1)) +
-    wrap_elements(get_plot_component(p2, "ylab-l")) +
-    wrap_elements(get_y_axis(p2)) +
-    p3 + 
-    plot_layout(widths = c(3, 1, 3, 1, 40))
-
+  
+  p4 <- wrap_elements(get_plot_component(p1, "ylab-l")) +
+          wrap_elements(get_y_axis(p1)) +
+          # wrap_elements(get_plot_component(p2, "ylab-l")) +
+          # wrap_elements(get_y_axis(p2)) +
+          p3 + 
+          plot_layout(widths = c(1, 1, 40))
+  p4
+  
+  ggsave(paste0("5_CH4_Wl_WD_",i,".png"), p4, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+  
+}
   
