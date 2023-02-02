@@ -31,6 +31,8 @@ panel_No_function <- function(n){
 
 
 Compare_Timeline <- function(TotalData, n ) {
+  is.na(TotalData$Wind_Speed) <- TotalData$Wind_Speed == "-999"
+  is.na(TotalData$Water_Level) <- TotalData$Water_Level == "-777"
   # Filter Data frame
   TotalData_CH4_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
   
@@ -82,6 +84,7 @@ Compare_Timeline <- function(TotalData, n ) {
   # Filter Data frame for Wind
   TotalData_Wind <- TotalData[complete.cases(TotalData[ , c("UTC", "Wind_Direction", "Wind_Speed")]),]
   
+  
   if (n == 0){
     #for fixed panel
     TotalData_Wind$panel[TotalData_Wind$UTC <= "2021-08-10 23:59:00"] <- 0
@@ -95,7 +98,7 @@ Compare_Timeline <- function(TotalData, n ) {
     TotalData_Wind <- TotalData_Wind %>% mutate(panel = as.integer(((row_number()-1)/nrow(TotalData_Wind))*n))
     m <- n
   }
-  # Plot Wind, speed, dirction vs time
+  # Plot Wind, speed, direction vs time
   
   Wind_TimeLine <- ggplot(TotalData_Wind) +
     geom_line(aes(x = UTC,
@@ -279,7 +282,7 @@ Compare_Timeline <- function(TotalData, n ) {
       plot_layout(widths = c(1, 1, 40))
     p4
     
-    ggsave(paste0("5_CH4_Wl_WD_",i,".png"), p4, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+    ggsave(paste0("5_CH4_WaterLevel_WindDirection_",i,".png"), p4, path = "4_Data/OutputData/Plots", width = 10, height = 5)
   }
   
   

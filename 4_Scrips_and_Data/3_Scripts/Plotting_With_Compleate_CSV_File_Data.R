@@ -26,7 +26,7 @@ StartTime <- as.POSIXct('2021-08-01 22:03:00',
                         tz ="utc")
 # Start Time: 2021-08-01 22:03:00
 
-FinishTime <- as.POSIXct('2021-09-06 00:00:00', 
+FinishTime <- as.POSIXct('2022-03-29 00:00:00', 
                          format = "%Y-%m-%d %H:%M:%S", 
                          tz ="utc")
 
@@ -53,18 +53,17 @@ TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
 
 
-
-########### Plot CH4 Concentration Timeseries ##############
-CH4_TimeLine(TotalData, StartTime, FinishTime, 4)
-
 ########## ?????????????? #########
 # cor(TotalData$WindSpeed,TotalData$WindDirction)
 
 
 ### Comparison Plots #####
-Compare_Timeline(TotalData, 0) # Use 0 for fixed Panels integer for rest
+Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels integer for rest
 
 Compare_Timeline_Basic(TotalData)
+
+########### 4 Plot CH4 Concentration Timeseries ##############
+CH4_TimeLine(TotalData, StartTime, FinishTime, 4)
 
 
 ######## Plot Wind Direction (DWD)/Speed/CH4#############
