@@ -11,6 +11,7 @@ library(ggplot2)
 library(hexbin)
 library(gridExtra)
 library(reshape2)
+library(openair)
 
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
@@ -56,6 +57,12 @@ TotalData$Speed[TotalData$Speed > 99] <- NA
 ########## ?????????????? #########
 # cor(TotalData$WindSpeed,TotalData$WindDirction)
 
+######## Finding the Peaks, The Average Meteorological Data during Peak, Saving csv File #########
+CH4_Peak_Finder(TotalData, TRUE)
+
+
+######### Wind Rose Plots ##########
+WindRose_Plots(TotalData)
 
 ### Comparison Plots #####
 Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels integer for rest
@@ -63,7 +70,7 @@ Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels integer for rest
 Compare_Timeline_Basic(TotalData)
 
 ########### 4 Plot CH4 Concentration Timeseries ##############
-CH4_TimeLine(TotalData, StartTime, FinishTime, 4)
+CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE)
 
 
 ######## Plot Wind Direction (DWD)/Speed/CH4#############

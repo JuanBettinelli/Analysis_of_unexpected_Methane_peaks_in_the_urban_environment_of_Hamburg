@@ -29,6 +29,83 @@ panel_No_function <- function(n){
 }
 
 
+# Function to Find CH4 Peaks in Timeline
+CH4_Peak_Finder <- function(TotalData, Export_CSV){
+  
+  #Select the Data from Dataframe with CH4 Concentration
+  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+  
+  # Find the Peaks in the timeline
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakdistance = 10, threshold = 5, sortstr=TRUE)) # "[+]{1,}[0]{1,2}[-]{1,}" peakpat = NULL,
+  
+  # Format the Peak Dataframe
+  names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+  CH4_Peaks$UTC_Beginning <- CH4Data[CH4_Peaks$UTC_Beginning,"UTC"]
+  CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
+  CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
+  
+  # Find the average during the Peak, (Average all values that lay between the Peak beginning and Peak End)
+  # get all Coloum Names
+  Heads <- colnames(TotalData)
+  Heads <- Heads[-1]
+  Heads <- Heads[-16]
+  for (j in Heads){
+    # Create new Coloums with same Names
+    CH4_Peaks[,j] <- NA
+    for(i in 1:nrow(CH4_Peaks)) {       # for-loop over rows
+      # Find the mean Values during the Peak
+      CH4_Peaks[i, j] <- mean(TotalData[TotalData$UTC >= CH4_Peaks[i,"UTC_Beginning"] & TotalData$UTC <= CH4_Peaks[i,"UTC_Ending"], j], na.rm = TRUE)
+    }
+  }
+  if (Export_CSV){
+    write.csv(CH4_Peaks, "4_Data/OutputData/CH4_Peaks.csv", row.names=TRUE)
+  }
+  else {
+    return(CH4_Peaks)
+  }
+}
+
+
+
+
+WindRose_Plots <- function(TotalData){
+  CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
+  
+  png("4_Data/OutputData/Plots/9_WindRose/WindRose_Total.png")
+  windRose(TotalData, ws = "Speed", wd = "Direction")
+  dev.off()
+  
+  png("4_Data/OutputData/Plots/9_WindRose/WindRose_Peaks.png")
+  windRose(CH4_Peaks, ws = "Speed", wd = "Direction")
+  dev.off()
+  
+  png("4_Data/OutputData/Plots/9_WindRose/PollutionRose_Total.png")
+  pollutionRose(TotalData, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean")
+  dev.off()
+  
+  png("4_Data/OutputData/Plots/9_WindRose/PollutionRose_Peaks.png")
+  pollutionRose(CH4_Peaks, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean")
+  dev.off()
+  
+  
+  
+  All_Wind <- TotalData[complete.cases(TotalData[ , c("Speed", "Direction")]), c("UTC", "Speed", "Direction")]  
+  All_Wind <- rename(All_Wind,c("ws_All"="Speed","wd_All"="Direction"))
+  Peaks_Wind <- CH4_Peaks[complete.cases(CH4_Peaks[ , c("Speed", "Direction")]), c("UTC", "Speed", "Direction")]
+  Peaks_Wind <- rename(Peaks_Wind,c("ws_Peaks"="Speed","wd_Peaks"="Direction"))
+  Wind_Compare <- merge( All_Wind, Peaks_Wind,
+                         by.x = "UTC",
+                         by.y = "UTC",
+                         all.x = TRUE,
+                         all.y = TRUE,
+                         sort = TRUE)
+  
+  png("4_Data/OutputData/Plots/9_WindRose/Comparison_Total_Vs_Peaks.png")
+  pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks")
+  dev.off()
+  
+}
+
 
 Compare_Timeline <- function(TotalData, n ) {
   is.na(TotalData$Wind_Speed) <- TotalData$Wind_Speed == "-999"
@@ -51,7 +128,7 @@ Compare_Timeline <- function(TotalData, n ) {
     m <- n
   }
   
-  # Plot CH4, Waterlavel & Time
+  # Plot CH4, Waterlevel & Time
   CH4_TimeLine <- ggplot(TotalData_CH4_WL) +
     geom_line(aes(x = UTC,
                   y = X.CH4.),
@@ -334,31 +411,90 @@ Compare_Timeline_Basic <- function(TotalData) {
 }
 
 
-CH4_TimeLine <- function(TotalData, StartTime, FinishTime, n){
+# Function to Plot a CH4 Timeline with A Peak detection
+CH4_TimeLine <- function(TotalData, StartTime, FinishTime, n, Panel_Plot){
+  
+  # calling funktions to splite timeline into Panels
   TotalData <- panel_function(TotalData, n)
   m <- panel_No_function(n)
-  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),]
+  
+  #Select the Data from dataframe with CH4 Concentration
+  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.", "panel")]
+  
+  # # Find the Peaks in the timeline
+  # CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakdistance = 10, threshold = 5, sortstr=TRUE)) # "[+]{1,}[0]{1,2}[-]{1,}" peakpat = NULL,
+  # 
+  # # Format the Peak Dataframe
+  # names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+  # CH4_Peaks$UTC_Beginning <- CH4Data[CH4_Peaks$UTC_Beginning,"UTC"]
+  # CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
+  # CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
+  
+  CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
+  CH4_Peaks$panel <- CH4Data[match(CH4_Peaks$UTC, CH4Data$UTC),"panel"]
+  CH4_min <- min(CH4Data$X.CH4.)
+  CH4_max <- max(CH4Data$X.CH4.)
+  
+  
+  # Select Plot in Panels or in separate files
+  if (Panel_Plot == FALSE) {
     
-  CH4_TimeLine <- ggplot(CH4Data, aes(x = UTC, y = X.CH4.)) +
-    geom_line() +
-    labs(x = "Fill Time [UTC]",
-         y ="CH4 mole fraction [ppb]",
-         title = "CH4 mole fraction vs. Time") +
-    scale_x_datetime(date_breaks = "2 day",
-                     date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
-    theme(axis.text.x=element_text(angle=60,
-                                   hjust=1),
-          strip.text.x = element_blank())+
+    # Loop throw individual panels
+    for (i in (0:(m-1))){
+      # Create the Timeline plot
+      CH4_TimeLine <- ggplot(CH4Data[CH4Data$panel == i, ], aes(x = UTC, y = X.CH4.)) +
+        geom_line() +
+        labs(x = "Fill Time [UTC]",
+             y ="CH4 mole fraction [ppb]",
+             title = "CH4 mole fraction vs. Time") +
+        scale_x_datetime(date_breaks = "2 day",
+                         date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+        theme(axis.text.x=element_text(angle=60,
+                                       hjust=1),
+              strip.text.x = element_blank(),
+              legend.position="none")+
+        geom_rect(data=CH4_Peaks[CH4_Peaks$panel == i, ], inherit.aes=FALSE, aes(xmin=UTC_Beginning, xmax=UTC_Ending, ymin=CH4_min,
+                                                                                 ymax=CH4_max), color="transparent", fill="orange", alpha=0.3)+ 
+        geom_point(data=CH4_Peaks[CH4_Peaks$panel == i, ], aes(x = UTC, y = X.CH4., col = "red"))
+      
+      # Save the Plot
+      ggsave(paste0("4_CH4_Timeline",i,".png"),
+             CH4_TimeLine,
+             path = "4_Data/OutputData/Plots/4_CH4_Timeline",
+             width = 10,
+             height = 5)
+    }
+  }
+  
+  # Select a plot with seperate panels
+  else if (Panel_Plot == TRUE){
+    
+    # Create the Plot
+    CH4_TimeLine <- ggplot(CH4Data, aes(x = UTC, y = X.CH4.)) +
+      geom_line() +
+      labs(x = "Fill Time [UTC]",
+           y ="CH4 mole fraction [ppb]",
+           title = "CH4 mole fraction vs. Time") +
+      scale_x_datetime(date_breaks = "2 day",
+                       date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+      theme(axis.text.x=element_text(angle=60,
+                                     hjust=1),
+            strip.text.x = element_blank(),
+            legend.position="none")+
+      geom_rect(data=CH4_Peaks, inherit.aes=FALSE, aes(xmin=UTC_Beginning, xmax=UTC_Ending, ymin=CH4_min,
+                                                       ymax=CH4_max), color="transparent", fill="orange", alpha=0.3)+ #, group=group
+      geom_point(data=CH4_Peaks, aes(x = UTC, y = X.CH4., col = "red"))
     facet_wrap(~panel,
                scales = 'free',
                nrow = m)
-  
-  ggsave(paste0("4_CH4_Timeline.png"),
-         CH4_TimeLine,
-         path = "4_Data/OutputData/Plots",
-         width = 10,
-         height = 5)
-  
+    
+    # Save the plot
+    ggsave(paste0("4_CH4_Timeline_Panels.png"),
+           CH4_TimeLine,
+           path = "4_Data/OutputData/Plots/4_CH4_Timeline",
+           width = 10,
+           height = 5)
+  }
 }
 
 
