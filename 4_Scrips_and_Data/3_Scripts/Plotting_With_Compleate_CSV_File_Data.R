@@ -12,10 +12,25 @@ library(hexbin)
 library(gridExtra)
 library(reshape2)
 library(openair)
+library(cowplot)
+library(patchwork)
+library(dplyr)
+library(GGally)
+library(ggthemes)
+library(ggvis)
+library(httr)
+library(plotly)
+library(rio)
+library(rmarkdown)
+library(shiny)
+library(stringr)
+library(tidyr)
+library(pracma)
 
-pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-               ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
-               stringr, tidyr) 
+
+# pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
+#                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
+#                stringr, tidyr) 
 
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automaticaly access the data.
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
@@ -70,7 +85,7 @@ Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels integer for rest
 Compare_Timeline_Basic(TotalData)
 
 ########### 4 Plot CH4 Concentration Timeseries ##############
-CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE)
+CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 
 
 ######## Plot Wind Direction (DWD)/Speed/CH4#############

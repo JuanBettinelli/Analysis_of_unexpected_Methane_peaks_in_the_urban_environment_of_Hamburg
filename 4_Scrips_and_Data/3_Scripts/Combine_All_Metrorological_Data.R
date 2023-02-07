@@ -327,14 +327,6 @@ TotalData <- merge( TotalData, extreme_temperatur_10min,
                     all.y = TRUE,
                     sort = TRUE)
 
+# Save Data as CSV File
 write.csv(TotalData,"4_Data/OutputData/DWDMeteorologicalData.csv", row.names = FALSE)
 
-# #Plot the Data
-# plot(Wind_New$UTCDateTime,
-#      Wind_New$D,
-#      type = "b",
-#      pch = 20,
-#      col = "Black",
-#      xlab = "Date",
-#      ylab = "Directions"
-#      )
