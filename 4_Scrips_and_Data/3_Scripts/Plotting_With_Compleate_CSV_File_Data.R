@@ -119,4 +119,3 @@ Basic_CH4_WaterLevel_Wind_Direction(TotalData)
 ######## Plot CH4/Water level/ Wind Speed, Split into 10 Day intervals#############
 Basic_CH4_WaterLevel_Wind_Speed(TotalData)
 
-

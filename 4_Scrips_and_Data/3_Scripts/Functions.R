@@ -41,7 +41,7 @@ CH4_Peak_Finder <- function(TotalData, Export_CSV){
   CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakdistance = 10, threshold = 5, sortstr=TRUE)) # "[+]{1,}[0]{1,2}[-]{1,}" peakpat = NULL,
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE)) # "[+]{1,}[0]{1,2}[-]{1,}" peakpat = NULL,
   
   # Format the Peak Dataframe
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
@@ -80,27 +80,27 @@ WindRose_Plots <- function(TotalData){
   CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
   
   # Create and save a windrose Plot with the Total wind data from the Geomatikum
-  png("4_Data/OutputData/Plots/9_WindRose/WindRose_Total.png")
-  windRose(TotalData, ws = "Speed", wd = "Direction")
+  png("4_Data/OutputData/Plots/9_WindRose/Geomatikum/WindRose_Total.png")
+  windRose(TotalData, ws = "Speed", wd = "Direction", angle = 10)
   dev.off()
   
   # Create and save a Windrose Plot with the Averaged Geomatikum wind data at the methane Peaks
-  png("4_Data/OutputData/Plots/9_WindRose/WindRose_Peaks.png")
-  windRose(CH4_Peaks, ws = "Speed", wd = "Direction")
+  png("4_Data/OutputData/Plots/9_WindRose/Geomatikum/WindRose_Peaks.png")
+  windRose(CH4_Peaks, ws = "Speed", wd = "Direction", angle = 10)
   dev.off()
   
   # Create and save a Pollutionrose Plot with the Total data, Wind Data from the Geomatikum
-  png("4_Data/OutputData/Plots/9_WindRose/PollutionRose_Total.png")
-  pollutionRose(TotalData, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean")
+  png("4_Data/OutputData/Plots/9_WindRose/Geomatikum/PollutionRose_Total.png")
+  pollutionRose(TotalData, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
   dev.off()
   
   # Create and save a Pollutionrose Plot Only from the Peaks, Wind Data from the Geomatikum
-  png("4_Data/OutputData/Plots/9_WindRose/PollutionRose_Peaks.png")
-  pollutionRose(CH4_Peaks, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean")
+  png("4_Data/OutputData/Plots/9_WindRose/Geomatikum/PollutionRose_Peaks.png")
+  pollutionRose(CH4_Peaks, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
   dev.off()
   
   
-  # Create and save a comparison Windrose with the total Wind data vs. the Peak wind data (At the geomatikum)
+  # Create and save a comparison Windrose with the total Wind data vs. the Peak wind data (At the Geomatikum)
   All_Wind <- TotalData[complete.cases(TotalData[ , c("Speed", "Direction")]), c("UTC", "Speed", "Direction")]  
   All_Wind <- rename(All_Wind,c("ws_All"="Speed","wd_All"="Direction"))
   Peaks_Wind <- CH4_Peaks[complete.cases(CH4_Peaks[ , c("Speed", "Direction")]), c("UTC", "Speed", "Direction")]
@@ -112,10 +112,128 @@ WindRose_Plots <- function(TotalData){
                          all.y = TRUE,
                          sort = TRUE)
   
-  png("4_Data/OutputData/Plots/9_WindRose/Comparison_Total_Vs_Peaks.png")
-  pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks")
+  png("4_Data/OutputData/Plots/9_WindRose/Geomatikum/Comparison_Total_Vs_Peaks.png")
+  pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks", angle = 10)
+  dev.off()
+
+  ###############
+
+  # Create and save a windrose Plot with the Total wind data from the Mast_50m
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_50m/WindRose_Total.png")
+  windRose(TotalData, ws = "Speed50m", wd = "Direction50m", angle = 10)
   dev.off()
   
+  # Create and save a Windrose Plot with the Averaged Mast_50m wind data at the methane Peaks
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_50m/WindRose_Peaks.png")
+  windRose(CH4_Peaks, ws = "Speed50m", wd = "Direction50m", angle = 10)
+  dev.off()
+  
+  # Create and save a Pollutionrose Plot with the Total data, Wind Data from the Mast_50m
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_50m/PollutionRose_Total.png")
+  pollutionRose(TotalData, ws = "Speed50m", wd = "Direction50m", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
+  dev.off()
+  
+  # Create and save a Pollutionrose Plot Only from the Peaks, Wind Data from the Mast_50m
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_50m/PollutionRose_Peaks.png")
+  pollutionRose(CH4_Peaks, ws = "Speed50m", wd = "Direction50m", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
+  dev.off()
+  
+  
+  # Create and save a comparison Windrose with the total Wind data vs. the Peak wind data (At the Mast_50m)
+  All_Wind <- TotalData[complete.cases(TotalData[ , c("Speed50m", "Direction50m")]), c("UTC", "Speed50m", "Direction50m")]  
+  All_Wind <- rename(All_Wind,c("ws_All"="Speed50m","wd_All"="Direction50m"))
+  Peaks_Wind <- CH4_Peaks[complete.cases(CH4_Peaks[ , c("Speed50m", "Direction50m")]), c("UTC", "Speed50m", "Direction50m")]
+  Peaks_Wind <- rename(Peaks_Wind,c("ws_Peaks"="Speed50m","wd_Peaks"="Direction50m"))
+  Wind_Compare <- merge( All_Wind, Peaks_Wind,
+                         by.x = "UTC",
+                         by.y = "UTC",
+                         all.x = TRUE,
+                         all.y = TRUE,
+                         sort = TRUE)
+  
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_50m/Comparison_Total_Vs_Peaks.png")
+  pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks", angle = 10)
+  dev.off()
+  
+  ###########
+  
+  # Create and save a windrose Plot with the Total wind data from the Mast_100m
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_110m/WindRose_Total.png")
+  windRose(TotalData, ws = "Speed110m", wd = "Direction110m", angle = 10)
+  dev.off()
+  
+  # Create and save a Windrose Plot with the Averaged Mast_100m wind data at the methane Peaks
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_110m/WindRose_Peaks.png")
+  windRose(CH4_Peaks, ws = "Speed110m", wd = "Direction110m", angle = 10)
+  dev.off()
+  
+  # Create and save a Pollutionrose Plot with the Total data, Wind Data from the Mast_100m
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_110m/PollutionRose_Total.png")
+  pollutionRose(TotalData, ws = "Speed110m", wd = "Direction110m", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
+  dev.off()
+  
+  # Create and save a Pollutionrose Plot Only from the Peaks, Wind Data from the Mast_100m
+  png("4_Data/OutputData/Plots/9_WindRose/Mast_110m/PollutionRose_Peaks.png")
+  pollutionRose(CH4_Peaks, ws = "Speed110m", wd = "Direction110m", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
+  dev.off()
+  
+  
+  # Create and save a comparison Windrose with the total Wind data vs. the Peak wind data (At the Mast_100m)
+  All_Wind <- TotalData[complete.cases(TotalData[ , c("Speed110m", "Direction110m")]), c("UTC", "Speed110m", "Direction110m")]  
+  All_Wind <- rename(All_Wind,c("ws_All"="Speed110m","wd_All"="Direction110m"))
+  Peaks_Wind <- CH4_Peaks[complete.cases(CH4_Peaks[ , c("Speed110m", "Direction110m")]), c("UTC", "Speed110m", "Direction110m")]
+  Peaks_Wind <- rename(Peaks_Wind,c("ws_Peaks"="Speed110m","wd_Peaks"="Direction110m"))
+  Wind_Compare <- merge( All_Wind, Peaks_Wind,
+                         by.x = "UTC",
+                         by.y = "UTC",
+                         all.x = TRUE,
+                         all.y = TRUE,
+                         sort = TRUE)
+  
+   png("4_Data/OutputData/Plots/9_WindRose/Mast_110m/Comparison_Total_Vs_Peaks.png")
+  pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks", angle = 10)
+  dev.off()
+  
+  ###########
+  
+  # Create and save a windrose Plot with the Total wind data from the Mast_100m
+  png("4_Data/OutputData/Plots/9_WindRose/DWD/WindRose_Total.png")
+  windRose(TotalData, ws = "Wind_Speed", wd = "Wind_Direction", angle = 10)
+  dev.off()
+  
+  # Create and save a Windrose Plot with the Averaged Mast_100m wind data at the methane Peaks
+  png("4_Data/OutputData/Plots/9_WindRose/DWD/WindRose_Peaks.png")
+  windRose(CH4_Peaks, ws = "Wind_Speed", wd = "Wind_Direction", angle = 10)
+  dev.off()
+  
+  # Create and save a Pollutionrose Plot with the Total data, Wind Data from the Mast_100m
+  png("4_Data/OutputData/Plots/9_WindRose/DWD/PollutionRose_Total.png")
+  pollutionRose(TotalData, ws = "Wind_Speed", wd = "Wind_Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
+  dev.off()
+  
+  # Create and save a Pollutionrose Plot Only from the Peaks, Wind Data from the Mast_100m
+  png("4_Data/OutputData/Plots/9_WindRose/DWD/PollutionRose_Peaks.png")
+  pollutionRose(CH4_Peaks, ws = "Wind_Speed", wd = "Wind_Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
+  dev.off()
+  
+  
+  # Create and save a comparison Windrose with the total Wind data vs. the Peak wind data (At the Mast_100m)
+  All_Wind <- TotalData[complete.cases(TotalData[ , c("Wind_Speed", "Wind_Direction")]), c("UTC", "Wind_Speed", "Wind_Direction")]  
+  All_Wind <- rename(All_Wind,c("ws_All"="Wind_Speed","wd_All"="Wind_Direction"))
+  Peaks_Wind <- CH4_Peaks[complete.cases(CH4_Peaks[ , c("Wind_Speed", "Wind_Direction")]), c("UTC", "Wind_Speed", "Wind_Direction")]
+  Peaks_Wind <- rename(Peaks_Wind,c("ws_Peaks"="Wind_Speed","wd_Peaks"="Wind_Direction"))
+  Wind_Compare <- merge( All_Wind, Peaks_Wind,
+                         by.x = "UTC",
+                         by.y = "UTC",
+                         all.x = TRUE,
+                         all.y = TRUE,
+                         sort = TRUE)
+  
+  png("4_Data/OutputData/Plots/9_WindRose/DWD/Comparison_Total_Vs_Peaks.png")
+  pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks", angle = 10)
+  dev.off()
+  
+
 }
 
 #------------------------------------------------------------------------------------------------------------
