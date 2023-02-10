@@ -1,3 +1,7 @@
+#### skript has no own code, made only to play
+# 10.2.23
+
+
 if(!require('mapview')) {
   install.packages('mapview')
   library('mapview')

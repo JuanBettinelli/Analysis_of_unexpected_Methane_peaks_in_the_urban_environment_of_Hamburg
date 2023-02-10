@@ -1,3 +1,8 @@
+### Script not up to date "Playing with Poltting Partical Track.R" is more advanzed and working
+### Playing with Randomazation and raster.R has olso more working elements
+# 10.2.23
+
+
 # if(!require('spatialEco')) {
 #   install.packages('spatialEco')
 #   library('spatialEco')
@@ -112,7 +117,7 @@ for(j in 1:nrow(CH4_Peaks)){
   All_Wind <- All_Wind[complete.cases(All_Wind[ , c("Speed110m", "Direction110m")]), c("UTC", "Speed110m", "Direction110m")]
   
   for(i in 2:nrow(All_Wind)){ 
-    x[i,1:2]  <- destPoint(x[(i-1),1:2],(All_Wind[i,"Direction110m"]*60*10),(All_Wind[i,"Speed110m"]*60*10))
+    x[i,1:2]  <- destPoint(x[(i-1),1:2],(All_Wind[i,"Direction110m"]),(All_Wind[i,"Speed110m"]*60*10))
     x[i,3] <- j
     x[i,4] <- All_Wind[i, "UTC"]
   }
