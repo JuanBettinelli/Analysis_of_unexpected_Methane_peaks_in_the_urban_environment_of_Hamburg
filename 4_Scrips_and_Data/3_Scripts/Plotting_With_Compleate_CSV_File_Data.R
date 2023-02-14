@@ -36,6 +36,7 @@ library(pracma)
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
 source("3_Scripts/Functions.R")
+source("3_Scripts/CH4_Transportmodel.R")
 
 StartTime <- as.POSIXct('2021-08-01 22:03:00', 
                         format = "%Y-%m-%d %H:%M:%S", 
@@ -86,6 +87,19 @@ Compare_Timeline_Basic(TotalData)
 
 ########### 4 Plot CH4 Concentration Timeseries ##############
 CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
+
+########### Transportmodel with averaged wind at the CH4 Peaks ##############
+# Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
+# Warning takes quit a wile !!!!!!
+
+# Particles_Tracks_Averaged_at_Peak_Wind(TotalData, Released_Particals = 10,  Backwared_Minutes = 60, sd_Speed = 0.5, sd_Direction = 30, Wind_Provider = 1)
+
+
+########### Transportmodel with measured wind for each time interval ##############
+# Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
+# Warning takes quit a wile !!!!!!
+
+# Particles_Tracks_Changing_Wind(TotalData = TotalData, No_of_Releast_Particals = 10, sd_Speed = 0.5, sd_Direction = 30, Wind_Provider = 1)
 
 
 ######## Plot Wind Direction (DWD)/Speed/CH4#############

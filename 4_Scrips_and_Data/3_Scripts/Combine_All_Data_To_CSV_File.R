@@ -134,8 +134,8 @@ DWD_Data_1h <- DWD_Data_1h[!is.na(DWD_Data_1h$UTCDateTime),]
 
 
 
-####################Isotrope Data###################
-### Data provied by Utrecht Uni
+####################Isotope Data###################
+### Data provided by Utrecht Uni
 
 #Load the data from the csv file, and Convert the datetime to the correct format
 CH4_concentrations <-read.csv2("4_Data/2_Geomatikum_CH4_Concentrations/3_CH4Concentration(1.8.2021-28.3.2022)/Hamburg Methan Measuments 01082021 - 28032022.csv")
@@ -184,7 +184,6 @@ CH4_concentrations$sd.d2H <- sapply(CH4_concentrations$sd.d2H, as.numeric)
 CH4_concentrations$X.CH4. <- sapply(CH4_concentrations$X.CH4., as.numeric)
 
 # CH4_concentrations <- CH4_concentrations[!is.na(CH4_concentrations$fill.time.utc),]
-
 
 ################### Merge all Data into one Dataframe #######################
 
@@ -264,6 +263,13 @@ TotalData$X.CH4..2H <- as.numeric(TotalData$X.CH4..2H)
 TotalData$sd..CH4..1 <- as.numeric(TotalData$sd..CH4..1)
 TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
 TotalData$Wind_Direction <- as.numeric(TotalData$Wind_Direction)
+
+# Filtering
+TotalData$Direction[TotalData$Direction > 361] <- NA
+TotalData$Speed[TotalData$Speed > 99] <- NA
+TotalData$Wind_Speed[TotalData$Wind_Speed < 0] <- NA
+TotalData$Wind_Direction[TotalData$Wind_Direction < 0] <- NA
+
 
 
 ################## Output de Data to a CSV File  ##################

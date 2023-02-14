@@ -397,13 +397,3 @@ TotalData_10min <- TotalData_10min[!is.na(TotalData_10min$UTCDateTime),]
 write.csv(TotalData,"4_Data/OutputData/DWDMeteorologicalData_1h.csv", row.names = FALSE)
 
 write.csv(TotalData_10min,"4_Data/OutputData/DWDMeteorologicalData_10min.csv", row.names = FALSE)
-
-# #Plot the Data
-# plot(Wind_New$UTCDateTime,
-#      Wind_New$D,
-#      type = "b",
-#      pch = 20,
-#      col = "Black",
-#      xlab = "Date",
-#      ylab = "Directions"
-#      )
