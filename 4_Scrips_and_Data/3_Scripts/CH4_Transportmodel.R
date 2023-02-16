@@ -153,7 +153,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   # # Plot the Particals as Individual points on interactive map
   # mv_points <- mapview(Total_Points, xcol = "lon", ycol = "lat", zcol = "Peak_No",cex = 0.5, alpha = 0.5, crs = 4326, map.types = "Stamen.Toner")
   # # Save the Map as PNG
-  # mapshot(mv_points, file = "4_Data/OutputData/Plots/Maps/10_Emission_Points_with_Changing_Measured_Wind.png")
+  # mapshot(mv_points, file = "4_Data/OutputData/Plots/10_Maps/10_Emission_Points_with_Changing_Measured_Wind.png")
 
   
   # # concert the data frame into a sf 'simple form' location object
@@ -175,7 +175,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   # Plot the raster on a map
   mv_Raster <- mapview(density_raster, na.color = "transparent", alpha = 0.5,  col.regions = colorPalette, trans = "log") 
   # Save the Map
-  mapshot(mv_Raster, file = "4_Data/OutputData/Plots/Maps/10_Emission_Distribution_with_Changing_Measured_Wind.png")
+  mapshot(mv_Raster, file = "4_Data/OutputData/Plots/10_Maps/10_Emission_Distribution_with_Changing_Measured_Wind.png")
 }
 
 #########################################
@@ -254,7 +254,7 @@ Particles_Tracks_Averaged_at_Peak_Wind <- function(TotalData, Released_Particals
   # # Plot the Particals as Individual points on interactive map
   # mv_points <- mapview(Total_Wind_Points, xcol = "lon", ycol = "lat", zcol = "Peak_No",cex = 0.5, alpha = 0.5, crs = 4326, map.types = "Stamen.Toner")
   # # Save the Map as PNG
-  # mapshot(mv_points, file = "4_Data/OutputData/Plots/Maps/10_Emission_Points_with_at_Peak_Averaged_Wind.png")
+  # mapshot(mv_points, file = "4_Data/OutputData/Plots/10_Maps/10_Emission_Points_with_at_Peak_Averaged_Wind.png")
   
   
   # # concert the data frame into a sf 'simple form' location object
@@ -275,6 +275,6 @@ Particles_Tracks_Averaged_at_Peak_Wind <- function(TotalData, Released_Particals
   # Plot the raster on a map
   mv_Raster <- mapview(density_raster, na.color = "transparent", alpha = 0.5,  col.regions = colorPalette, trans = "log") 
   # Save the Map
-  mapshot(mv_Raster, file = "4_Data/OutputData/Plots/Maps/10_Emission_Distribution_with_at_Peak_Averaged_Wind.png")
+  mapshot(mv_Raster, file = "4_Data/OutputData/Plots/10_Maps/10_Emission_Distribution_with_at_Peak_Averaged_Wind.png")
 }
 
