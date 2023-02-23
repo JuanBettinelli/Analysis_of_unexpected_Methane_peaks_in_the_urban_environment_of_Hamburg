@@ -13,7 +13,7 @@ library(mapview)
 library(MASS)
 library(raster)
 
-# setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 # 
 # source("3_Scripts/Functions.R")
 # 
@@ -171,7 +171,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   # Select the color palette of the raster plot
   colorPalette <- colorRampPalette(c("blue", "red", "white"))(255)
   # Replaces very small values with NA, to make the rasta transperant in this section
-  values(density_raster)[values(density_raster) < 0.5] = NA
+  values(density_raster)[values(density_raster) < 0.2] = NA
   # Plot the raster on a map
   mv_Raster <- mapview(density_raster, na.color = "transparent", alpha = 0.5,  col.regions = colorPalette, trans = "log") 
   # Save the Map
@@ -271,7 +271,7 @@ Particles_Tracks_Averaged_at_Peak_Wind <- function(TotalData, Released_Particals
   # Select the color palette of the raster plot
   colorPalette <- colorRampPalette(c("blue", "red", "white"))(255)
   # Replaces very small values with NA, to make the rasta transperant in this section
-  values(density_raster)[values(density_raster) < 0.5] = NA
+  values(density_raster)[values(density_raster) < 0.2] = NA
   # Plot the raster on a map
   mv_Raster <- mapview(density_raster, na.color = "transparent", alpha = 0.5,  col.regions = colorPalette, trans = "log") 
   # Save the Map

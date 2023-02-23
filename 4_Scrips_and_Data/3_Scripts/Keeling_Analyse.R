@@ -107,11 +107,11 @@ No_Peaks <- No_Peaks[complete.cases(No_Peaks[ , "X.CH4."]),]
 
 # Keeling Analyse for total data of the champagne Time series
 # For C13
-c13C_Line <- lm(d13C.VPDB ~ c13C, TotalData_c )
+c13C_Line <- lm(d13C.VPDB ~ c13C, TotalData )
 c13C_coef <- coef(summary(c13C_Line))[, "Estimate"]
 c13C_se <- coef(summary(c13C_Line))[, "Std. Error"] 
 # For H2
-c2H_Line <- lm(d2H.VPDB ~ c2H, TotalData_c )
+c2H_Line <- lm(d2H.VPDB ~ c2H, TotalData )
 c2H_coef <- coef(summary(c2H_Line))[, "Estimate"]
 c2H_se <- coef(summary(c2H_Line))[, "Std. Error"] 
 
@@ -161,7 +161,7 @@ ggsave("11_Keeling_Plot_Total.png", KP_Total, path = "4_Data/OutputData/Plots", 
 
 
 # Plot Keeling Plot Only Peaks
-KP_13C_Peaks <- ggplot(p, aes(x = c13C, y = d13C.VPDB)) +
+KP_13C_Peaks <- ggplot(Total_Peaks, aes(x = c13C, y = d13C.VPDB)) +
   geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
   expand_limits(x = 0) +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
@@ -169,7 +169,7 @@ KP_13C_Peaks <- ggplot(p, aes(x = c13C, y = d13C.VPDB)) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
-KP_2H_Peaks <- ggplot(p, aes(x = c2H, y = d2H.VPDB)) +
+KP_2H_Peaks <- ggplot(Total_Peaks, aes(x = c2H, y = d2H.VPDB)) +
   expand_limits(x = 0) +
   geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
@@ -182,7 +182,7 @@ KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("Ke
 ggsave("11_Keeling_Plot_Peaks.png", KP_Peaks, path = "4_Data/OutputData/Plots", width = 10, height = 5)
 
 # Plot Keeling Plot No Peaks
-KP_13C_NoPeaks <- ggplot(r, aes(x = c13C, y = d13C.VPDB)) +
+KP_13C_NoPeaks <- ggplot(No_Peaks, aes(x = c13C, y = d13C.VPDB)) +
   geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
   expand_limits(x = 0) +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
@@ -190,7 +190,7 @@ KP_13C_NoPeaks <- ggplot(r, aes(x = c13C, y = d13C.VPDB)) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
-KP_2H_NoPeaks <- ggplot(r, aes(x = c2H, y = d2H.VPDB)) +
+KP_2H_NoPeaks <- ggplot(No_Peaks, aes(x = c2H, y = d2H.VPDB)) +
   expand_limits(x = 0) +
   geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
