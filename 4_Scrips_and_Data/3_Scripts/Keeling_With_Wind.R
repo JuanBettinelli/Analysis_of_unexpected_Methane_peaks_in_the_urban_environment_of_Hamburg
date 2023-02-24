@@ -29,6 +29,53 @@ library(stringr)
 library(tidyr)
 library(gridExtra)
 library(grid)
+library(PlaneGeometry)
+
+
+##### Characterisation of methane sources in Lutjewad, The Netherlands, using quasi-continuous isotopic composition measurements
+
+# Extraction and distribution of fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
+FF <- Ellipse$new(center = c(-40.0, -198.5), rmajor = 17.75, rminor = 12, alpha = 0)
+# ellipse as a path
+FFpath <- FF$path()
+# the path is not closed; close it
+FFpath <- rbind(FFpath, FFpath[1,])
+
+# Agriculture 12C 68.0 [70.6; 46.0] 2H 319 [361; 295]
+AG <- Ellipse$new(center = c(-68.0, -319), rmajor = 33 , rminor = 12.3, alpha = 90)
+# ellipse as a path
+AGpath <- AG$path()
+# the path is not closed; close it
+AGpath <- rbind(AGpath, AGpath[1,])
+
+# Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+WA <- Ellipse$new(center = c(-55, -293), rmajor =  28.4, rminor = 9.5 , alpha = 0)
+# ellipse as a path
+WApath <- WA$path()
+# the path is not closed; close it
+WApath <- rbind(WApath, WApath[1,])
+
+# Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
+OA <- Ellipse$new(center = c(-35, -175), rmajor =  28.4, rminor = 9.5 , alpha = 0)
+# ellipse as a path
+OApath <- OA$path()
+# the path is not closed; close it
+OApath <- rbind(OApath, OApath[1,])
+
+# Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
+WL <- Ellipse$new(center = c(-69, -330), rmajor =  56 , rminor = 18.7 , alpha = 90)
+# ellipse as a path
+WLpath <- WL$path()
+# the path is not closed; close it
+WLpath <- rbind(WLpath, WLpath[1,])
+
+TH <- data.frame(x = c(-75, -40, -15, -40, -60), y = c(-350, -100, -150, -300, -350))
+A <- data.frame(x = c(-50, -50, -25, -10, -10), y = c(-450, -300, -50, -50, -450))
+
+
+
+
+
 
 
 # Set Working Directory
@@ -106,14 +153,39 @@ for (i in seq(0, 350, by = 10)){
   Keeling_output[nrow(Keeling_output) , 5] <- v_c2H_se[[1]]
 }
 colnames(Keeling_output) <- c("Direction", "c13C_coef", "c13C_se", "c2H_coef", "c2H_se")
+Keeling_output <- Keeling_output[complete.cases(Keeling_output[ , ]),]
+
 
 write.csv(Keeling_output, "4_Data/OutputData/Keeling_By_Wind_Total.csv", row.names=FALSE)
 
 
-plot(Keeling_output$Direction, Keeling_output$c13C_coef)
-plot(Keeling_output$Direction, Keeling_output$c2H_coef)
+# plot(Keeling_output$Direction, Keeling_output$c13C_coef)
+# plot(Keeling_output$Direction, Keeling_output$c2H_coef)
+# 
+# plot(Keeling_output$c13C_coef, Keeling_output$c2H_coef, col=Keeling_output$Direction)
 
-plot(Keeling_output$c13C_coef, Keeling_output$c2H_coef, col=Keeling_output$Direction)
+Total_Plot <- ggplot() +
+  geom_point(data=Keeling_output, aes(x = c13C_coef, y = c2H_coef, color = Direction))+
+  geom_errorbar(data=Keeling_output, aes(x = c13C_coef, xmin=c13C_coef-c13C_se, xmax=c13C_coef+c13C_se, y = c2H_coef, ymin=c2H_coef-c2H_se, ymax=c2H_coef+c2H_se, colour=Direction), width=.1) + #, position=pd
+  # geom_path(aes(x = x, y = y), as.data.frame(FFpath), color = "red")+
+  geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
+  # geom_path(aes(x = x, y = y), as.data.frame(AGpath), color = "green")+
+  geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
+  # geom_path(aes(x = x, y = y), as.data.frame(WApath), color = "yellow")+
+  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+  # geom_path(aes(x = x, y = y), as.data.frame(OApath), color = "blue")+
+  geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
+  # geom_path(aes(x = x, y = y), as.data.frame(WLpath), color = "black")+
+  geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
+  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+  geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.1, fill="pink")+ # MF: Microbial Fermentation
+  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+  geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue")+ # A: Abiotic
+  labs(x = expression(delta^13*'C in ‰'), y = expression(delta*'D in ‰'), title = "Dual isotope plots of the isotopic source signatures")+
+  scale_color_gradient2(midpoint=180, low="blue", mid="red",
+                        high="blue", space ="Lab" )
+  # scale_color_gradientn(colours = rainbow(5))
+ggsave("12_Keeling_Total_Wind.png", Total_Plot, path = "4_Data/OutputData/Plots/12_Keeling_with_Wind", width = 10, height = 5)
 
 
 # ################ Keeling analyse ##############
@@ -241,19 +313,39 @@ for (i in seq(0, 350, by = 10)){
   }
 }
 colnames(Keeling_Peaks_output) <- c("Direction", "c13C_coef", "c13C_se", "c2H_coef", "c2H_se")
+Keeling_Peaks_output <- Keeling_Peaks_output[complete.cases(Keeling_Peaks_output[ , ]),]
 
 write.csv(Keeling_Peaks_output, "4_Data/OutputData/Keeling_By_Wind_Peaks.csv", row.names=FALSE)
 
 
-plot(Keeling_Peaks_output$Direction, Keeling_Peaks_output$c13C_coef)
-plot(Keeling_Peaks_output$Direction, Keeling_Peaks_output$c2H_coef)
-
-plot(Keeling_Peaks_output$c13C_coef, Keeling_Peaks_output$c2H_coef, col=Keeling_Peaks_output$Direction)
-
-
+# plot(Keeling_Peaks_output$Direction, Keeling_Peaks_output$c13C_coef)
+# plot(Keeling_Peaks_output$Direction, Keeling_Peaks_output$c2H_coef)
+# 
+# plot(Keeling_Peaks_output$c13C_coef, Keeling_Peaks_output$c2H_coef, col=Keeling_Peaks_output$Direction)
 
 
-
+Peaks_Plot <- ggplot() +
+  geom_point(data=Keeling_Peaks_output, aes(x = c13C_coef, y = c2H_coef, color = Direction))+
+  geom_errorbar(data=Keeling_Peaks_output, aes(x = c13C_coef, xmin=c13C_coef-c13C_se, xmax=c13C_coef+c13C_se, y = c2H_coef, ymin=c2H_coef-c2H_se, ymax=c2H_coef+c2H_se, colour=Direction), width=.1) + #, position=pd
+  # geom_path(aes(x = x, y = y), as.data.frame(FFpath), color = "red")+
+  geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
+  # geom_path(aes(x = x, y = y), as.data.frame(AGpath), color = "green")+
+  geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
+  # geom_path(aes(x = x, y = y), as.data.frame(WApath), color = "yellow")+
+  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+  # geom_path(aes(x = x, y = y), as.data.frame(OApath), color = "blue")+
+  geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
+  # geom_path(aes(x = x, y = y), as.data.frame(WLpath), color = "black")+
+  geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
+  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+  geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.1, fill="pink")+ # MF: Microbial Fermentation
+  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+  geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue")+ # A: Abiotic
+  labs(x = expression(delta^13*'C in ‰'), y = expression(delta*'D in ‰'), title = "Dual isotope plots of the isotopic source signatures, only Peaks")+
+  scale_color_gradient2(midpoint=180, low="blue", mid="red",
+                        high="blue", space ="Lab" )
+  # scale_color_gradientn(colours = rainbow(5))
+ggsave("12_Keeling_Peaks_Wind.png", Peaks_Plot, path = "4_Data/OutputData/Plots/12_Keeling_with_Wind", width = 10, height = 5)
 
 
 No_Peaks <- subset(TotalData, UTC = Total_Peaks$UTC) ###### check if it works!!!!
@@ -301,19 +393,67 @@ for (i in seq(0, 350, by = 10)){
   }
 }
 colnames(Keeling_No_Peaks_output) <- c("Direction", "c13C_coef", "c13C_se", "c2H_coef", "c2H_se")
+Keeling_No_Peaks_output <- Keeling_No_Peaks_output[complete.cases(Keeling_No_Peaks_output[ , ]),]
 
 write.csv(Keeling_No_Peaks_output, "4_Data/OutputData/Keeling_By_Wind_No_Peaks.csv", row.names=FALSE)
 
 
-plot(Keeling_No_Peaks_output$Direction, Keeling_No_Peaks_output$c13C_coef)
-plot(Keeling_No_Peaks_output$Direction, Keeling_No_Peaks_output$c2H_coef)
+# plot(Keeling_No_Peaks_output$Direction, Keeling_No_Peaks_output$c13C_coef)
+# plot(Keeling_No_Peaks_output$Direction, Keeling_No_Peaks_output$c2H_coef)
+# 
+# plot(Keeling_No_Peaks_output$c13C_coef, Keeling_No_Peaks_output$c2H_coef, col=Keeling_No_Peaks_output$Direction)
 
-plot(Keeling_No_Peaks_output$c13C_coef, Keeling_No_Peaks_output$c2H_coef, col=Keeling_No_Peaks_output$Direction)
+No_Peaks_Plot <- ggplot() +
+  geom_point(data=Keeling_No_Peaks_output, aes(x = c13C_coef, y = c2H_coef, color = Direction))+
+  geom_errorbar(data=Keeling_No_Peaks_output, aes(x = c13C_coef, xmin=c13C_coef-c13C_se, xmax=c13C_coef+c13C_se, y = c2H_coef, ymin=c2H_coef-c2H_se, ymax=c2H_coef+c2H_se , colour=Direction), width=.02, alpha=0.5) + #, position=pd
+  # geom_path(aes(x = x, y = y), as.data.frame(FFpath), color = "red")+
+  geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
+  # geom_path(aes(x = x, y = y), as.data.frame(AGpath), color = "green")+
+  geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
+  # geom_path(aes(x = x, y = y), as.data.frame(WApath), color = "yellow")+
+  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+  # geom_path(aes(x = x, y = y), as.data.frame(OApath), color = "blue")+
+  geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
+  # geom_path(aes(x = x, y = y), as.data.frame(WLpath), color = "black")+
+  geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
+  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+  geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.1, fill="pink")+ # MF: Microbial Fermentation
+  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+  geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue")+ # A: Abiotic
+  labs(x = expression(delta^13*'C in ‰'), y = expression(delta*'D in ‰'), title = "Dual isotope plots of the isotopic source signatures, exluding Peaks")+
+  scale_color_gradient2(midpoint=180, low="blue", mid="red",
+                        high="blue", space ="Lab" )
+  # scale_color_gradientn(colours = rainbow(5))
+  
+ggsave("12_Keeling_No_Peaks_Wind.png", No_Peaks_Plot, path = "4_Data/OutputData/Plots/12_Keeling_with_Wind", width = 10, height = 5)
 
 
-
-
-
+# ggplot() +
+#   geom_point(data=Keeling_No_Peaks_output, aes(x = c13C_coef, y = c2H_coef, color = Direction))+
+#   # geom_path(aes(x = x, y = y), as.data.frame(FFpath), color = "red")+
+#   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
+#   # geom_path(aes(x = x, y = y), as.data.frame(AGpath), color = "green")+
+#   geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
+#   # geom_path(aes(x = x, y = y), as.data.frame(WApath), color = "yellow")+
+#   geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+#   # geom_path(aes(x = x, y = y), as.data.frame(OApath), color = "blue")+
+#   geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
+#   # geom_path(aes(x = x, y = y), as.data.frame(WLpath), color = "black")+
+#   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
+#   geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+#   geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.1, fill="pink")+ # MF: Microbial Fermentation
+#   geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+#   geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue") # A: Abiotic
+  
+  # scale_colour_manual(name = 'Emitters', values =c('black'='black','red'='red', 'yellow' = 'yellow', 'blue' = 'blue', 'green' = 'green'), labels = c('WL','FF', 'WA', 'OA', 'AG'))+
+  # scale_fill_identity(name = 'Typs', guide = 'legend',labels = c('MC', 'MF', 'TH', 'A'))
+  
+  # scale_colour_manual("", 
+  #                     breaks = c("TempMax", "TempMedia", "TempMin", "tsdjs", "jxaax"),
+  #                     values = c("red", "green", "blue", 'yellow', 'black')) 
+  # 
+  
+  
 
 # # Keeling analyse for Peaks
 # # Peaks selected with Peak Finder
