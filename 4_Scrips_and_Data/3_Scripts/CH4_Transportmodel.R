@@ -1,14 +1,7 @@
 # Script for a transport model of the Measured partials
 
-
-
-
 library(geosphere)
-library(dplyr)
-library(plotly)
-library(rio)
 library(pracma)
-library(sf)
 library(mapview)
 library(MASS)
 library(raster)

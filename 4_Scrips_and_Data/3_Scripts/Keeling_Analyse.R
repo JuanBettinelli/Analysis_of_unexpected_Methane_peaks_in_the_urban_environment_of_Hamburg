@@ -7,26 +7,13 @@
 # The script produces a timeline of the total Methan concentration
 
 # Declare librarys used
-library(pacman)
-library(lubridate)
-library(readr)
-library(plyr)
-library(tidyverse)
+
 library(ggplot2)   
 library(hexbin)
 library(gridExtra)
 library(dplyr)
-library(GGally)
-library(ggthemes)
-library(ggvis)
-library(httr)
-library(lubridate)
 library(plotly)
 library(rio)
-library(rmarkdown)
-library(shiny)
-library(stringr)
-library(tidyr)
 library(gridExtra)
 library(grid)
 
@@ -157,7 +144,7 @@ k <- ggplot(TotalData, aes(x = c2H, y = d2H.VPDB)) +
               plot.title = element_text(size=10))
 KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("Keeling Plot of compleate measument campaign",gp=gpar(fontsize=15,font=3)))
 
-ggsave("11_Keeling_Plot_Total.png", KP_Total, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+ggsave("11_Keeling_Plot_Total.png", KP_Total, path = "4_Data/OutputData/Plots/11_Keeling_Analyse", width = 10, height = 5)
 
 
 # Plot Keeling Plot Only Peaks
@@ -179,7 +166,7 @@ KP_2H_Peaks <- ggplot(Total_Peaks, aes(x = c2H, y = d2H.VPDB)) +
 
 KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("Keeling Plot of only the Peaks",gp=gpar(fontsize=15,font=3)))
 
-ggsave("11_Keeling_Plot_Peaks.png", KP_Peaks, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+ggsave("11_Keeling_Plot_Peaks.png", KP_Peaks, path = "4_Data/OutputData/Plots/11_Keeling_Analyse", width = 10, height = 5)
 
 # Plot Keeling Plot No Peaks
 KP_13C_NoPeaks <- ggplot(No_Peaks, aes(x = c13C, y = d13C.VPDB)) +
@@ -200,7 +187,7 @@ KP_2H_NoPeaks <- ggplot(No_Peaks, aes(x = c2H, y = d2H.VPDB)) +
 
 KP_Ex_Peaks <- grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2,  top = textGrob("Keeling Plot of compleate measument campaign excluding the Peaks",gp=gpar(fontsize=15,font=3)))
 
-ggsave("11_Keeling_Plot_Ex_Peaks.png", KP_Ex_Peaks, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+ggsave("11_Keeling_Plot_Ex_Peaks.png", KP_Ex_Peaks, path = "4_Data/OutputData/Plots/11_Keeling_Analyse", width = 10, height = 5)
 
 ##### Show Keeling analyse Data in output Console ######
 message("\n \nTotal timeseries: \n 12C, δ(13)C (mean = ", c13C_coef[[1]],"‰ ± ", c13C_se[[1]],"‰ s.e; n = 1)","\n 2H, δ(2)H  (mean =", c2H_coef[[1]],"‰ ±", c2H_se[[1]],"‰ s.e; n = 1)")

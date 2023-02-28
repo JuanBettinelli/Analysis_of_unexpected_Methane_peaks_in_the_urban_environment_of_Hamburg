@@ -2,4 +2,7 @@
 
 library(funchir)
 
-funchir::stale_package_check('3_Scripts/Playing with Poltting Partical Track.R')
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
+
+
+funchir::stale_package_check('3_Scripts/Plotting_With_Compleate_CSV_File_Data.R')

@@ -4,18 +4,10 @@
 # Last Change: 19.1.23
 
 
-library(pacman)
 library(lubridate)
-library(readr)
-library("plyr")
-library(tidyverse)
-library("ggplot2")   
-library("hexbin")
-# install.packages('bit64')
-
-pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-               ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
-               stringr, tidyr) 
+library(dplyr)
+library(plotly)
+library(rio)
 
 
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automaticaly access the data.

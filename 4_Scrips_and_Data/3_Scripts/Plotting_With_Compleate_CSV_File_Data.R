@@ -2,37 +2,11 @@
 # Author Juan Bettinelli
 # Last change: 26.1.23
 
-library(pacman)
-library(lubridate)
-library(readr)
-library(plyr)
-library(tidyverse)
-library(ggplot2)   
-library(hexbin)
-library(gridExtra)
-library(reshape2)
-library(openair)
-library(cowplot)
-library(patchwork)
 library(dplyr)
-library(GGally)
-library(ggthemes)
-library(ggvis)
-library(httr)
 library(plotly)
 library(rio)
-library(rmarkdown)
-library(shiny)
-library(stringr)
-library(tidyr)
-library(pracma)
 
-
-# pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-#                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
-#                stringr, tidyr) 
-
-#Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automaticaly access the data.
+#Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
 source("3_Scripts/Functions.R")
@@ -77,59 +51,67 @@ TotalData$Speed[TotalData$Speed > 99] <- NA
 CH4_Peak_Finder(TotalData, TRUE)
 
 
-######### Wind Rose Plots ##########
+######### Wind Rose Plots (Plot 9) ##########
 WindRose_Plots(TotalData)
 
-### Comparison Plots #####
-Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels integer for rest
+### Comparison Plots (Plots 1, 2, 3 & 5) #####
+Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels, any integer for rest
+Compare_Timeline2(TotalData, 10) # Use 0 for fixed Panels, any integer for rest
 
-Compare_Timeline_Basic(TotalData)
+Compare_Timeline_Basic(TotalData) # Total Timeline
 
-########### 4 Plot CH4 Concentration Timeseries ##############
+########### 4 Plot CH4 Concentration Timeseries (Plot 4)##############
 CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 
-########### Transportmodel with averaged wind at the CH4 Peaks ##############
+########### Transportmodel with averaged wind at the CH4 Peaks (Plot 10) ##############
 # Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
 # Warning takes quit a wile !!!!!!
 
 Particles_Tracks_Averaged_at_Peak_Wind(TotalData, Released_Particals = 10,  Backwared_Minutes = 60, sd_Speed = 0.5, sd_Direction = 30, Wind_Provider = 1)
 
 
-########### Transportmodel with measured wind for each time interval ##############
+########### Transportmodel with measured wind for each time interval (Plot 10) ##############
 # Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
 # Warning takes quit a wile !!!!!!
 
 Particles_Tracks_Changing_Wind(TotalData = TotalData, No_of_Releast_Particals = 10, sd_Speed = 0.5, sd_Direction = 30, Wind_Provider = 1)
 
 
-######## Plot Wind Direction (DWD)/Speed/CH4#############
+######## Plot Wind Direction (DWD)/Speed/CH4 (Plot 6.1) #############
 Basic_Wind_DWD_CH4(TotalData, StartTime, FinishTime)
 
-######## Plot Wind Direction (Mast 110m)/Speed/CH4#############
+######## Plot CH4/Waterlevel/ Winddierction (DWD) (Plot 6.2) #############
+Basic_Wind_D_WL_CH4(TotalData, StartTime, FinishTime)
+
+######## Plot Wind Direction (Mast 110m)/Speed/CH4 (Plot 6.3) #############
 Basic_Wind_110m_CH4(TotalData, StartTime, FinishTime)
 
-######## Plot Wind Direction (Geomatikum)/CH4#############
+######## Plot Wind Direction (Geomatikum)/CH4 (Plot 6.4) #############
 Basic_Wind_Geomatikum_CH4(TotalData, StartTime, FinishTime)
 
-######## Plot Rain/CH4#############
-Basic_Rain_CH4(TotalData, StartTime, FinishTime)
+######## Plot CH4/Water level/ Wind direction, Split into 10 Day intervals (Plot 7.2) #############
+Basic_CH4_WaterLevel_Wind_Direction(TotalData, StartTime, FinishTime)
   
+######## Plot CH4/Water level/ Wind Speed, Split into 10 Day intervals (Plot 7.1) #############
+Basic_CH4_WaterLevel_Wind_Speed(TotalData, StartTime, FinishTime)
 
-######## Plot Temp/CH4#############
-Basic_Temp_CH4(TotalData, StartTime, FinishTime)
-  
+######## Plot Rain/CH4 (Plot 8.3) #############
+# Basic_Rain_CH4(TotalData, StartTime, FinishTime)
+Rain_CH4(TotalData, 4)
 
-######## Plot Humid/CH4#############
-Basic_Humidity_CH4(TotalData, StartTime, FinishTime)
-  
+######## Plot Temp/CH4 (Plot 8.2) #############
+# Basic_Temp_CH4(TotalData, StartTime, FinishTime)
+Temp_CH4(TotalData, 4)
 
-######## Plot CH4/Waterlevel/ Winddierction#############
-Basic_Wind_D_WL_CH4(TotalData, StartTime, FinishTime)
-  
+######## Plot Humid/CH4 (Plot 8.1) #############  
+# Basic_Humidity_CH4(TotalData, StartTime, FinishTime)
+Humidity_CH4(TotalData, 4)
 
-######## Plot CH4/Water level/ Wind direction, Split into 10 Day intervals#############
-Basic_CH4_WaterLevel_Wind_Direction(TotalData)
-  
-######## Plot CH4/Water level/ Wind Speed, Split into 10 Day intervals#############
-Basic_CH4_WaterLevel_Wind_Speed(TotalData)
+######## Plot Radiation/CH4 (Plot 8.4) #############
+Radiation_CH4(TotalData, 4)
 
+######## Plot Pressure/CH4 (Plot 8.5) #############
+Pressure_CH4(TotalData, 4)
+
+######## Plot Dew/CH4 (Plot 8.6) #############
+Dew_CH4(TotalData, 4)

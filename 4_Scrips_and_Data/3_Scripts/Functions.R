@@ -1,5 +1,23 @@
 # Scripts with functions used in Plotting_With_Compleate_CSV_File_Data.R
 # Author: Juan Bettinelli
+
+library(plyr)
+library(ggplot2)   
+library(hexbin)
+library(reshape2)
+library(openair)
+library(cowplot)
+library(patchwork)
+library(dplyr)
+library(GGally)
+library(ggvis)
+library(httr)
+library(plotly)
+library(stringr)
+library(tidyr)
+library(pracma)
+
+
 #------------------------------------------------------------------------------------------------------------
 # Function to split the Timeline into separate Plots/Panels
 
@@ -35,7 +53,7 @@ panel_No_function <- function(n){
 
 #------------------------------------------------------------------------------------------------------------
 # Function to Find CH4 Peaks in Timeline
-CH4_Peak_Finder <- function(TotalData, Export_CSV){
+CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   #Select the Data from Dataframe with CH4 Concentration
   CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
@@ -75,7 +93,7 @@ CH4_Peak_Finder <- function(TotalData, Export_CSV){
   
 
 # Function to Generate Wind Rode Plots
-WindRose_Plots <- function(TotalData){
+WindRose_Plots <- function(TotalData = TotalData){
   # Get the Peaks from the data
   CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
   
@@ -242,7 +260,7 @@ WindRose_Plots <- function(TotalData){
 # This Function Creates a Plot of the Total CH4 Timeline,
 # It can crate a multi panel plot or mulipe plots
 # The CH4 Peaks are found and highlighted in the Plots
-Compare_Timeline <- function(TotalData, n ) {
+Compare_Timeline <- function(TotalData = TotalData, n = 4) {
   # replace Error points with NA
   is.na(TotalData$Wind_Speed) <- TotalData$Wind_Speed == "-999"
   is.na(TotalData$Water_Level) <- TotalData$Water_Level == "-777"
@@ -296,7 +314,7 @@ Compare_Timeline <- function(TotalData, n ) {
   CH4_TimeLine
   
   #Export the plot to PNG file
-  ggsave("1_CH4_WL.png", CH4_TimeLine, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+  ggsave("1_CH4_WL.png", CH4_TimeLine, path = "4_Data/OutputData/Plots/1_CH4_vs_Waterlevel", width = 10, height = 5)
   
 
   # Filter Data frame for Wind
@@ -347,7 +365,7 @@ Compare_Timeline <- function(TotalData, n ) {
   Wind_TimeLine
 
   #Export the plot ti PNG file
-  ggsave("2_Wind_D_S.png", Wind_TimeLine, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+  ggsave("2_CH4_vs_Wind_D_S.png", Wind_TimeLine, path = "4_Data/OutputData/Plots/2_CH4_vs_Wind", width = 10, height = 5)
 
 
 
@@ -378,7 +396,7 @@ Compare_Timeline <- function(TotalData, n ) {
   Wind_Direction_TimeLine
 
   # Export Plot to PNG file
-  ggsave("2.1_Wind_D.png", Wind_Direction_TimeLine, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+  ggsave("2.1_CH4_vs_Wind_D.png", Wind_Direction_TimeLine, path = "4_Data/OutputData/Plots/2_CH4_vs_Wind", width = 10, height = 5)
 
 
 
@@ -409,7 +427,7 @@ Compare_Timeline <- function(TotalData, n ) {
   Wind_Speed_TimeLine
 
   # Export Plot to PNG file
-  ggsave("2.2_Wind_S.png", Wind_Speed_TimeLine, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+  ggsave("2.2_CH4_vs_Wind_S.png", Wind_Speed_TimeLine, path = "4_Data/OutputData/Plots/2_CH4_vs_Wind", width = 10, height = 5)
 
 
   # Plot another Wind, Speed, Direction vs Time
@@ -434,31 +452,40 @@ Compare_Timeline <- function(TotalData, n ) {
 
   #Export the plot ti PNG file
   ggsave("3_Wind_D_S.png", Wind_TimeLine, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+}
 
 
+#------------------------------------------------------------------------------------------------------------
+
+
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Compare_Timeline2 <- function(TotalData = TotalData, n =10 ) {
+  # replace Error points with NA
+  is.na(TotalData$Wind_Speed) <- TotalData$Wind_Speed == "-999"
+  is.na(TotalData$Water_Level) <- TotalData$Water_Level == "-777"
+
+  # Filter Data frame for Wind
+  TotalData_Wind <- TotalData[complete.cases(TotalData[ , c("UTC", "Wind_Direction", "Wind_Speed")]),]
+  
+  # #Split Timeline into Panels
+  # TotalData_Wind <- panel_function(TotalData_Wind, n)
+  # m <- panel_No_function(n)
+  # 
+  
   #Split Timeline into Panels
   TotalData <- panel_function(TotalData, n)
   m <- panel_No_function(n)
+  
 
-  # if (n == 0){
-  #   #for fixed panel
-  #   TotalData$panel[TotalData$UTC <= "2021-08-10 23:59:00"] <- 0
-  #   TotalData$panel[TotalData$UTC >= "2021-08-11 00:00:00" & TotalData$UTC <= "2021-08-18 23:59:00"] <- 1
-  #   TotalData$panel[TotalData$UTC >= "2021-08-19 00:00:00" & TotalData$UTC <= "2021-08-28 23:59:00"] <- 2
-  #   TotalData$panel[TotalData$UTC >= "2021-08-29 00:00:00"] <- 3
-  #   m<-1
-  # }
-  # else{
-  #   #for automatic panel
-  #   TotalData <- TotalData %>% mutate(panel = as.integer(((row_number()-1)/nrow(TotalData))*n))
-  #   m <- n
-  # }
-
+  
   # Split the TotalData Dataframe into seperate Datatframes, ther are used indifidualy to plot them in same Graph
   TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),c("UTC", "X.CH4.","panel")]
   TotalData_WL <- TotalData[complete.cases(TotalData[ , c("UTC", "Water_Level")]),c("UTC", "Water_Level","panel")]
   TotalData_Wind <- TotalData[complete.cases(TotalData[ , c("UTC", "Direction", "Speed")]),c("UTC", "Direction", "Speed","panel")]
-
+  
   # With in the Loop the timeline is split into multiple Plots
   for(i in 0:(m-1)){
     # First plot only created to tse the Axsi
@@ -470,7 +497,7 @@ Compare_Timeline <- function(TotalData, n ) {
       theme(axis.line = element_line(),
             plot.margin = margin(0, 0, 0, 0))
     p1
-
+    
     # Second Plot only created to use the axis
     p2 <- ggplot(TotalData_WL[TotalData_WL$panel == i,], aes(x = UTC,
                                                              y = Water_Level)) +
@@ -478,7 +505,7 @@ Compare_Timeline <- function(TotalData, n ) {
       theme(axis.line = element_line(),
             plot.margin = margin(0, 0, 0, 0))
     p2
-
+    
     # Plot inclues all Timelines
     p3 <- ggplot(data = TotalData_Wind[TotalData_Wind$panel == i,], aes(x = UTC, y = Direction)) +
       geom_line(aes(color = "Wind Dircection")) +
@@ -502,7 +529,7 @@ Compare_Timeline <- function(TotalData, n ) {
             legend.position = "bottom",
             legend.title=element_blank())
     p3
-
+    
     # the Axis from the first to Plots is now includet in the third plot
     p4 <- wrap_elements(get_plot_component(p1, "ylab-l")) +
       wrap_elements(get_y_axis(p1)) +
@@ -511,16 +538,18 @@ Compare_Timeline <- function(TotalData, n ) {
       p3 +
       plot_layout(widths = c(1, 1, 40))
     p4
-
+    
     #Save the plot
-    ggsave(paste0("5_CH4_WaterLevel_WindDirection_",i,".png"), p4, path = "4_Data/OutputData/Plots", width = 10, height = 5)
+    ggsave(paste0("5_CH4_WaterLevel_WindDirection_",i,".png"), p4, path = "4_Data/OutputData/Plots/5_CH4_vs_Waterlevel_vs_Wind_Direction", width = 10, height = 5)
   }
 }
+
+
 
 #------------------------------------------------------------------------------------------------------------
 
 # Function to Create Basic Plot for CH4 vs Waterlevel
-Compare_Timeline_Basic <- function(TotalData) {
+Compare_Timeline_Basic <- function(TotalData = TotalData) {
   
   # Select complete case data from totalData Dataframe
   TotalData_CH4 <- TotalData[complete.cases(TotalData[ , "X.CH4."]),]
@@ -563,7 +592,7 @@ Compare_Timeline_Basic <- function(TotalData) {
 #------------------------------------------------------------------------------------------------------------
 
 # Function to Plot a CH4 Timeline with A Peak detection
-CH4_TimeLine <- function(TotalData, StartTime, FinishTime, n, Panel_Plot){
+CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime, n = 10, Panel_Plot = FALSE){
   
   # calling funktions to splite timeline into Panels
   TotalData <- panel_function(TotalData, n)
@@ -643,10 +672,10 @@ CH4_TimeLine <- function(TotalData, StartTime, FinishTime, n, Panel_Plot){
 #------------------------------------------------------------------------------------------------------------
 
 # Function to create a Basic plot of Wind Direction & Speed (DWD)/CH4 Concentation Vs. Time
-Basic_Wind_DWD_CH4 <- function(TotalData, StartTime, FinishTime){
-  png(file="4_Data/OutputData/Plots/6_Basic_Plot_CH4_Wind_DWD.png",
-      width=600,
-      height=350)
+Basic_Wind_DWD_CH4 <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime){
+  png(file="4_Data/OutputData/Plots/6_Basic_CH4_vs_Wind/6.1_Basic_Plot_CH4_Wind_DWD.png",
+      width=1200,
+      height=700)
   par(mar = c(1.5, 4, 4, 4) + 0.3, mfrow=c(2,1))  # Leave space for z axis
   # first plot
   plot(TotalData$UTC, TotalData$Wind_Direction,
@@ -713,10 +742,10 @@ Basic_Wind_DWD_CH4 <- function(TotalData, StartTime, FinishTime){
 #------------------------------------------------------------------------------------------------------------
 
 # Function to plot Wind Direction, Waterleven and CH4 Concentration
-Basic_Wind_D_WL_CH4 <- function(TotalData, StartTime, FinishTime){ 
-  png(file="4_Data/OutputData/Plots/6_Basic_Plot_CH4_Wind_DWD_Waterlevel.png",
-      width=600,
-      height=350)
+Basic_Wind_D_WL_CH4 <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime){ 
+  png(file="4_Data/OutputData/Plots/6_Basic_CH4_vs_Wind/6.2_Basic_Plot_CH4_Wind_DWD_Waterlevel.png",
+      width=1200,
+      height=700)
   par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
   # first plot
   plot(TotalData$UTC, TotalData$Water_Level,
@@ -768,11 +797,11 @@ Basic_Wind_D_WL_CH4 <- function(TotalData, StartTime, FinishTime){
 #------------------------------------------------------------------------------------------------------------
 
 #Function to basic plot Wind Direction & Speed (MAST 110m)/CH4 Concentation Vs. Time
-Basic_Wind_110m_CH4 <- function(TotalData, StartTime, FinishTime){
+Basic_Wind_110m_CH4 <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime){
 
-  png(file="4_Data/OutputData/Plots/6_Basic_Plot_CH4_Wind_110m.png",
-      width=600,
-      height=350)
+  png(file="4_Data/OutputData/Plots/6_Basic_CH4_vs_Wind/6.3_Basic_Plot_CH4_Wind_110m.png",
+      width=1200,
+      height=700)
   
   par(mar = c(1.5, 4, 4, 4) + 0.3, mfrow=c(2,1))  # Leave space for z axis
   # first plot
@@ -783,7 +812,8 @@ Basic_Wind_110m_CH4 <- function(TotalData, StartTime, FinishTime){
          cex = 2,
          xlab = "Date/Time UTC",
          ylab = "Wind Direction, °",
-         xlim = c(as.POSIXct(StartTime, format = "%Y-%m-%d %H:%M:%S"),as.POSIXct(FinishTime, format = "%Y-%m-%d %H:%M:%S")))
+         xlim = c(as.POSIXct(StartTime, format = "%Y-%m-%d %H:%M:%S"),as.POSIXct(FinishTime, format = "%Y-%m-%d %H:%M:%S")),
+         ylim = c(0, 360))
     
     par(new = TRUE)
     plot(TotalData$UTC, TotalData$X.CH4.,
@@ -812,7 +842,8 @@ Basic_Wind_110m_CH4 <- function(TotalData, StartTime, FinishTime){
          cex = 2,
          xlab = "Date/Time UTC",
          ylab = "Wind Speed, m/s",
-         xlim = c(as.POSIXct(StartTime, format = "%Y-%m-%d %H:%M:%S"),as.POSIXct(FinishTime, format = "%Y-%m-%d %H:%M:%S")))
+         xlim = c(as.POSIXct(StartTime, format = "%Y-%m-%d %H:%M:%S"),as.POSIXct(FinishTime, format = "%Y-%m-%d %H:%M:%S")),
+         ylim = c(0, 24))
     
     par(new = TRUE)
     plot(TotalData$UTC, TotalData$X.CH4.,
@@ -840,16 +871,16 @@ Basic_Wind_110m_CH4 <- function(TotalData, StartTime, FinishTime){
 #------------------------------------------------------------------------------------------------------------
 
 #Function to basic plot Wind Direction & Speed (Geomatikum)/CH4 Concentation Vs. Time
-Basic_Wind_Geomatikum_CH4 <- function(TotalData, StartTime, FinishTime){
+Basic_Wind_Geomatikum_CH4 <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime){
   
-  png(file="4_Data/OutputData/Plots/6_Basic_Plot_CH4_Wind_Geomatikum.png",
-      width=600,
-      height=350)
+  png(file="4_Data/OutputData/Plots/6_Basic_CH4_vs_Wind/6.4_Basic_Plot_CH4_Wind_Geomatikum.png",
+      width=1200,
+      height=700)
 
   par(mar = c(1.5, 4, 4, 4) + 0.3, mfrow=c(2,1))  # Leave space for z axis
   # first plot
   plot(TotalData$UTC, TotalData$Direction,
-       main = "Wind Direction (Geomatikum)/CH4 Concentation Vs. Time",
+       main = "Wind Direction & Speed (Geomatikum)/CH4 Concentation Vs. Time",
        type = "p",
        pch='.',
        cex = 2,
@@ -913,11 +944,13 @@ Basic_Wind_Geomatikum_CH4 <- function(TotalData, StartTime, FinishTime){
 
 #Function to basic plot Wind Speed, Waterlevel /CH4 Concentation Vs. Time
 # Split into Time intervals as decleard in this function
-Basic_CH4_WaterLevel_Wind_Speed <- function(TotalData){
+Basic_CH4_WaterLevel_Wind_Speed <- function(TotalData, StartTime = StartTime, FinishTime = FinishTime){
   
   # Declare the Time intervals
-    IntervalDate <- c(as.POSIXct('2021-08-10 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-20 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-30 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-09-17 23:59:00', format = "%Y-%m-%d %H:%M:%S"))
-    i <- as.POSIXct('2021-08-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")
+    # IntervalDate <- c(as.POSIXct('2021-08-10 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-20 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-30 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-09-17 23:59:00', format = "%Y-%m-%d %H:%M:%S"))
+    IntervalDate <- seq(StartTime, FinishTime, by="10 days")
+    
+    i <- StartTime  # as.POSIXct('2021-08-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")
     
     # Declare how the This in the block should look like and when the are set
     ticks <- seq(from=min(TotalData$UTC), by='1 days', length=50)
@@ -925,9 +958,9 @@ Basic_CH4_WaterLevel_Wind_Speed <- function(TotalData){
     # Loop to generate the separte panels
     k <- 1
     for(j in IntervalDate){
-      png(file=paste0("4_Data/OutputData/Plots/7_Basic_Plot_CH4_WL_Speed_",k,".png"),
-          width=600,
-          height=350)
+      png(file=paste0("4_Data/OutputData/Plots/7_Basic_CH4_vs_Wind_(10Days)/7.1_Basic_Plot_CH4_WL_Speed_",k,".png"),
+          width=1200,
+          height=700)
       par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
       # first plot
       plot(TotalData$UTC, TotalData$Water_Level,
@@ -996,18 +1029,21 @@ Basic_CH4_WaterLevel_Wind_Speed <- function(TotalData){
 
 #Function to basic plot Wind Direction & Waterlevel /CH4 Concentation Vs. Time
 # Split into Time intervals as decleard in this function
-Basic_CH4_WaterLevel_Wind_Direction <- function(TotalData){
+Basic_CH4_WaterLevel_Wind_Direction <- function(TotalData, StartTime = StartTime, FinishTime = FinishTime){
   
-  IntervalDate <- c(as.POSIXct('2021-08-10 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-20 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-30 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-09-17 23:59:00', format = "%Y-%m-%d %H:%M:%S"))
-  i <- as.POSIXct('2021-08-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")
+  # Declare the Time intervals
+  # IntervalDate <- c(as.POSIXct('2021-08-10 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-20 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-08-30 00:00:00', format = "%Y-%m-%d %H:%M:%S"), as.POSIXct('2021-09-17 23:59:00', format = "%Y-%m-%d %H:%M:%S"))
+  IntervalDate <- seq(StartTime, FinishTime, by="10 days")
+  
+  i <- StartTime  # as.POSIXct('2021-08-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")
   
   ticks <- seq(from=min(TotalData$UTC), by='1 days', length=50)
   k <- 1
   par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(2,1))  # Leave space for z axis
   for(j in IntervalDate){
-    png(file=paste0("4_Data/OutputData/Plots/7_Basic_Plot_CH4_WL_Direction_",k,".png"),
-        width=600,
-        height=350)
+    png(file=paste0("4_Data/OutputData/Plots/7_Basic_CH4_vs_Wind_(10Days)/7.2_Basic_Plot_CH4_WL_Direction_",k,".png"),
+        width=1200,
+        height=700)
     # first plot
     plot(TotalData$UTC, TotalData$Water_Level,
          type = "p",
@@ -1079,8 +1115,8 @@ Basic_CH4_WaterLevel_Wind_Direction <- function(TotalData){
 Basic_Rain_CH4 <- function(TotalData, StartTime, FinishTime){
   
   png(file="4_Data/OutputData/Plots/8_Basic_Plot_CH4_Rain.png",
-      width=600,
-      height=350)
+      width=1200,
+      height=700)
   par(mar = c(5, 4, 4, 4) + 0.3)  # Leave space for z axis
   # first plot
   plot(TotalData$UTC, TotalData$precipitation_height,
@@ -1119,8 +1155,8 @@ Basic_Rain_CH4 <- function(TotalData, StartTime, FinishTime){
 Basic_Temp_CH4 <- function(TotalData, StartTime, FinishTime){
   
   png(file="4_Data/OutputData/Plots/8_Basic_Plot_CH4_Temp.png",
-      width=600,
-      height=350)
+      width=1200,
+      height=700)
   par(mar = c(5, 4, 4, 4) + 0.3)  # Leave space for z axis
   # first plot
   plot(TotalData$UTC, TotalData$temperature_air_mean_200,
@@ -1159,8 +1195,8 @@ Basic_Temp_CH4 <- function(TotalData, StartTime, FinishTime){
 Basic_Humidity_CH4 <- function(TotalData, StartTime, FinishTime){
   
   png(file="4_Data/OutputData/Plots/8_Basic_Plot_CH4_Humidity.png",
-      width=600,
-      height=350)
+      width=1200,
+      height=700)
   par(mar = c(5, 4, 4, 4) + 0.3)  # Leave space for z axis
   # first plot
   plot(TotalData$UTC, TotalData$humidity,
@@ -1191,4 +1227,315 @@ Basic_Humidity_CH4 <- function(TotalData, StartTime, FinishTime){
         side=4,
         line=3)
   dev.off() 
+}
+
+
+#------------------------------------------------------------------------------------------------------------
+
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Humidity_CH4 <- function(TotalData = TotalData, n = 4) {
+  # replace Error points with NA
+  is.na(TotalData$humidity) <- TotalData$humidity == "-999"
+  # is.na(TotalData$Water_Level) <- TotalData$Water_Level == "-777"
+
+  # Filter Data frame, selcts only datapoints where "UTC", "X.CH4." values exist in the dataframe
+  # TotalData_CH4_H <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  #Split Timeline into Panels
+  TotalData <- panel_function(TotalData, n)
+  m <- panel_No_function(n)
+  
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  TotalData_H <- TotalData[complete.cases(TotalData[ , c("UTC", "humidity")]),]
+  
+  
+  
+  # Plot CH4, Humidity Vs Time
+  H_TimeLine <- ggplot(TotalData_CH4) +
+    geom_line(aes(x = UTC,
+                  y = X.CH4.),
+              col = "red") +
+    labs(x = "Fill Time [UTC]",
+         y ="CH4 Concentration [ppb]",
+         title = "CH4 Concentration & Humidity vs. Time") +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b") +
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "red",
+                                      size=13),
+          axis.text.y = element_text(color = "red"),
+          axis.title.y.right = element_text(color = "blue",
+                                            size=13),
+          axis.text.y.right = element_text(color = "blue"),
+          strip.text.x = element_blank()) +
+    geom_line(data = TotalData_H, aes(x = UTC,
+                  y = humidity*40),
+              col = "blue") +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~./40,
+                                           name="Humidity, %"))+
+    facet_wrap(~panel, scales = 'free', nrow = m)
+  H_TimeLine
+  
+  #Export the plot to PNG file
+  ggsave("8.1_CH4_H.png", H_TimeLine, path = "4_Data/OutputData/Plots/8_DWD_Data", width = 10, height = 5)
+  
+}
+
+#------------------------------------------------------------------------------------------------------------
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Temp_CH4 <- function(TotalData = TotalData, n = 4) {
+  # replace Error points with NA
+  is.na(TotalData$temperature_air_mean_200) <- TotalData$temperature_air_mean_200 == "-999"
+  # is.na(TotalData$Water_Level) <- TotalData$Water_Level == "-777"
+  
+  # Filter Data frame, selcts only datapoints where "UTC", "X.CH4." values exist in the dataframe
+  # TotalData_CH4_H <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  #Split Timeline into Panels
+  TotalData <- panel_function(TotalData, n)
+  m <- panel_No_function(n)
+  
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  TotalData_T <- TotalData[complete.cases(TotalData[ , c("UTC", "temperature_air_mean_200")]),]
+  
+  
+  
+  # Plot CH4, Humidity Vs Time
+  H_TimeLine <- ggplot(TotalData_CH4) +
+    geom_line(aes(x = UTC,
+                  y = X.CH4.),
+              col = "red") +
+    labs(x = "Fill Time [UTC]",
+         y ="CH4 Concentration [ppb]",
+         title = "CH4 Concentration & Temperature vs. Time") +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b") +
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "red",
+                                      size=13),
+          axis.text.y = element_text(color = "red"),
+          axis.title.y.right = element_text(color = "blue",
+                                            size=13),
+          axis.text.y.right = element_text(color = "blue"),
+          strip.text.x = element_blank()) +
+    geom_line(data = TotalData_T, aes(x = UTC,
+                                      y = temperature_air_mean_200*120),
+              col = "blue") +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~./120,
+                                           name="Temperature, °C"))+
+    facet_wrap(~panel, scales = 'free', nrow = m)
+  H_TimeLine
+  
+  #Export the plot to PNG file
+  ggsave("8.2_CH4_T.png", H_TimeLine, path = "4_Data/OutputData/Plots/8_DWD_Data", width = 10, height = 5)
+  
+}
+
+#------------------------------------------------------------------------------------------------------------
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Rain_CH4 <- function(TotalData = TotalData, n = 4) {
+  # replace Error points with NA
+  is.na(TotalData$precipitation_height) <- TotalData$precipitation_height == "-999"
+  # is.na(TotalData$Water_Level) <- TotalData$Water_Level == "-777"
+  
+  # Filter Data frame, selcts only datapoints where "UTC", "X.CH4." values exist in the dataframe
+  # TotalData_CH4_H <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  #Split Timeline into Panels
+  TotalData <- panel_function(TotalData, n)
+  m <- panel_No_function(n)
+  
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  TotalData_R <- TotalData[complete.cases(TotalData[ , c("UTC", "precipitation_height")]),]
+  
+  
+  
+  # Plot CH4, Humidity Vs Time
+  H_TimeLine <- ggplot(TotalData_CH4) +
+    geom_line(aes(x = UTC,
+                  y = X.CH4.),
+              col = "red") +
+    labs(x = "Fill Time [UTC]",
+         y ="CH4 Concentration [ppb]",
+         title = "CH4 Concentration & Precipitation height vs. Time") +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b") +
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "red",
+                                      size=13),
+          axis.text.y = element_text(color = "red"),
+          axis.title.y.right = element_text(color = "blue",
+                                            size=13),
+          axis.text.y.right = element_text(color = "blue"),
+          strip.text.x = element_blank()) +
+    geom_line(data = TotalData_R, aes(x = UTC,
+                                      y = precipitation_height*800),
+              col = "blue") +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~./800,
+                                           name="Precipitation Height, mm"))+
+    facet_wrap(~panel, scales = 'free', nrow = m)
+  H_TimeLine
+  
+  #Export the plot to PNG file
+  ggsave("8.3_CH4_R.png", H_TimeLine, path = "4_Data/OutputData/Plots/8_DWD_Data", width = 10, height = 5)
+}
+
+#------------------------------------------------------------------------------------------------------------
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Radiation_CH4 <- function(TotalData = TotalData, n = 4) {
+  # replace Error points with NA
+  is.na(TotalData$radiation_global) <- TotalData$radiation_global == "-999"
+
+  
+  # Filter Data frame, selcts only datapoints where "UTC", "X.CH4." values exist in the dataframe
+  # TotalData_CH4_H <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  #Split Timeline into Panels
+  TotalData <- panel_function(TotalData, n)
+  m <- panel_No_function(n)
+  
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  TotalData_Rad <- TotalData[complete.cases(TotalData[ , c("UTC", "radiation_global")]),]
+  
+  
+  
+  # Plot CH4, Humidity Vs Time
+  H_TimeLine <- ggplot(TotalData_CH4) +
+    geom_line(aes(x = UTC,
+                  y = X.CH4.),
+              col = "red") +
+    labs(x = "Fill Time [UTC]",
+         y ="CH4 Concentration [ppb]",
+         title = "CH4 Concentration & Radiation vs. Time") +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b") +
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "red",
+                                      size=13),
+          axis.text.y = element_text(color = "red"),
+          axis.title.y.right = element_text(color = "blue",
+                                            size=13),
+          axis.text.y.right = element_text(color = "blue"),
+          strip.text.x = element_blank()) +
+    geom_line(data = TotalData_Rad, aes(x = UTC,
+                                      y = radiation_global*100),
+              col = "blue") +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~./100,
+                                           name="Radiation"))+
+    facet_wrap(~panel, scales = 'free', nrow = m)
+  H_TimeLine
+  
+  #Export the plot to PNG file
+  ggsave("8.4_CH4_Rad.png", H_TimeLine, path = "4_Data/OutputData/Plots/8_DWD_Data", width = 10, height = 5)
+}
+
+
+#------------------------------------------------------------------------------------------------------------
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Pressure_CH4 <- function(TotalData = TotalData, n = 4) {
+  # replace Error points with NA
+  is.na(TotalData$pressure_air_site) <- TotalData$pressure_air_site == "-999"
+  
+  
+  # Filter Data frame, selcts only datapoints where "UTC", "X.CH4." values exist in the dataframe
+  # TotalData_CH4_H <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  #Split Timeline into Panels
+  TotalData <- panel_function(TotalData, n)
+  m <- panel_No_function(n)
+  
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  TotalData_Pres <- TotalData[complete.cases(TotalData[ , c("UTC", "pressure_air_site")]),]
+  
+  
+  
+  # Plot CH4, Humidity Vs Time
+  H_TimeLine <- ggplot(TotalData_CH4) +
+    geom_line(aes(x = UTC,
+                  y = X.CH4.),
+              col = "red") +
+    labs(x = "Fill Time [UTC]",
+         y ="CH4 Concentration [ppb]",
+         title = "CH4 Concentration & Pressure vs. Time") +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b") +
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "red",
+                                      size=13),
+          axis.text.y = element_text(color = "red"),
+          axis.title.y.right = element_text(color = "blue",
+                                            size=13),
+          axis.text.y.right = element_text(color = "blue"),
+          strip.text.x = element_blank()) +
+    geom_line(data = TotalData_Pres, aes(x = UTC,
+                                        y = pressure_air_site*2.5),
+              col = "blue") +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~./2.5,
+                                           name="Pressure, HPa"))+
+    facet_wrap(~panel, scales = 'free', nrow = m)
+  H_TimeLine
+  
+  #Export the plot to PNG file
+  ggsave("8.5_CH4_Pres.png", H_TimeLine, path = "4_Data/OutputData/Plots/8_DWD_Data", width = 10, height = 5)
+}
+
+#------------------------------------------------------------------------------------------------------------
+
+# This Function Creates a Plot of the Total CH4 Timeline,
+# It can crate a multi panel plot or mulipe plots
+# The CH4 Peaks are found and highlighted in the Plots
+Dew_CH4 <- function(TotalData = TotalData, n = 4) {
+  # replace Error points with NA
+  is.na(TotalData$temperature_dew_point_mean_200) <- TotalData$temperature_dew_point_mean_200 == "-999"
+  
+  
+  # Filter Data frame, selcts only datapoints where "UTC", "X.CH4." values exist in the dataframe
+  # TotalData_CH4_H <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  #Split Timeline into Panels
+  TotalData <- panel_function(TotalData, n)
+  m <- panel_No_function(n)
+  
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
+  TotalData_Pres <- TotalData[complete.cases(TotalData[ , c("UTC", "temperature_dew_point_mean_200")]),]
+  
+  
+  
+  # Plot CH4, Humidity Vs Time
+  H_TimeLine <- ggplot(TotalData_CH4) +
+    geom_line(aes(x = UTC,
+                  y = X.CH4.),
+              col = "red") +
+    labs(x = "Fill Time [UTC]",
+         y ="CH4 Concentration [ppb]",
+         title = "CH4 Concentration & Dew point Temp. vs. Time") +
+    scale_x_datetime(date_breaks = "1 day",
+                     date_labels = "%d-%b") +
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          axis.title.y = element_text(color = "red",
+                                      size=13),
+          axis.text.y = element_text(color = "red"),
+          axis.title.y.right = element_text(color = "blue",
+                                            size=13),
+          axis.text.y.right = element_text(color = "blue"),
+          strip.text.x = element_blank()) +
+    geom_line(data = TotalData_Pres, aes(x = UTC,
+                                         y = temperature_dew_point_mean_200*200),
+              col = "blue") +
+    scale_y_continuous(sec.axis = sec_axis(trans = ~./200,
+                                           name="Dew point Temp., °C"))+
+    facet_wrap(~panel, scales = 'free', nrow = m)
+  H_TimeLine
+  
+  #Export the plot to PNG file
+  ggsave("8.6_CH4_Dew.png", H_TimeLine, path = "4_Data/OutputData/Plots/8_DWD_Data", width = 10, height = 5)
 }

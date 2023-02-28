@@ -32,4 +32,8 @@ if (file.exists("4_Data/OutputData/CombineMeteorologicalData.csv") ){
 
 source("3_Scripts/Plotting_With_Compleate_CSV_File_Data.R")
 
+source("3_Scripts/Keeling_Analyse.R")
+
+source("3_Scripts/Keeling_With_Wind.R")
+
 print("The Plots and output CSV Files will bi in the foulder: MasterThesis/4_Scrips_and_Data/4_Data/OutputData")

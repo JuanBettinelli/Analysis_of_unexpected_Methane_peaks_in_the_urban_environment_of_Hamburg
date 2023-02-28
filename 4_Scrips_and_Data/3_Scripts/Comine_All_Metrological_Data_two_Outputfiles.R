@@ -4,13 +4,7 @@
 
 #Caution very slow
 
-library(lubridate)
-library(pacman)
-library(plyr)
-pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-               ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
-               stringr, tidyr) 
-
+library(rio)
 
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
