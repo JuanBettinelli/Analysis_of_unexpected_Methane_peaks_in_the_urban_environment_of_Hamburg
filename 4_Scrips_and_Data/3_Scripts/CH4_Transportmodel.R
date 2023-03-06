@@ -73,14 +73,34 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   
   # Get create a data frame with the CH4 values
   CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
-  # finde the peaks
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = , npeaks = , threshold = 5, sortstr=TRUE)) # "[+]{1,}[0]{1,2}[-]{1,}" peakpat = NULL,
+  
+  ##### Find Loweres 15%
+  #Select the Data from Dataframe with CH4 Concentration
+  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+  
+  # Sort the dataset in ascending order
+  sorted_data <- sort(CH4Data$X.CH4.)
+  
+  # Determine the number of observations corresponding to the lowest 15% of the dataset
+  n_lowest <- round(length(sorted_data) * 0.15)
+  
+  # Use the head() function to extract the lowest 15% of the dataset
+  lowest_15_percent <- max(head(sorted_data, n_lowest))
+  ######
+  
+  
+  # Find the Peaks in the timeline
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  
   
   # format the Dataframe time
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
   CH4_Peaks$UTC_Beginning <- CH4Data[CH4_Peaks$UTC_Beginning,"UTC"]
   CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
   CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
+  
+  # Remove the "Peaks" at where no measurements were taken (12h)
+  CH4_Peaks <- subset(CH4_Peaks, (UTC_Ending - UTC_Beginning) < 12*60 )
   
   # Create a waterlevel data frame
   WLData <- TotalData[complete.cases(TotalData[ , "Water_Level"]),c("UTC", "Water_Level")]

@@ -126,7 +126,7 @@ if (Wind_Provider == 1){
     W_Speed <- "Speed110m"
     W_Direction <- "Direction110m"
 } else if (Wind_Provider == 4){
-    # Mast 110m
+    # DWD
     W_Speed <- "Wind_Speed"
     W_Direction <- "Wind_Direction"
   }

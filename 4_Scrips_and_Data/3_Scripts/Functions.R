@@ -58,8 +58,23 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   #Select the Data from Dataframe with CH4 Concentration
   CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
   
+  ##### Find Loweres 15%
+  #Select the Data from Dataframe with CH4 Concentration
+  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+  
+  # Sort the dataset in ascending order
+  sorted_data <- sort(CH4Data$X.CH4.)
+  
+  # Determine the number of observations corresponding to the lowest 15% of the dataset
+  n_lowest <- round(length(sorted_data) * 0.15)
+  
+  # Use the head() function to extract the lowest 15% of the dataset
+  lowest_15_percent <- max(head(sorted_data, n_lowest))
+  ######
+  
+  
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE)) # "[+]{1,}[0]{1,2}[-]{1,}" peakpat = NULL,
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   # Format the Peak Dataframe
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
@@ -80,6 +95,10 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
       CH4_Peaks[i, j] <- mean(TotalData[TotalData$UTC >= CH4_Peaks[i,"UTC_Beginning"] & TotalData$UTC <= CH4_Peaks[i,"UTC_Ending"], j], na.rm = TRUE)
     }
   }
+  
+  # Remove the "Peaks" at where no measurements were taken (12h)
+  CH4_Peaks <- subset(CH4_Peaks, (UTC_Ending - UTC_Beginning) < 12*60 )
+
   # Checks if the Data Should be returend to the Script ode exported into a CSV File
   if (Export_CSV){
     write.csv(CH4_Peaks, "4_Data/OutputData/CH4_Peaks.csv", row.names=TRUE)
