@@ -108,7 +108,7 @@ for (Wind_Provider in 1:4){
       # Calculate Pearson's correlation coefficient
       if (nrow(CH4Filtered2) > 5) {
         r <- cor.test(CH4Filtered2$X.CH4., CH4Filtered2$pressure_air_site, use="complete.obs")
-        p <- c(abs(r$estimate), i, i+10, j, j+1, r$p.value)
+        p <- c(r$estimate, i, i+10, j, j+1, r$p.value) #abs()
         Correlation_Data <- rbind(Correlation_Data, p)
         # Print the result
         # print(paste("Pearson's correlation coefficient:", round(r, 2), "Wind direction:", i, "-", i+10))
@@ -121,6 +121,8 @@ for (Wind_Provider in 1:4){
   Correlation_Plot <- ggplot()+
     geom_rect(data = Correlation_Data,aes(xmin = Direction_min, ymin = Speed_min, xmax = Direction_max, ymax = Speed_max,
                                           fill = Correlation))+
+    scale_fill_gradient2(midpoint=0, low="red", mid="white",
+                         high="green", space ="Lab" )+
     labs(x = "Wind direction. °", y = "Wind speed, m/s", title = "Pearson's correlation coefficient for Methan and pressure, depending on Wind Direction and Speed")
   
   ggsave(paste0("13_CH4_vs_pressure_Correlation_",W_Name, ".png") , Correlation_Plot, path = "4_Data/OutputData/Plots/13_Correlation", width = 10, height = 5)

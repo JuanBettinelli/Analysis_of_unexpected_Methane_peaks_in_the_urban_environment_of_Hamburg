@@ -44,8 +44,11 @@ TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
 
 
-########## ?????????????? #########
-# cor(TotalData$WindSpeed,TotalData$WindDirction)
+
+######### Plot Time Between low waterlevel and CH4 Peak ##########
+
+source("3_Scripts/Low_WL_Time.R")
+source("3_Scripts/Low_WL_Dist.R")
 
 ######## Finding the Peaks, The Average Meteorological Data during Peak, Saving csv File #########
 CH4_Peak_Finder(TotalData, TRUE)

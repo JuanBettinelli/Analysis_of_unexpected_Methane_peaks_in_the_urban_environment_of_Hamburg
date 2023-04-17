@@ -90,7 +90,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE)) # Strict peaks: findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   
   # format the Dataframe time
@@ -182,11 +182,17 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   density_raster <- raster(density_est)
   
   # Select the color palette of the raster plot
-  colorPalette <- colorRampPalette(c("blue", "red", "white"))(255)
+  colorPalette <- colorRampPalette(c("lightskyblue", "red", "white"))(255) # lightskyblue
   # Replaces very small values with NA, to make the rasta transperant in this section
-  values(density_raster)[values(density_raster) < 0.2] = NA
+  values(density_raster)[values(density_raster) < 0.1] = NA
   # Plot the raster on a map
-  mv_Raster <- mapview(density_raster, na.color = "transparent", alpha = 0.5,  col.regions = colorPalette, trans = "log") 
+  
+  mv_Raster <- mapview(density_raster, 
+                       na.color = "transparent", 
+                       alpha = 0.7,  
+                       col.regions = colorPalette, 
+                       trans = "log10",
+                       legend = TRUE) 
   # Save the Map
   mapshot(mv_Raster, file = "4_Data/OutputData/Plots/10_Maps/10_Emission_Distribution_with_Changing_Measured_Wind.png")
 }
@@ -282,11 +288,17 @@ Particles_Tracks_Averaged_at_Peak_Wind <- function(TotalData, Released_Particals
   density_raster <- raster(density_est)
   
   # Select the color palette of the raster plot
-  colorPalette <- colorRampPalette(c("blue", "red", "white"))(255)
+  colorPalette <- colorRampPalette(c("lightskyblue", "red", "white"))(255) # lightskyblue
   # Replaces very small values with NA, to make the rasta transperant in this section
-  values(density_raster)[values(density_raster) < 0.2] = NA
+  values(density_raster)[values(density_raster) < 0.1] = NA
   # Plot the raster on a map
-  mv_Raster <- mapview(density_raster, na.color = "transparent", alpha = 0.5,  col.regions = colorPalette, trans = "log") 
+  
+  mv_Raster <- mapview(density_raster, 
+                       na.color = "transparent", 
+                       alpha = 0.7,  
+                       col.regions = colorPalette, 
+                       trans = "log10",
+                       legend = TRUE) 
   # Save the Map
   mapshot(mv_Raster, file = "4_Data/OutputData/Plots/10_Maps/10_Emission_Distribution_with_at_Peak_Averaged_Wind.png")
 }
