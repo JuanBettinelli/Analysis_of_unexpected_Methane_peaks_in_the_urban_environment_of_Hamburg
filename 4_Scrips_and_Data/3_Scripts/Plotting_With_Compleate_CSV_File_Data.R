@@ -2,9 +2,11 @@
 # Author Juan Bettinelli
 # Last change: 26.1.23
 
+library(plyr)
 library(dplyr)
 library(plotly)
 library(rio)
+
 
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
@@ -65,6 +67,8 @@ Compare_Timeline_Basic(TotalData) # Total Timeline
 
 ########### 4 Plot CH4 Concentration Timeseries (Plot 4)##############
 CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
+
+CH4_TimeLine_No_Peaks(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 
 ########### Transportmodel with averaged wind at the CH4 Peaks (Plot 10) ##############
 # Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)

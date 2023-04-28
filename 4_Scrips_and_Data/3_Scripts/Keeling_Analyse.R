@@ -57,8 +57,23 @@ TotalData$c2H <- 1/TotalData$X.CH4..2H
 
 #Select the Data from Data frame with CH4 Concentration
 CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+
+##### Find Loweres 15%
+#Select the Data from Dataframe with CH4 Concentration
+CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+
+# Sort the dataset in ascending order
+sorted_data <- sort(CH4Data$X.CH4.)
+
+# Determine the number of observations corresponding to the lowest 15% of the dataset
+n_lowest <- round(length(sorted_data) * 0.15)
+
+# Use the head() function to extract the lowest 15% of the dataset
+lowest_15_percent <- max(head(sorted_data, n_lowest))
+######
+
 # Find the Peaks in the Remaining timeline
-CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE))
+CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
 
 # Format the Peak Data frame 'CH4_Peaks'
 # Rename the Columns
@@ -124,14 +139,14 @@ r_c2H_Line <- lm(d2H.VPDB ~ c2H, No_Peaks )
 r_c2H_coef <- coef(summary(r_c2H_Line))[, "Estimate"]
 r_c2H_se <- coef(summary(r_c2H_Line))[, "Std. Error"] 
 
-############## Keepling Plots ############
+############## Keeling Plots ############
 
 # Complete Timeline including peaks and base measurements
 q <- ggplot(TotalData, aes(x = c13C, y = d13C.VPDB)) +
         geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
         expand_limits(x = 0) +
         geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-        labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("12C, δ(13)C \n (mean = ", round(c13C_coef[[1]], digits = 1),"‰ ± ", round(c13C_se[[1]], digits = 1),"‰ s.e)")) +
+        labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("13C, δ(13)C \n (mean = ", round(c13C_coef[[1]], digits = 1),"‰ ± ", round(c13C_se[[1]], digits = 1),"‰ s.e)")) +
         theme(axis.text.x=element_text(angle=60, hjust=1),
                 plot.title = element_text(size=10))
       
@@ -139,10 +154,10 @@ k <- ggplot(TotalData, aes(x = c2H, y = d2H.VPDB)) +
       expand_limits(x = 0) +
       geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
       geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-      labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("2H, δ(2)H \n (mean = ", round(c2H_coef[[1]], digits = 1),"‰ ±", round(c2H_se[[1]], digits = 1),"‰ s.e)")) +
+      labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("2H, δ(2)H \n (mean = ", round(c2H_coef[[1]], digits = 1),"‰ ±", round(c2H_se[[1]], digits = 1),"‰ s.e)")) +
       theme(axis.text.x=element_text(angle=60, hjust=1),
               plot.title = element_text(size=10))
-KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("Keeling Plot of compleate measument campaign",gp=gpar(fontsize=15,font=3)))
+KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("Keeling plot of compleate measument campaign",gp=gpar(fontsize=15,font=3)))
 
 ggsave("11_Keeling_Plot_Total.png", KP_Total, path = "4_Data/OutputData/Plots/11_Keeling_Analyse", width = 10, height = 5)
 
@@ -152,7 +167,7 @@ KP_13C_Peaks <- ggplot(Total_Peaks, aes(x = c13C, y = d13C.VPDB)) +
   geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
   expand_limits(x = 0) +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("12C, δ(13)C \n (mean = ", round(p_c13C_coef[[1]], digits = 1),"‰ ± ", round(p_c13C_se[[1]], digits = 1),"‰ s.e)")) + 
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("13C, δ(13)C \n (mean = ", round(p_c13C_coef[[1]], digits = 1),"‰ ± ", round(p_c13C_se[[1]], digits = 1),"‰ s.e)")) + 
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
@@ -160,11 +175,11 @@ KP_2H_Peaks <- ggplot(Total_Peaks, aes(x = c2H, y = d2H.VPDB)) +
   expand_limits(x = 0) +
   geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("2H, δ(2)H \n (mean = ", round( p_c2H_coef[[1]], digits = 1),"‰ ± ", round(p_c2H_se[[1]], digits = 1),"‰ s.e)")) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("D, δD \n (mean = ", round( p_c2H_coef[[1]], digits = 1),"‰ ± ", round(p_c2H_se[[1]], digits = 1),"‰ s.e)")) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
-KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("Keeling Plot of only the Peaks",gp=gpar(fontsize=15,font=3)))
+KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("Keeling plot of only the Peaks",gp=gpar(fontsize=15,font=3)))
 
 ggsave("11_Keeling_Plot_Peaks.png", KP_Peaks, path = "4_Data/OutputData/Plots/11_Keeling_Analyse", width = 10, height = 5)
 
@@ -173,7 +188,7 @@ KP_13C_NoPeaks <- ggplot(No_Peaks, aes(x = c13C, y = d13C.VPDB)) +
   geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
   expand_limits(x = 0) +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("12C, δ(13)C \n (mean = ", round(r_c13C_coef[[1]], digits = 1),"‰ ± ", round( r_c13C_se[[1]], digits = 1),"‰ s.e)")) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("13C, δ(13)C \n (mean = ", round(r_c13C_coef[[1]], digits = 1),"‰ ± ", round( r_c13C_se[[1]], digits = 1),"‰ s.e)")) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
@@ -181,18 +196,18 @@ KP_2H_NoPeaks <- ggplot(No_Peaks, aes(x = c2H, y = d2H.VPDB)) +
   expand_limits(x = 0) +
   geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
   geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
-  labs(x = expression('(c'[CH4]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("2H, δ(2)H \n (mean = ", round(r_c2H_coef[[1]], digits = 1),"‰ ± ", round(r_c2H_se[[1]], digits = 1),"‰ s.e)")) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("D, δD \n (mean = ", round(r_c2H_coef[[1]], digits = 1),"‰ ± ", round(r_c2H_se[[1]], digits = 1),"‰ s.e)")) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
-KP_Ex_Peaks <- grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2,  top = textGrob("Keeling Plot of compleate measument campaign excluding the Peaks",gp=gpar(fontsize=15,font=3)))
+KP_Ex_Peaks <- grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2,  top = textGrob("Keeling plot of compleate measument campaign excluding methane peaks",gp=gpar(fontsize=15,font=3)))
 
 ggsave("11_Keeling_Plot_Ex_Peaks.png", KP_Ex_Peaks, path = "4_Data/OutputData/Plots/11_Keeling_Analyse", width = 10, height = 5)
 
 ##### Show Keeling analyse Data in output Console ######
-message("\n \nTotal timeseries: \n 12C, δ(13)C (mean = ", c13C_coef[[1]],"‰ ± ", c13C_se[[1]],"‰ s.e; n = 1)","\n 2H, δ(2)H  (mean =", c2H_coef[[1]],"‰ ±", c2H_se[[1]],"‰ s.e; n = 1)")
-message("Just the peaks: \n 12C, δ(13)C (mean = ", p_c13C_coef[[1]],"‰ ± ", p_c13C_se[[1]],"‰ s.e; n = 1)", " \n 2H, δ(2)H  (mean =", p_c2H_coef[[1]],"‰ ±", p_c2H_se[[1]],"‰ s.e; n = 1)")
-message("Excluding the peaks: \n 12C, δ(13)C (mean =", r_c13C_coef[[1]],"‰ ±", r_c13C_se[[1]],"‰ s.e; n = 1)","\n 2H, δ(2)H (mean =", r_c2H_coef[[1]],"‰ ±", r_c2H_se[[1]],"‰ s.e; n = 1)")
+message("\n \nTotal timeseries: \n 12C, δ(13)C (mean = ", c13C_coef[[1]],"‰ ± ", c13C_se[[1]],"‰ s.e; n = 1)","\n D, δD  (mean =", c2H_coef[[1]],"‰ ±", c2H_se[[1]],"‰ s.e; n = 1)")
+message("Just the peaks: \n 12C, δ(13)C (mean = ", p_c13C_coef[[1]],"‰ ± ", p_c13C_se[[1]],"‰ s.e; n = 1)", " \n D, δD  (mean =", p_c2H_coef[[1]],"‰ ±", p_c2H_se[[1]],"‰ s.e; n = 1)")
+message("Excluding the peaks: \n 12C, δ(13)C (mean =", r_c13C_coef[[1]],"‰ ±", r_c13C_se[[1]],"‰ s.e; n = 1)","\n D, δD (mean =", r_c2H_coef[[1]],"‰ ±", r_c2H_se[[1]],"‰ s.e; n = 1)")
 
 
 

@@ -34,7 +34,7 @@ FinishTime <- as.POSIXct('2022-03-29 00:00:00',
 # Hamburg Campagne Timeseries: 2021-09-06 00:00:00
 # Hamburg Campaine #2: 2021-09-17 10:21:00
 
-Wind_Provider = 2 # Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
+Wind_Provider = 1 # Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
 
 
 
@@ -182,12 +182,12 @@ p0 <- ggplot() +
   geom_errorbar(data=Keeling_output, aes(x = c13C_coef, xmin=c13C_coef-c13C_se, xmax=c13C_coef+c13C_se, y = c2H_coef, ymin=c2H_coef-c2H_se, ymax=c2H_coef+c2H_se, colour=Direction), width=.02, alpha=0.5) + #, position=pd
   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
   geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
-  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "purple")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
   geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
-  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="yellow")+ # MC: Microbial CO2 reduction
   geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.5, fill="pink")+ # MF: Microbial Fermentation
-  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="#6B8E23")+ #TH: Thermogenic
   geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue")+ # A: Abiotic
   labs(x = expression(delta^13*'C in ‰'), y = expression(delta*'D in ‰'), title = "Dual isotope plots of the isotopic source signatures")+
   scale_color_gradient2(midpoint=180, low="blue", mid="red",
@@ -213,7 +213,7 @@ p2 <- ggplot() +
   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246, color = "Natural wetlands"), alpha=0.1) +# Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
   scale_color_manual('Type',
                      breaks=c("Fossil fuels & nonindustrial combustion", "Agriculture", "Waste", "Other anthropogenic sources","Natural wetlands"),
-                     values = c("Fossil fuels & nonindustrial combustion" = "red", "Agriculture" = "green", "Waste" = "yellow", "Other anthropogenic sources" = "blue", "Natural wetlands" = "black"),  
+                     values = c("Fossil fuels & nonindustrial combustion" = "red", "Agriculture" = "green", "Waste" = "purple", "Other anthropogenic sources" = "blue", "Natural wetlands" = "black"),  
                      guide = guide_legend(override.aes = list(alpha = 1)))
 # theme(legend.direction = "vertical", legend.box = "vertical")
 
@@ -224,7 +224,7 @@ p3 <- ggplot() +
   geom_polygon(data = A, aes(x, y, fill="Abiotic"), alpha=0.4)+ # A: Abiotic
   scale_fill_manual('Methode',
                     breaks=c("Microbial CO2 reduction", "Microbial Fermentation", "Thermogenic", "Abiotic"),
-                    values = c("Microbial CO2 reduction" = 'purple', "Microbial Fermentation" = "pink", "Thermogenic" = "orange", "Abiotic" = "lightblue"),  
+                    values = c("Microbial CO2 reduction" = 'yellow', "Microbial Fermentation" = "pink", "Thermogenic" = "#6B8E23", "Abiotic" = "lightblue"),  
                     guide = guide_legend(override.aes = list(alpha = 1)))
 
 leg1 <- get_legend(p1)
@@ -300,7 +300,7 @@ lowest_15_percent <- max(head(sorted_data, n_lowest))
 ######
 
 # Find the Peaks in the Remaining timeline
-CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # strict peaks: findpeaks(CH4Data2$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ...... peaks like in the paper: findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
 
 # Format the Peak Data frame 'CH4_Peaks'
 # Rename the Columns
@@ -390,12 +390,12 @@ p0 <- ggplot() +
   geom_errorbar(data=Keeling_Peaks_output, aes(x = c13C_coef, xmin=c13C_coef-c13C_se, xmax=c13C_coef+c13C_se, y = c2H_coef, ymin=c2H_coef-c2H_se, ymax=c2H_coef+c2H_se, colour=Direction),  width=.02, alpha=0.5) + #, position=pd
   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
   geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
-  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "purple")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
   geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
-  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="yellow")+ # MC: Microbial CO2 reduction
   geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.5, fill="pink")+ # MF: Microbial Fermentation
-  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="#6B8E23")+ #TH: Thermogenic
   geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue")+ # A: Abiotic
   labs(x = expression(delta^13*'C in ‰'), y = expression(delta*'D in ‰'), title = "Dual isotope plots of the isotopic source signatures, only Peaks")+
   scale_color_gradient2(midpoint=180, low="blue", mid="red",
@@ -421,7 +421,7 @@ p2 <- ggplot() +
   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246, color = "Natural wetlands"), alpha=0.1) +# Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
   scale_color_manual('Type',
                      breaks=c("Fossil fuels & nonindustrial combustion", "Agriculture", "Waste", "Other anthropogenic sources","Natural wetlands"),
-                     values = c("Fossil fuels & nonindustrial combustion" = "red", "Agriculture" = "green", "Waste" = "yellow", "Other anthropogenic sources" = "blue", "Natural wetlands" = "black"),  
+                     values = c("Fossil fuels & nonindustrial combustion" = "red", "Agriculture" = "green", "Waste" = "purple", "Other anthropogenic sources" = "blue", "Natural wetlands" = "black"),  
                      guide = guide_legend(override.aes = list(alpha = 1)))
 # theme(legend.direction = "vertical", legend.box = "vertical")
 
@@ -432,7 +432,7 @@ p3 <- ggplot() +
   geom_polygon(data = A, aes(x, y, fill="Abiotic"), alpha=0.4)+ # A: Abiotic
   scale_fill_manual('Methode',
                     breaks=c("Microbial CO2 reduction", "Microbial Fermentation", "Thermogenic", "Abiotic"),
-                    values = c("Microbial CO2 reduction" = 'purple', "Microbial Fermentation" = "pink", "Thermogenic" = "orange", "Abiotic" = "lightblue"),  
+                    values = c("Microbial CO2 reduction" = 'yellow', "Microbial Fermentation" = "pink", "Thermogenic" = "#6B8E23", "Abiotic" = "lightblue"),  
                     guide = guide_legend(override.aes = list(alpha = 1)))
 
 leg1 <- get_legend(p1)
@@ -555,12 +555,12 @@ p0 <- ggplot() +
   geom_errorbar(data=Keeling_No_Peaks_output, aes(x = c13C_coef, xmin=c13C_coef-c13C_se, xmax=c13C_coef+c13C_se, y = c2H_coef, ymin=c2H_coef-c2H_se, ymax=c2H_coef+c2H_se , colour=Direction), width=.02, alpha=0.5) + #, position=pd
   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
   geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
-  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "yellow")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
+  geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "purple")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
   geom_rect(aes(xmin=-60,xmax=-9,ymin=-175,ymax=-81),alpha=0.1, color = "blue")+ # Other anthropogenic sources 12C 35.0 [60; 9], 2H 175 [175; 81]
   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246),alpha=0.1, color = "black")+ # Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
-  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="purple")+ # MC: Microbial CO2 reduction
+  geom_rect(aes(xmin=-90,xmax=-50,ymin=-450,ymax=-250),alpha=0.1, fill="yellow")+ # MC: Microbial CO2 reduction
   geom_rect(aes(xmin=-60,xmax=-90,ymin=-350,ymax=-125),alpha=0.5, fill="pink")+ # MF: Microbial Fermentation
-  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="orange")+ #TH: Thermogenic
+  geom_polygon(data = TH, aes(x, y), alpha=0.1,fill="#6B8E23")+ #TH: Thermogenic
   geom_polygon(data = A, aes(x, y), alpha=0.4, fill="lightblue")+ # A: Abiotic
   labs(x = expression(delta^13*'C in ‰'), y = expression(delta*'D in ‰'), title = "Dual isotope plots of the isotopic source signatures, exluding Peaks")+
   scale_color_gradient2(midpoint=180, low="blue", mid="red",
@@ -586,7 +586,7 @@ p2 <- ggplot() +
   geom_rect(aes(xmin=-88.9,xmax=-51.5,ymin=-358,ymax=-246, color = "Natural wetlands"), alpha=0.1) +# Natural wetlands 12C 69 [88.9; 51.5], 2H 330 [358; 246]
   scale_color_manual('Type',
                      breaks=c("Fossil fuels & nonindustrial combustion", "Agriculture", "Waste", "Other anthropogenic sources","Natural wetlands"),
-                     values = c("Fossil fuels & nonindustrial combustion" = "red", "Agriculture" = "green", "Waste" = "yellow", "Other anthropogenic sources" = "blue", "Natural wetlands" = "black"),  
+                     values = c("Fossil fuels & nonindustrial combustion" = "red", "Agriculture" = "green", "Waste" = "purple", "Other anthropogenic sources" = "blue", "Natural wetlands" = "black"),  
                      guide = guide_legend(override.aes = list(alpha = 1)))
 # theme(legend.direction = "vertical", legend.box = "vertical")
 
@@ -597,7 +597,7 @@ p3 <- ggplot() +
   geom_polygon(data = A, aes(x, y, fill="Abiotic"), alpha=0.4)+ # A: Abiotic
   scale_fill_manual('Methode',
                     breaks=c("Microbial CO2 reduction", "Microbial Fermentation", "Thermogenic", "Abiotic"),
-                    values = c("Microbial CO2 reduction" = 'purple', "Microbial Fermentation" = "pink", "Thermogenic" = "orange", "Abiotic" = "lightblue"),  
+                    values = c("Microbial CO2 reduction" = 'yellow', "Microbial Fermentation" = "pink", "Thermogenic" = "#6B8E23", "Abiotic" = "lightblue"),  
                     guide = guide_legend(override.aes = list(alpha = 1)))
 
 leg1 <- get_legend(p1)

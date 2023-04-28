@@ -122,14 +122,14 @@ for (Wind_Provider in 1:4){
                                           fill = Correlation))+
     scale_fill_gradient2(midpoint=0, low="red", mid="white",
                          high="green", space ="Lab" )+
-    labs(x = "Wind direction. °", y = "Wind speed, m/s", title = "Pearson's correlation coefficient for Methan and humidity, depending on Wind Direction and Speed")
+    labs(x = "Wind direction in °", y = "Wind speed in m/s", title = "Pearson's correlation coefficient between methane and humidity, binned by wind direction and wind speed")
   
   ggsave(paste0("13_CH4_vs_humidity_Correlation_",W_Name, ".png") , Correlation_Plot, path = "4_Data/OutputData/Plots/13_Correlation", width = 10, height = 5)
   
   P_value_Plot <- ggplot()+
     geom_rect(data = Correlation_Data,aes(xmin = Direction_min, ymin = Speed_min, xmax = Direction_max, ymax = Speed_max,
                                           fill = ifelse(p_value>0.05, 'Fail', 'Pass')))+
-    labs(x = "Wind direction. °", y = "Wind speed, m/s", title = "P-value Test for Methan and humidity, depending on Wind Direction and Speed")+
+    labs(x = "Wind direction in °", y = "Wind speed in m/s", title = "5% P-value test for methane and humidity, binned by wind direction and wind speed")+
     scale_fill_discrete(name = "P-Test Results")
   
   ggsave(paste0("13_CH4_vs_humidity_P_Value_",W_Name, ".png") , P_value_Plot, path = "4_Data/OutputData/Plots/13_Correlation", width = 10, height = 5)
