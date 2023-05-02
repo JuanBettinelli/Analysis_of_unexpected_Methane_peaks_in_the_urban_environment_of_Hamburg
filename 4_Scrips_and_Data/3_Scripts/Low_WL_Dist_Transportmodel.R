@@ -94,7 +94,7 @@ Wind_Provider = 1
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   
   # format the Dataframe time
@@ -185,9 +185,9 @@ Wind_Provider = 1
   WL_Peak_Plot <- ggplot(data =CH4_Peaks, aes(x = Dist, y = X.CH4.)) +
     geom_point() +
     geom_smooth() +
-    xlab("Distance traveled in the ime between CH4 peak and preavius low water, km")+
-    ylab("CH4 Concentration, ppb")+
-    ggtitle("CH4 Concentration vs. Distance traveled in the ime between CH4 peak and preavius low water")
+    xlab(expression("Distance between CH"[4]*" Emitter and measurement location [km]"))+
+    ylab(expression("Peak CH"[4]*" concentration [ppb]"))+
+    ggtitle(expression("CH"[4]*" concentration vs distance between emitter and measurement location"))
 
   ggsave("14_Low_WL_to_Peak_dist_new.png", WL_Peak_Plot, path = "4_Data/OutputData/Plots/14_Low_WL_to_Peak", width = 10, height = 5)
   

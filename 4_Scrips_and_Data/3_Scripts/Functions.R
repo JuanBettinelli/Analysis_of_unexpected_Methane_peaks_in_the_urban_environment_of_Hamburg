@@ -1,28 +1,28 @@
 # Scripts with functions used in Plotting_With_Compleate_CSV_File_Data.R
 # Author: Juan Bettinelli
 
-library(plyr)
-library(ggplot2)   
-library(hexbin)
-library(reshape2)
-library(openair)
-library(cowplot)
-library(patchwork)
-library(dplyr)
-library(GGally)
-library(ggvis)
-library(httr)
-library(plotly)
-library(stringr)
-library(tidyr)
-library(pracma)
+# library(plyr)
+# library(ggplot2)   
+# library(hexbin)
+# library(reshape2)
+# library(openair)
+# library(cowplot)
+# library(patchwork)
+# library(dplyr)
+# library(GGally)
+# library(ggvis)
+# library(httr)
+# library(plotly)
+# library(stringr)
+# library(tidyr)
+# library(pracma)
 
 
 #------------------------------------------------------------------------------------------------------------
 # Function to split the Timeline into separate Plots/Panels
 
 panel_function <- function(TotalData, n){
-  library("dplyr")
+  # library("dplyr")
 
   # 0 is used in Campain paper, here Equal Sized Plots are produced regadles of the compleatness of the data
   if (n == 0){
@@ -73,7 +73,7 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   # Format the Peak Dataframe
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
@@ -312,10 +312,15 @@ Compare_Timeline <- function(TotalData = TotalData, n = 4) {
                   y = X.CH4.),
               col = "red") +
     labs(x = "Fill Time [UTC]",
-         y ="CH4 Concentration [ppb]",
-         title = "CH4 Concentration & Elbe Waterlevel vs. Time") +
+         y =expression("CH"[4]*" concentration [ppb]"),
+         title = "Methane concentration & Elbe water level vs. time") +
     scale_x_datetime(date_breaks = "1 day",
                      date_labels = "%d-%b") +
+                     # limits = c(as.POSIXct('2021-08-01 00:00:00', 
+                     #                       format = "%Y-%m-%d %H:%M:%S", 
+                     #                       tz ="utc"), as.POSIXct('2021-08-18 00:00:00', 
+                     #                                              format = "%Y-%m-%d %H:%M:%S", 
+                     #                                              tz ="utc"))) +
     theme(axis.text.x=element_text(angle=60, hjust=1),
           axis.title.y = element_text(color = "red",
                                       size=13),

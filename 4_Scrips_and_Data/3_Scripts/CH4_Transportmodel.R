@@ -90,7 +90,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE)) # Strict peaks: findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   
   # format the Dataframe time
@@ -230,7 +230,7 @@ Particles_Tracks_Averaged_at_Peak_Wind <- function(TotalData, Released_Particals
   CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
   
   # Find the CH4 Peaks
-  CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
+  CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE) # probably need redoing as peak identification are not defined
   # CH4_Peaks <- CH4_Peaks[1:5,] # Can be used to only that the largest peaks
   
   # Create a data frame where all points will be placed

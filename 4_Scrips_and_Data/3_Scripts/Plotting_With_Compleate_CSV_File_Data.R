@@ -2,10 +2,54 @@
 # Author Juan Bettinelli
 # Last change: 26.1.23
 
+# library(plyr)
+# library(dplyr)
+# library(plotly)
+# library(rio)
+# 
+# library(plyr)
+# library(ggplot2)   
+# library(hexbin)
+# library(reshape2)
+# library(openair)
+# library(cowplot)
+# library(patchwork)
+# library(dplyr)
+# library(GGally)
+# library(ggvis)
+# library(httr)
+# library(plotly)
+# library(stringr)
+# library(tidyr)
+# library(pracma)
+
+
+
+
+library(pacman)
+library(lubridate)
+library(readr)
 library(plyr)
+library(tidyverse)
+library(ggplot2)   
+library(hexbin)
+library(gridExtra)
+library(reshape2)
+library(openair)
+library(cowplot)
+library(patchwork)
 library(dplyr)
+library(GGally)
+library(ggthemes)
+library(ggvis)
+library(httr)
 library(plotly)
 library(rio)
+library(rmarkdown)
+library(shiny)
+library(stringr)
+library(tidyr)
+library(pracma)
 
 
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
@@ -47,10 +91,11 @@ TotalData$Speed[TotalData$Speed > 99] <- NA
 
 
 
-######### Plot Time Between low waterlevel and CH4 Peak ##########
+######### Plot Time Between low water level and CH4 Peak ##########
 
 source("3_Scripts/Low_WL_Time.R")
 source("3_Scripts/Low_WL_Dist.R")
+source("Low_WL_Dist_Transportmodel.R")
 
 ######## Finding the Peaks, The Average Meteorological Data during Peak, Saving csv File #########
 CH4_Peak_Finder(TotalData, TRUE)
