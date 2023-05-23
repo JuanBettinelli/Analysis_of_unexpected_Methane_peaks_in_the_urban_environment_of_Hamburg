@@ -1,4 +1,9 @@
-# Script for a transport model of the Measured partials
+# Script for a transport model of methane measured at the Geomatikum with CF-IRMS using Wind measuered By Uni Hamburg and DWD
+# Author:
+# Juan Bettinelli,
+# Last edit: 22.5.2023
+
+# Declare library's used
 
 library(geosphere)
 library(pracma)

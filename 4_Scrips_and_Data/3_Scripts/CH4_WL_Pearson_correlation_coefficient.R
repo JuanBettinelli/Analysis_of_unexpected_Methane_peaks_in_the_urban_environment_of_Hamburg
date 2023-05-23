@@ -1,12 +1,12 @@
-
+# Script that produces correlation plots between CH4 concentration and Water level
 # Author:
 # Juan Bettinelli,
-# Script that preformes a Keeling analyse of the CH4 Measuments at the Geomatikum
+# Script that preformed a Keeling analyse of the CH4 Measurements at the Geomatikum
 # The the Analyse is done depending on the wind direction. 
-# The Peaks kan be seen seperatel.
-# 27.2.2023
+# The Peaks can be seen separate.
+# 22.5.2023
 
-# Declare librarys used
+# Declare library's used
 
 library(tidyverse)
 library(ggplot2)   
@@ -57,7 +57,7 @@ TotalData$c13C <- 1/TotalData$X.CH4..13C
 TotalData$c2H <- 1/TotalData$X.CH4..2H
 
 
-for (Wind_Provider in 1:4){
+for (Wind_Provider in 1:4){ 
   # Create a dataframe with only the Methan Data
   CH4Data <- TotalData[, c("UTC", "X.CH4..13C", "d13C.VPDB", "sd..CH4.", "sd.d13C", "X.CH4..2H", "d2H.VPDB", "sd..CH4..1", "sd.d2H", "X.CH4.", "c13C", "c2H", "Water_Level")]
   CH4Data <- CH4Data[complete.cases(CH4Data[ , "X.CH4."]),]
@@ -133,6 +133,19 @@ for (Wind_Provider in 1:4){
     scale_fill_discrete(name = "P-Test Results")
   
   ggsave(paste0("13_CH4_vs_Waterlevel_P_Value_",W_Name, ".png") , P_value_Plot, path = "4_Data/OutputData/Plots/13_Correlation", width = 10, height = 5)
+  
+
+  Corr_P_value_Plot <- ggplot()+
+    geom_rect(data = Correlation_Data,aes(xmin = Direction_min, ymin = Speed_min, xmax = Direction_max, ymax = Speed_max,
+                                          fill = Correlation,
+                                          alpha = ifelse(p_value>0.05, 0, 1)))+ 
+    scale_fill_gradient2(midpoint=0, low="red", mid="white",
+                         high="green", space ="Lab" )+
+    labs(x = "Wind direction in °", y = "Wind speed in m/s", title = "Pearson's correlation coefficient between methane and Elbe water level, binned by wind direction and wind speed")+
+    scale_alpha_continuous(range = c(0, 1), guide=FALSE)
+  
+  ggsave(paste0("13_CH4_vs_Waterlevel_Correlation_P_value_",W_Name, ".png") , Corr_P_value_Plot, path = "4_Data/OutputData/Plots/13_Correlation", width = 10, height = 5)
+  
   
 }
 

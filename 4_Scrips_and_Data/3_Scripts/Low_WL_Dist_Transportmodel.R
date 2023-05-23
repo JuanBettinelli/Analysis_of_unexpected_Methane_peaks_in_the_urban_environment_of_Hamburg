@@ -1,4 +1,6 @@
-# Script for a transport model of the Measured partials
+# Script to calculate the the distanze between emitter and measurment location using the  transport model
+# Author: Juan Bettinelli
+# Last edit. 22.05.2023
 
 library(geosphere)
 library(pracma)

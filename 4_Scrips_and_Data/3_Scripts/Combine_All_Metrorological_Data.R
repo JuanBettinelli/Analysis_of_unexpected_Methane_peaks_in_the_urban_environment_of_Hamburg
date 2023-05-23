@@ -1,7 +1,7 @@
 # Script to combine all meterological Data.
 # Author Juan Bettinelli
 
-#Caution very slow
+#Caution very slow!!
 
 library(rio)
 

@@ -1,3 +1,6 @@
+# Script to calculate the the Time between emission and measurement
+# Author: Juan Bettinelli
+# Last edit. 22.05.2023
 
   library(dplyr)
   library(plotly)

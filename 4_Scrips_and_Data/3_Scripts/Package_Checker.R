@@ -1,4 +1,6 @@
 # script to check if packages are needed
+# Author: Juan Bettinelli
+# Last edit. 22.05.2023
 
 library(funchir)
 

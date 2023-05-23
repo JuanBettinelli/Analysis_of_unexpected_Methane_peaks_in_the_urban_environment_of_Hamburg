@@ -4,7 +4,7 @@
 # Script that preformes a Keeling analyse of the CH4 Measuments at the Geomatikum
 # The the Analyse is done depending on the wind direction. 
 # The Peaks kan be seen seperatel.
-# 27.2.2023
+# 22.5.2023
 
 # Declare librarys used
 

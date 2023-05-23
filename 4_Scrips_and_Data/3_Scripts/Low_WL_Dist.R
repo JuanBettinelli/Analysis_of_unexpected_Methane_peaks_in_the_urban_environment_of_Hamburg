@@ -1,3 +1,7 @@
+# Script to calculate the the distance traveled between emitter and measurement location
+# Author: Juan Bettinelli
+# Last edit. 22.05.2023
+
 
 library(dplyr)
 library(plotly)

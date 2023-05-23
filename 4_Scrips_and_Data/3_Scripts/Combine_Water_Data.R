@@ -1,3 +1,8 @@
+# Script that combines all water level data into a single file.
+# Author: Juan Bettinelli
+# Last edit: 1.1.2023
+
+
 library(lubridate)
 library(dplyr)
 library(plotly)

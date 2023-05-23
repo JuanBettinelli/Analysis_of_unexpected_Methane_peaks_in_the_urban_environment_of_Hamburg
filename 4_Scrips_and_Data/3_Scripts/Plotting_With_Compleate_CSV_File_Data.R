@@ -115,6 +115,8 @@ CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDat
 
 CH4_TimeLine_No_Peaks(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 
+CH4_TimeLine_total(TotalData, StartTime , FinishTime )
+
 ########### Transportmodel with averaged wind at the CH4 Peaks (Plot 10) ##############
 # Wind_Provider = 1(Geomatikum), 2(Mast 50m) 3(Mast 110m), 4(DWD)
 # Warning takes quit a wile !!!!!!

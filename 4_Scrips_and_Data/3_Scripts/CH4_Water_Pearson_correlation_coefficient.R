@@ -1,12 +1,12 @@
-
+# Script that produces correlation plots between CH4 concentration and Water quality parameter
 # Author:
 # Juan Bettinelli,
-# Script that preformes a Keeling analyse of the CH4 Measuments at the Geomatikum
+# Script that preformed a Keeling analyse of the CH4 Measurements at the Geomatikum
 # The the Analyse is done depending on the wind direction. 
-# The Peaks kan be seen seperatel.
-# 27.2.2023
+# The Peaks can be seen separate.
+# 22.5.2023
 
-# Declare librarys used
+# Declare library's used
 
 library(tidyverse)
 library(ggplot2)   

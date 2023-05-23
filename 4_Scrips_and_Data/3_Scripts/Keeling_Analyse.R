@@ -5,6 +5,7 @@
 # Data from the Hamburg campaign 2021-2022.
 # This Script is used for a Keeling analysed of the data collected in Hamburg Geomatikum in 2021.
 # The script produces a timeline of the total Methan concentration
+#Last edit: 22.05.2023
 
 # Declare librarys used
 

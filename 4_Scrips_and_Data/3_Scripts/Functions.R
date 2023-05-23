@@ -1,5 +1,6 @@
 # Scripts with functions used in Plotting_With_Compleate_CSV_File_Data.R
 # Author: Juan Bettinelli
+# Last edit: 22.5.2023
 
 # library(plyr)
 # library(ggplot2)   
@@ -73,7 +74,7 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   # Format the Peak Dataframe
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
@@ -692,6 +693,75 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
            height = 5)
   }
 }
+
+#------------------------------------------------------------------------------------------------------------
+
+
+# Function to Plot a CH4 Timeline with A Peak detection
+CH4_TimeLine_total <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime) { #, n = 10, Panel_Plot = FALSE)
+  
+  # # calling funktions to splite timeline into Panels
+  # TotalData <- panel_function(TotalData, n)
+  # m <- panel_No_function(n)
+  
+  #Select the Data from dataframe with CH4 Concentration
+  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+  C13Data <- TotalData[complete.cases(TotalData[ , "d13C.VPDB"]),c("UTC", "d13C.VPDB")]
+  DData <- TotalData[complete.cases(TotalData[ , "d2H.VPDB"]),c("UTC", "d2H.VPDB")]
+  
+# Create the Timeline plot
+CH4_TimeLine <- ggplot(CH4Data[, ], aes(x = UTC, y = X.CH4.)) +
+  geom_line() +
+  labs(
+    y = expression("CH"[4]*" con. [ppb]")) +
+  scale_x_datetime(date_breaks = "15 day",
+                   date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x = element_blank(),
+        strip.text.x = element_blank(),
+        legend.position="none")
+
+CH4_13C_TimeLine <- ggplot(C13Data[, ], aes(x = UTC, y = d13C.VPDB)) +
+  geom_line() +
+  labs(
+    y = expression("δ"^13*"C VPDB [‰]")) +
+  scale_x_datetime(date_breaks = "15 day",
+                   date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x = element_blank(),
+        strip.text.x = element_blank(),
+        legend.position="none")
+
+CH4_2H_TimeLine <- ggplot(DData[, ], aes(x = UTC, y = d2H.VPDB)) +
+  geom_line() +
+  labs(x = "Fill Time [UTC]",
+       y = expression("δD VSMOW [‰]")) +
+  scale_x_datetime(date_breaks = "15 day",
+                   date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+  theme(axis.text.x=element_text(angle=60,
+                                 hjust=1),
+        strip.text.x = element_blank(),
+        legend.position="none")
+
+
+Total_Timeline <- CH4_TimeLine + CH4_13C_TimeLine + CH4_2H_TimeLine +
+  plot_layout(ncol = 1, guides = "collect")+
+  plot_annotation(
+    title = expression("CF-IRMS time series for methane concentration, δ"^13*"C and δD"))
+
+Total_Timeline
+
+# Save the Plot
+ggsave(paste0("4_CH4_Total_Timeline.png"),
+       Total_Timeline,
+       path = "4_Data/OutputData/Plots/4_CH4_Timeline",
+       width = 10,
+       height = 5)
+}
+
+
 #------------------------------------------------------------------------------------------------------------
 
 # Function to Plot a CH4 Timeline without Peaks
