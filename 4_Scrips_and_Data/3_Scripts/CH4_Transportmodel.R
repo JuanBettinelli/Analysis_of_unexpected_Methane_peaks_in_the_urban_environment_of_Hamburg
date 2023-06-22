@@ -95,7 +95,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   
   # format the Dataframe time
@@ -185,6 +185,7 @@ Particles_Tracks_Changing_Wind <- function(TotalData, No_of_Releast_Particals = 
   
   # Convert density into raster
   density_raster <- raster(density_est)
+  density_raster <- log(density_raster)   #natural log of raster!!!!!!!!!!!!!!!
   
   # Select the color palette of the raster plot
   colorPalette <- colorRampPalette(c("lightskyblue", "red", "white"))(255) # lightskyblue

@@ -196,8 +196,9 @@ Wind_Provider = 1
   
   WL_Peak_Plot
   
-  
-  
+# Dist_test <- CH4_Peaks$Dist[CH4_Peaks$Dist >= 1 & CH4_Peaks$Dist <=12]
+# sd(Dist_test)
+
   # # Plot the Particals as Individual points on interactive map
   # mv_points <- mapview(Total_Points, xcol = "lon", ycol = "lat", zcol = "Peak_No",cex = 0.5, alpha = 0.5, crs = 4326, map.types = "Stamen.Toner")
   # # Save the Map as PNG
