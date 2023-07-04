@@ -616,6 +616,59 @@ Compare_Timeline_Basic <- function(TotalData = TotalData) {
 
 #------------------------------------------------------------------------------------------------------------
 
+# Function to Create Basic Plot for CH4 vs Waterlevel
+Compare_Timeline_Basic_Section <- function(TotalData = TotalData) {
+  
+  StartTime <- as.POSIXct('2021-08-06 00:00:00', 
+                          format = "%Y-%m-%d %H:%M:%S", 
+                          tz ="utc")
+  # Start Time: 2021-08-01 22:03:00
+  
+  FinishTime <- as.POSIXct('2021-08-06 23:59:59', 
+                           format = "%Y-%m-%d %H:%M:%S", 
+                           tz ="utc")
+  
+  # Select complete case data from totalData Dataframe
+  TotalData_CH4 <- TotalData[complete.cases(TotalData[ , "X.CH4."]),]
+  TotalData_CH4 <- TotalData_CH4[,c("UTC", "X.CH4.", "Water_Level")]
+  WL_CH4_Data <- melt(TotalData_CH4, id.var="UTC")
+  
+  png(file="4_Data/OutputData/Plots/4_Basic_Plot_CH4_Wl.png",
+      width=600, height=350)
+  par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
+  plot(TotalData_CH4$UTC, TotalData_CH4$Water_Level,
+       type = "l",
+       cex = 2,
+       xlab = "Date/Time UTC",
+       ylab = "Elbe Waterlevel, mm",
+       xlim = c(StartTime, FinishTime))
+  
+  par(new = TRUE)
+  plot(TotalData_CH4$UTC, TotalData_CH4$X.CH4.,
+       main = "WaterLevel(WSV)/CH4 Concentation Vs. Time",
+       type = "l",
+       cex = 2,
+       col="red",
+       axes = FALSE,
+       bty = "n",
+       xlab = "",
+       ylab = "",
+       ylim = c(1900, 2400),
+       xlim = c(StartTime, FinishTime))
+  
+  axis(side=4,
+       col.axis="red",
+       col="red")
+  mtext("CH4 Concentration",
+        col="red",
+        side=4,
+        line=3)
+  dev.off() 
+  
+}
+
+#------------------------------------------------------------------------------------------------------------
+
 # Function to Plot a CH4 Timeline with A Peak detection
 CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime, n = 10, Panel_Plot = FALSE){
   

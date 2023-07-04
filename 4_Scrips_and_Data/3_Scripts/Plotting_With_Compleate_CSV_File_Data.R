@@ -110,6 +110,8 @@ Compare_Timeline2(TotalData, 10) # Use 0 for fixed Panels, any integer for rest
 
 Compare_Timeline_Basic(TotalData) # Total Timeline
 
+# Compare_Timeline_Basic_Section(TotalData)
+
 ########### 4 Plot CH4 Concentration Timeseries (Plot 4)##############
 CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 

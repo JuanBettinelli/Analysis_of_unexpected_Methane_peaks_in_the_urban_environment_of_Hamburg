@@ -494,4 +494,3 @@ TData <- TData[!is.na(TData$UTC),]
  dev.off() 
  
  
- 
