@@ -177,6 +177,24 @@ CH4_concentrations$X.CH4. <- sapply(CH4_concentrations$X.CH4., as.numeric)
 
 # CH4_concentrations <- CH4_concentrations[!is.na(CH4_concentrations$fill.time.utc),]
 
+####################Boundary Layer Hight###################
+#Load the data from the csv file, and Convert the datetime to the correct format
+ERA5 <- import("4_Data/8_Boundarylayer/era5_blh.csv", dec = ",")
+LIDAR <-import("4_Data/8_Boundarylayer/lidar_blh.csv", dec = ",")
+
+
+ERA5$Date <- as.POSIXct(as.character(ERA5$Date),
+                        format = "%d-%h-%Y %H:%M:%S",
+                        tz = "utc")
+
+colnames(ERA5) <- c("UTC", "ERA5_BLH")
+
+LIDAR$Date <- as.POSIXct(as.character(LIDAR$Date),
+                        format = "%Y-%m-%d %H:%M:%S",
+                        tz = "utc")
+
+colnames(LIDAR) <- c("UTC", "LIDAR_BLH")
+
 ################### Merge all Data into one Dataframe #######################
 
 # Create Dataframe
@@ -236,6 +254,22 @@ TotalData <- merge( TotalData, DWD_Data_10min,
                     sort = TRUE)
 TotalData <- TotalData[!is.na(TotalData$UTC),]
 
+TotalData <- merge( TotalData, ERA5, 
+                    by.x = "UTC",
+                    by.y = "UTC",
+                    all.x = TRUE,
+                    all.y = TRUE,
+                    sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
+TotalData <- merge( TotalData, LIDAR, 
+                    by.x = "UTC",
+                    by.y = "UTC",
+                    all.x = TRUE,
+                    all.y = TRUE,
+                    sort = TRUE)
+TotalData <- TotalData[!is.na(TotalData$UTC),]
+
 
 
 ################## Filter the Data by Date ##################
@@ -255,6 +289,8 @@ TotalData$X.CH4..2H <- as.numeric(TotalData$X.CH4..2H)
 TotalData$sd..CH4..1 <- as.numeric(TotalData$sd..CH4..1)
 TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
 TotalData$Wind_Direction <- as.numeric(TotalData$Wind_Direction)
+TotalData$ERA5_BLH <- as.numeric(TotalData$ERA5_BLH)
+TotalData$LIDAR_BLH <- as.numeric(TotalData$LIDAR_BLH)
 
 # Filtering
 TotalData$Direction[TotalData$Direction > 361] <- NA

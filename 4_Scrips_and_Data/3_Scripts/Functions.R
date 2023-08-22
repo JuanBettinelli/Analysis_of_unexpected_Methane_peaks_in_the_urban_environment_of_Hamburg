@@ -480,6 +480,7 @@ Compare_Timeline <- function(TotalData = TotalData, n = 4) {
 }
 
 
+
 #------------------------------------------------------------------------------------------------------------
 
 
@@ -967,7 +968,7 @@ Basic_Wind_DWD_CH4 <- function(TotalData = TotalData, StartTime = StartTime, Fin
 
 #------------------------------------------------------------------------------------------------------------
 
-# Function to plot Wind Direction, Waterleven and CH4 Concentration
+# Function to plot Wind Direction, Waterlevel and CH4 Concentration
 Basic_Wind_D_WL_CH4 <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime){ 
   png(file="4_Data/OutputData/Plots/6_Basic_CH4_vs_Wind/6.2_Basic_Plot_CH4_Wind_DWD_Waterlevel.png",
       width=1200,
