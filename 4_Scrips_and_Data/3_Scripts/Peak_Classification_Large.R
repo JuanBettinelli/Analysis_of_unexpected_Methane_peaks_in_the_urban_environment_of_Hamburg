@@ -1,30 +1,6 @@
 # Script to Plot the Data From the "CombineMeteorologicalData.csv" created by the script "Combine_All_Data_To_CSV_File.R"
 # Author Juan Bettinelli
-# Last change: 26.1.23
-
-# library(plyr)
-# library(dplyr)
-# library(plotly)
-# library(rio)
-# 
-# library(plyr)
-# library(ggplot2)   
-# library(hexbin)
-# library(reshape2)
-# library(openair)
-# library(cowplot)
-# library(patchwork)
-# library(dplyr)
-# library(GGally)
-# library(ggvis)
-# library(httr)
-# library(plotly)
-# library(stringr)
-# library(tidyr)
-# library(pracma)
-
-
-
+# Last change: 27.10.23
 
 library(pacman)
 library(lubridate)
@@ -53,10 +29,12 @@ library(pracma)
 library(zoo)
 library(dplyr)
 
+#------------------------------------------------------------------------------------------------------------
+
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
 
-
+# Set the time limits for the timeline to be analysed
 StartTime <- as.POSIXct('2021-08-01 22:03:00', 
                         format = "%Y-%m-%d %H:%M:%S", 
                         tz ="utc")
@@ -70,8 +48,10 @@ FinishTime <- as.POSIXct('2022-03-29 00:00:00',
 # Hamburg Campagne Timeseries: 2021-09-06 00:00:00
 # Hamburg Campaine #2: 2021-09-17 10:21:00
 
-########### Read the CSV File #############
 
+
+########### Read the CSV File #############
+#Read the data from the CSV Files into Dataframes
 TotalData <- import("4_Data/OutputData/CombineMeteorologicalData.csv")
 TotalData$UTC <- as.POSIXct(as.character(TotalData$UTC), 
                             format = "%Y-%m-%d %H:%M:%S", 
@@ -87,6 +67,8 @@ TotalData$UTC <- as.POSIXct(TotalData$UTC,
 
 TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
+
+
 
 
 #------------------------------------------------------------------------------------------------------------
@@ -108,6 +90,8 @@ panel_function <- function(TotalData, n){
   }
 }
 
+
+
 #------------------------------------------------------------------------------------------------------------
 # function that checks Fixed panel sizes are uesd and changes n if that is the case 
 panel_No_function <- function(n){
@@ -122,10 +106,12 @@ panel_No_function <- function(n){
 }
 
 
+
+
 #------------------------------------------------------------------------------------------------------------
 # Function to Find CH4 Peaks in Timeline
+
 CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
-  
   
   ##### Find Loweres 15%
   #Select the Data from Dataframe with CH4 Concentration
@@ -143,18 +129,8 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   
   # Find the Peaks in the timeline
+  # The Peaks criteria can be selected hire, The comments give some usefull ones
   CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakheight = 2250, minpeakdistance = 30, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
-  
-  
-  
-  
-  # for (k in 1:nrow(CH4_Peaks)){
-  #   if ((CH4_Peaks[k,4] - CH4_Peaks[k, 3]) < 3*6 ){
-  #     CH4_Peaks[k, 3] <- CH4_Peaks[k, 3] - 2*6
-  #     CH4_Peaks[k, 4] <- CH4_Peaks[k, 4] + 2*6
-  #   }
-  # }
-  
   
   
   # Format the Peak Dataframe
@@ -163,7 +139,8 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
   CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
   
-  
+  # Find all the values in the TotalData Dataframe 12h before and 12 after the peak. The Time can be changed hire as needed
+  # than it findes the lowest value (troth) in that timeline
   for (k in 1:nrow(CH4_Peaks)){
     testDFUp <- filter(TotalData, TotalData$UTC > (CH4_Peaks[k,2]) & TotalData$UTC < (CH4_Peaks[k,2]+12*60*60), .preserve = FALSE)
     testDFUp <- testDFUp[complete.cases(testDFUp[ , "X.CH4."]),]
@@ -213,18 +190,21 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   # Checks if the Data Should be returend to the Script ode exported into a CSV File
   if (Export_CSV){
-    write.csv(CH4_Peaks, "4_Data/OutputData/SecondPaper/Peak/CH4_Peaks_Large.csv", row.names=TRUE)
-    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_PeaksMean_Large.csv", row.names=TRUE)
-    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_TotalMean_Large.csv", row.names=TRUE)
+    write.csv(CH4_Peaks, "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_Peaks_Large.csv", row.names=TRUE)
+    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_PeaksMean_Large.csv", row.names=TRUE)
+    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_TotalMean_Large.csv", row.names=TRUE)
   }
   else {
     return(CH4_Peaks)
   }
 }
 
-#------------------------------------------------------------------------------------------------------------
 
+
+
+#------------------------------------------------------------------------------------------------------------
 # Function to Plot a CH4 Timeline with A Peak detection
+
 CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime, n = 10, Panel_Plot = FALSE){
   
   # calling funktions to splite timeline into Panels
@@ -266,7 +246,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Wind_Large",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_Timeline",
              width = 10,
              height = 5)
     }
@@ -298,7 +278,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Wind_Large.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_Timeline",
            width = 10,
            height = 5)
   }
@@ -355,7 +335,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Wind_BLH_Large",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_Timeline",
              width = 10,
              height = 5)
     }
@@ -400,7 +380,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Wind_BLH_Large.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/18_New_Peakfinder_Large/CH4_Timeline",
            width = 10,
            height = 5)
   }
@@ -462,12 +442,12 @@ WindRose_Plots <- function(TotalData = TotalData){
   
 }
 
+
+
+
+
+
 #------------------------------------------------------------------------------------------------------------
-
-
-
-
-
 
 ######## Finding the Peaks, The Average Meteorological Data during Peak, Saving csv File #########
 CH4_Peak_Finder(TotalData, TRUE)
