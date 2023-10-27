@@ -1,30 +1,8 @@
-# Script to Plot the Data From the "CombineMeteorologicalData.csv" created by the script "Combine_All_Data_To_CSV_File.R"
+# Script to find Methane Peaks and plot them in a timeline, Set for medium Peaks
 # Author Juan Bettinelli
-# Last change: 26.1.23
+# Last change: 27.10.23
 
-# library(plyr)
-# library(dplyr)
-# library(plotly)
-# library(rio)
-# 
-# library(plyr)
-# library(ggplot2)   
-# library(hexbin)
-# library(reshape2)
-# library(openair)
-# library(cowplot)
-# library(patchwork)
-# library(dplyr)
-# library(GGally)
-# library(ggvis)
-# library(httr)
-# library(plotly)
-# library(stringr)
-# library(tidyr)
-# library(pracma)
-
-
-
+# Execute the last to functions at the bottom of the script
 
 library(pacman)
 library(lubridate)
@@ -52,6 +30,8 @@ library(tidyr)
 library(pracma)
 library(zoo)
 library(dplyr)
+
+#------------------------------------------------------------------------------------------------------------
 
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
@@ -89,6 +69,7 @@ TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
 
 
+
 #------------------------------------------------------------------------------------------------------------
 # Function to split the Timeline into separate Plots/Panels
 
@@ -108,8 +89,11 @@ panel_function <- function(TotalData, n){
   }
 }
 
+
+
 #------------------------------------------------------------------------------------------------------------
 # function that checks Fixed panel sizes are uesd and changes n if that is the case 
+
 panel_No_function <- function(n){
   if (n == 0){
     m <- 4
@@ -122,8 +106,11 @@ panel_No_function <- function(n){
 }
 
 
+
+
 #------------------------------------------------------------------------------------------------------------
 # Function to Find CH4 Peaks in Timeline
+
 CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   
@@ -143,18 +130,8 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   
   # Find the Peaks in the timeline
+  # The Peaks criteria can be selected hire, The comments give some usefull ones
   CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakheight = 2100, minpeakdistance = 30, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
-  
-  
-  
-  
-  # for (k in 1:nrow(CH4_Peaks)){
-  #   if ((CH4_Peaks[k,4] - CH4_Peaks[k, 3]) < 3*6 ){
-  #     CH4_Peaks[k, 3] <- CH4_Peaks[k, 3] - 2*6
-  #     CH4_Peaks[k, 4] <- CH4_Peaks[k, 4] + 2*6
-  #   }
-  # }
-  
   
   
   # Format the Peak Dataframe
@@ -163,7 +140,9 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
   CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
   
-
+  
+  # Find all the values in the TotalData Dataframe 12h before and 12 after the peak. The Time can be changed hire as needed
+  # than it findes the lowest value (troth) in that timeline
   for (k in 1:nrow(CH4_Peaks)){
     testDFUp <- filter(TotalData, TotalData$UTC > (CH4_Peaks[k,2]) & TotalData$UTC < (CH4_Peaks[k,2]+12*60*60), .preserve = FALSE)
     testDFUp <- testDFUp[complete.cases(testDFUp[ , "X.CH4."]),]
@@ -179,8 +158,6 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
       }
       CH4_Peaks[k,"UTC_Ending"] <- CH4_Up[1, "UTC"]
     }
-    
-    
     
     
     testDFDown <- filter(TotalData, TotalData$UTC > (CH4_Peaks[k,2]-12*60*60) & TotalData$UTC < (CH4_Peaks[k,2]), .preserve = FALSE)
@@ -217,14 +194,15 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   # Checks if the Data Should be returend to the Script ode exported into a CSV File
   if (Export_CSV){
-    write.csv(CH4_Peaks, "4_Data/OutputData/SecondPaper/Peak/CH4_Peaks_Medium.csv", row.names=TRUE)
-    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_PeaksMean_Medium.csv", row.names=TRUE)
-    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_TotalMean_Medium.csv", row.names=TRUE)
+    write.csv(CH4_Peaks, "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_Peaks_Medium.csv", row.names=TRUE)
+    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_PeaksMean_Medium.csv", row.names=TRUE)
+    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_TotalMean_Medium.csv", row.names=TRUE)
   }
   else {
     return(CH4_Peaks)
   }
 }
+
 
 #------------------------------------------------------------------------------------------------------------
 
@@ -270,7 +248,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Wind_Medium",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_Timeline",
              width = 10,
              height = 5)
     }
@@ -302,7 +280,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Wind_Medium.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_Timeline",
            width = 10,
            height = 5)
   }
@@ -359,7 +337,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Wind_BLH_Medium",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_Timeline",
              width = 10,
              height = 5)
     }
@@ -404,15 +382,11 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Wind_BLH_Medium.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_Timeline",
            width = 10,
            height = 5)
   }
-  
-  
-  
 }
-
 
 
 
@@ -427,22 +401,22 @@ WindRose_Plots <- function(TotalData = TotalData){
   CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
   
   # Create and save a windrose Plot with the Total wind data from the Geomatikum
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/WindRose_Total_Medium.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Medium/WindRosePlots/WindRose_Total_Medium.png")
   windRose(TotalData, ws = "Speed", wd = "Direction", angle = 10)
   dev.off()
   
   # Create and save a Windrose Plot with the Averaged Geomatikum wind data at the methane Peaks
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/WindRose_Peaks_Medium.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Medium/WindRosePlots/WindRose_Peaks_Medium.png")
   windRose(CH4_Peaks, ws = "Speed", wd = "Direction", angle = 10)
   dev.off()
   
   # Create and save a Pollutionrose Plot with the Total data, Wind Data from the Geomatikum
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/PollutionRose_Total_Medium.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Medium/WindRosePlots/PollutionRose_Total_Medium.png")
   pollutionRose(TotalData, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
   dev.off()
   
   # Create and save a Pollutionrose Plot Only from the Peaks, Wind Data from the Geomatikum
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/PollutionRose_Peaks_Medium.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Medium/WindRosePlots/PollutionRose_Peaks_Medium.png")
   pollutionRose(CH4_Peaks, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
   dev.off()
   
@@ -459,20 +433,17 @@ WindRose_Plots <- function(TotalData = TotalData){
                          all.y = TRUE,
                          sort = TRUE)
   
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/Comparison_Total_Vs_Peaks_Medium.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Medium/WindRosePlots/Comparison_Total_Vs_Peaks_Medium.png")
   pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks", angle = 10)
   dev.off()
   
   
 }
 
+
+
+
 #------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
 ######## Finding the Peaks, The Average Meteorological Data during Peak, Saving csv File #########
 CH4_Peak_Finder(TotalData, TRUE)
 

@@ -1,6 +1,8 @@
-# Script to Plot the Data From the "CombineMeteorologicalData.csv" created by the script "Combine_All_Data_To_CSV_File.R"
+# Script to find Methane Peaks and plot them in a timeline, Set for large Peaks
 # Author Juan Bettinelli
 # Last change: 27.10.23
+
+# Execute the last to functions at the bottom of the script
 
 library(pacman)
 library(lubridate)
@@ -403,22 +405,22 @@ WindRose_Plots <- function(TotalData = TotalData){
   CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
   
   # Create and save a windrose Plot with the Total wind data from the Geomatikum
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/WindRose_Total_Large.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Large/WindRosePlots/WindRose_Total_Large.png")
   windRose(TotalData, ws = "Speed", wd = "Direction", angle = 10)
   dev.off()
   
   # Create and save a Windrose Plot with the Averaged Geomatikum wind data at the methane Peaks
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/WindRose_Peaks_Large.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Large/WindRosePlots/WindRose_Peaks_Large.png")
   windRose(CH4_Peaks, ws = "Speed", wd = "Direction", angle = 10)
   dev.off()
   
   # Create and save a Pollutionrose Plot with the Total data, Wind Data from the Geomatikum
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/PollutionRose_Total_Large.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Large/WindRosePlots/PollutionRose_Total_Large.png")
   pollutionRose(TotalData, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
   dev.off()
   
   # Create and save a Pollutionrose Plot Only from the Peaks, Wind Data from the Geomatikum
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/PollutionRose_Peaks_Large.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Large/WindRosePlots/PollutionRose_Peaks_Large.png")
   pollutionRose(CH4_Peaks, ws = "Speed", wd = "Direction", pollutant = "X.CH4.",statistic = "prop.mean", angle = 10)
   dev.off()
   
@@ -435,7 +437,7 @@ WindRose_Plots <- function(TotalData = TotalData){
                          all.y = TRUE,
                          sort = TRUE)
   
-  png("4_Data/OutputData/SecondPaper/WindRosePlots/Comparison_Total_Vs_Peaks_Large.png")
+  png("4_Data/OutputData/Plots/18_New_Peakfinder_Large/WindRosePlots/Comparison_Total_Vs_Peaks_Large.png")
   pollutionRose(Wind_Compare, ws = "ws_All", wd = "wd_All", ws2 = "ws_Peaks", wd2 = "wd_Peaks", angle = 10)
   dev.off()
   
