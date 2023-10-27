@@ -1,30 +1,6 @@
-# Script to Plot the Data From the "CombineMeteorologicalData.csv" created by the script "Combine_All_Data_To_CSV_File.R"
+# Script to to identify and plot the meathane peaks in a Timeline
 # Author Juan Bettinelli
-# Last change: 26.1.23
-
-# library(plyr)
-# library(dplyr)
-# library(plotly)
-# library(rio)
-# 
-# library(plyr)
-# library(ggplot2)   
-# library(hexbin)
-# library(reshape2)
-# library(openair)
-# library(cowplot)
-# library(patchwork)
-# library(dplyr)
-# library(GGally)
-# library(ggvis)
-# library(httr)
-# library(plotly)
-# library(stringr)
-# library(tidyr)
-# library(pracma)
-
-
-
+# Last change: 27.10.23
 
 library(pacman)
 library(lubridate)
@@ -89,6 +65,7 @@ TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
 
 
+
 #------------------------------------------------------------------------------------------------------------
 # Function to split the Timeline into separate Plots/Panels
 
@@ -108,8 +85,11 @@ panel_function <- function(TotalData, n){
   }
 }
 
+
+
 #------------------------------------------------------------------------------------------------------------
 # function that checks Fixed panel sizes are uesd and changes n if that is the case 
+
 panel_No_function <- function(n){
   if (n == 0){
     m <- 4
@@ -122,8 +102,10 @@ panel_No_function <- function(n){
 }
 
 
+
 #------------------------------------------------------------------------------------------------------------
 # Function to Find CH4 Peaks in Timeline
+
 CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   #Select the Data from Dataframe with CH4 Concentration
@@ -181,9 +163,9 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   # Checks if the Data Should be returend to the Script ode exported into a CSV File
   if (Export_CSV){
-    write.csv(CH4_Peaks, "4_Data/OutputData/SecondPaper/Peak/CH4_Peaks.csv", row.names=TRUE)
-    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_PeaksMean.csv", row.names=TRUE)
-    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_TotalMean.csv", row.names=TRUE)
+    write.csv(CH4_Peaks, "4_Data/OutputData/Plots/20_Peak_Identification/CH4_Peaks.csv", row.names=TRUE)
+    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/Plots/20_Peak_Identification/CH4_PeaksMean.csv", row.names=TRUE)
+    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/Plots/20_Peak_Identification/CH4_TotalMean.csv", row.names=TRUE)
   }
   else {
     return(CH4_Peaks)
@@ -234,7 +216,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Wind",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/20_Peak_Identification/CH4_Timeline",
              width = 10,
              height = 5)
     }
@@ -266,7 +248,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Wind.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/20_Peak_Identification/CH4_Timeline",
            width = 10,
            height = 5)
   }
@@ -323,7 +305,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Wind_BLH",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/20_Peak_Identification/CH4_Timeline",
              width = 10,
              height = 5)
     }
@@ -368,7 +350,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Wind_BLH.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/20_Peak_Identification/CH4_Timeline",
            width = 10,
            height = 5)
   }

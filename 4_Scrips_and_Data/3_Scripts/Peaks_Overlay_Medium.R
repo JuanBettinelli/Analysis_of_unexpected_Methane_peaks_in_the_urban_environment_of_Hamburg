@@ -268,11 +268,47 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
   #stat_summary(fun = mean, geom = "smooth", aes(group = 1), color = "black", size = 2)
   
 
-  ggsave(paste0("4_CH4_Peaks_Overlay_Medium",".png"),
+  ggsave(paste0("22_CH4_Peaks_Overlay_Medium",".png"),
          CH4_Overlay,
-         path = "4_Data/OutputData/SecondPaper/Overlay_Peaks",
+         path = "4_Data/OutputData/Plots/22_Pleaks_Overlay_Medium",
          width = 20,
          height = 10)
+  
+  #------------------------------------------------------------------------------------------------------------
+  # Create a plot with mean values
+  
+  # Define the bin size
+  bin_size <- 0.25
+  
+  # Create a new dataframe with bins and their average values
+  result <- Indifidual_Peaks %>%
+    mutate(bin = floor(Time / bin_size) * bin_size) %>%
+    group_by(bin) %>%
+    summarize(average_CH4 = mean(CH4, na.rm = TRUE))
+  
+  # Create a template data frame with all possible bins
+  all_bins <- data.frame(bin = seq(-4, 4, by = bin_size))
+  
+  # Use 'complete' to fill in missing bins with NA values
+  result <- all_bins %>%
+    left_join(result, by = "bin") %>%
+    replace(is.na(.), list(average_CH4 = NA))
+  
+  png(file="4_Data/OutputData/Plots/22_Pleaks_Overlay_Medium/22_Peaks_Average_Medium.png",
+      width=1200, height=600)
+  par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
+  
+  plot(result$bin[!is.na(result$average_CH4)], result$average_CH4[!is.na(result$average_CH4)],
+       main = "Averaged Peak in 0.25h bins (Medium Peaks)",
+       type = "l",
+       cex = 10,
+       col="red",
+       xlab = "Time form peak center",
+       ylab = "Averages CH4 Concentration"
+  )
+  dev.off() 
+
+
 }
 
 

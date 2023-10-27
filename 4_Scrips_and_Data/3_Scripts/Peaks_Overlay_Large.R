@@ -1,4 +1,4 @@
-# Script to Plot the Data From the "CombineMeteorologicalData.csv" created by the script "Combine_All_Data_To_CSV_File.R"
+# Script to Plot an overlay of all the methane peaks 
 # Author Juan Bettinelli
 # Last change: 26.1.23
 
@@ -89,6 +89,7 @@ TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
 
 
+
 #------------------------------------------------------------------------------------------------------------
 # Function to split the Timeline into separate Plots/Panels
 
@@ -108,8 +109,11 @@ panel_function <- function(TotalData, n){
   }
 }
 
+
+
 #------------------------------------------------------------------------------------------------------------
-# function that checks Fixed panel sizes are uesd and changes n if that is the case 
+# Function that checks Fixed panel sizes are uesd and changes n if that is the case 
+
 panel_No_function <- function(n){
   if (n == 0){
     m <- 4
@@ -122,8 +126,10 @@ panel_No_function <- function(n){
 }
 
 
+
 #------------------------------------------------------------------------------------------------------------
 # Function to Find CH4 Peaks in Timeline
+
 CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   
@@ -144,18 +150,6 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   # Find the Peaks in the timeline
   CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakheight = 2250, minpeakdistance = 30, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
-  
-  
-  
-  
-  # for (k in 1:nrow(CH4_Peaks)){
-  #   if ((CH4_Peaks[k,4] - CH4_Peaks[k, 3]) < 3*6 ){
-  #     CH4_Peaks[k, 3] <- CH4_Peaks[k, 3] - 2*6
-  #     CH4_Peaks[k, 4] <- CH4_Peaks[k, 4] + 2*6
-  #   }
-  # }
-  
-  
   
   # Format the Peak Dataframe
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
@@ -213,18 +207,20 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   # Checks if the Data Should be returend to the Script ode exported into a CSV File
   if (Export_CSV){
-    write.csv(CH4_Peaks, "4_Data/OutputData/SecondPaper/Peak/CH4_Peaks_Large.csv", row.names=TRUE)
-    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_PeaksMean_Large.csv", row.names=TRUE)
-    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_TotalMean_Large.csv", row.names=TRUE)
+    write.csv(CH4_Peaks, "4_Data/OutputData/Plots/21_Pleaks_Overlay_Large/CH4_Peaks_Large.csv", row.names=TRUE)
+    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/Plots/21_Pleaks_Overlay_Large/CH4_PeaksMean_Large.csv", row.names=TRUE)
+    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/Plots/21_Pleaks_Overlay_Large/CH4_TotalMean_Large.csv", row.names=TRUE)
   }
   else {
     return(CH4_Peaks)
   }
 }
 
-#------------------------------------------------------------------------------------------------------------
 
+
+#------------------------------------------------------------------------------------------------------------
 # Function to Plot a CH4 Timeline with A Peak detection
+
 CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTime = FinishTime, n = 10, Panel_Plot = FALSE){
   n <- 1
   # calling funktions to splite timeline into Panels
@@ -268,25 +264,45 @@ u <- 1
     
   ggsave(paste0("4_CH4_Peaks_Overlay_Large",".png"),
          CH4_Overlay,
-         path = "4_Data/OutputData/SecondPaper/Overlay_Peaks",
+         path = "4_Data/OutputData/Plots/21_Pleaks_Overlay_Large",
          width = 20,
          height = 10)
   
+  
+  #------------------------------------------------------------------------------------------------------------
+  # Create a plot with mean values
+  
+  # Define the bin size
+  bin_size <- 0.25
+  
+  # Create a new dataframe with bins and their average values
+  result <- Indifidual_Peaks %>%
+    mutate(bin = floor(Time / bin_size) * bin_size) %>%
+    group_by(bin) %>%
+    summarize(average_CH4 = mean(CH4, na.rm = TRUE))
+  
+  # Create a template data frame with all possible bins
+  all_bins <- data.frame(bin = seq(-4, 4, by = bin_size))
+  
+  # Use 'complete' to fill in missing bins with NA values
+  result <- all_bins %>%
+    left_join(result, by = "bin") %>%
+    replace(is.na(.), list(average_CH4 = NA))
 
-    # Define the bin boundaries
-  bin_width <- 0.25
-  bin_breaks <- seq(min(Indifidual_Peaks$Time), max(Indifidual_Peaks$Time), by = bin_width)
+  png(file="4_Data/OutputData/Plots/21_Pleaks_Overlay_Large/21_Peaks_Average_Large.png",
+      width=1200, height=600)
+  par(mar = c(5, 4, 4, 4) + 0.3, mfrow=c(1,1))  # Leave space for z axis
   
-  # Create bins and calculate the average within each bin
-  bin_labels <- cut(Indifidual_Peaks$Time, breaks = bin_breaks, labels = FALSE)
-  data <- data.frame(Indifidual_Peaks, bin = bin_labels)
-  bin_averages <- tapply(data$CH4, data$bin, FUN = mean)
-  
-  # Create a bar plot of the bin averages
-  barplot(bin_averages, names.arg = bin_breaks[-length(bin_breaks)] + bin_width / 2, 
-          main = "Average Values in Bins", xlab = "Bin Midpoints", ylab = "Average Value")
-  
-  
+  plot(result$bin[!is.na(result$average_CH4)], result$average_CH4[!is.na(result$average_CH4)],
+       main = "Averaged Peak in 0.25h bins (Large Peaks)",
+       type = "l",
+       cex = 10,
+       col="red",
+       xlab = "Time form peak center",
+       ylab = "Averages CH4 Concentration"
+       )
+  dev.off() 
+
 }
 
 
