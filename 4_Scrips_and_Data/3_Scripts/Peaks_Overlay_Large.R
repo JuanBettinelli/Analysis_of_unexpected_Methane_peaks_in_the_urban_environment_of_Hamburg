@@ -273,7 +273,7 @@ u <- 1
   # Create a plot with mean values
   
   # Define the bin size
-  bin_size <- 0.25
+  bin_size <- 0.5
   
   # Create a new dataframe with bins and their average values
   result <- Indifidual_Peaks %>%
