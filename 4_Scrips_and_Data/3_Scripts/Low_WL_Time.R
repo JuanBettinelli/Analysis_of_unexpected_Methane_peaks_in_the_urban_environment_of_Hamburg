@@ -2,51 +2,20 @@
 # Author: Juan Bettinelli
 # Last edit. 22.05.2023
 
-  library(dplyr)
-  library(plotly)
-  library(rio)
-  
-  #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
-  setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
-  
-  source("3_Scripts/Functions.R")
-  source("3_Scripts/CH4_Transportmodel.R")
-  
-  StartTime <- as.POSIXct('2021-08-01 22:03:00', 
-                          format = "%Y-%m-%d %H:%M:%S", 
-                          tz ="utc")
-  # Start Time: 2021-08-01 22:03:00
-  
-  FinishTime <- as.POSIXct('2022-03-29 00:00:00', 
-                           format = "%Y-%m-%d %H:%M:%S", 
-                           tz ="utc")
-  
-  # Total Timeseries: 2022-03-29 00:00:00
-  # Hamburg Campagne Timeseries: 2021-09-06 00:00:00
-  # Hamburg Campaine #2: 2021-09-17 10:21:00
-  
-  ########### Read the CSV File #############
-  
-  TotalData <- import("4_Data/OutputData/CombineMeteorologicalData.csv")
-  TotalData$UTC <- as.POSIXct(as.character(TotalData$UTC), 
-                              format = "%Y-%m-%d %H:%M:%S", 
-                              tz = "UTC")
-  
-  TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
-  
-  TotalData <- filter(TotalData, TotalData$UTC > StartTime & TotalData$UTC < FinishTime, .preserve = FALSE)
-  
-  TotalData$UTC <- as.POSIXct(TotalData$UTC, 
-                              format = "%d-%m-%Y %H:%M:%S", 
-                              tz = "utc")
-  
-  TotalData$Direction[TotalData$Direction > 361] <- NA
-  TotalData$Speed[TotalData$Speed > 99] <- NA
-  
+library(dplyr)
+library(plotly)
+library(rio)
+library(reshape2)
 
+#Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
+setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
+
+
+#------------------------------------------------------------------------------------------------------------
+# Function to Find CH4 Peaks in Timeline
+
+CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
-  # Get create a data frame with the CH4 values
-  CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
   
   ##### Find Loweres 15%
   #Select the Data from Dataframe with CH4 Concentration
@@ -64,54 +33,230 @@
   
   
   # Find the Peaks in the timeline
-  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+  # The Peaks criteria can be selected hire, The comments give some usefull ones
+  CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4., minpeakheight = 2250, minpeakdistance = 30, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
   
   
-  # format the Dataframe time
+  # Format the Peak Dataframe
   names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
   CH4_Peaks$UTC_Beginning <- CH4Data[CH4_Peaks$UTC_Beginning,"UTC"]
   CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
   CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
   
+  
+  # Find all the values in the TotalData Dataframe 12h before and 12 after the peak. The Time can be changed hire as needed
+  # than it findes the lowest value (troth) in that timeline
+  for (k in 1:nrow(CH4_Peaks)){
+    testDFUp <- filter(TotalData, TotalData$UTC > (CH4_Peaks[k,2]) & TotalData$UTC < (CH4_Peaks[k,2]+12*60*60), .preserve = FALSE)
+    testDFUp <- testDFUp[complete.cases(testDFUp[ , "X.CH4."]),]
+    CH4_Up <- as.data.frame(findpeaks(-testDFUp$X.CH4., npeaks = 1, sortstr=TRUE))
+    if (exists("CH4_Up")){
+      if (nrow(CH4_Up) == 0){
+        CH4_Up <- data.frame(NA, head(testDFUp$UTC, n = 1), NA,NA )
+        names(CH4_Up) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+      }
+      else{
+        names(CH4_Up) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+        CH4_Up$UTC <- testDFUp[CH4_Up$UTC,"UTC"]
+      }
+      CH4_Peaks[k,"UTC_Ending"] <- CH4_Up[1, "UTC"]
+    }
+    
+    
+    testDFDown <- filter(TotalData, TotalData$UTC > (CH4_Peaks[k,2]-12*60*60) & TotalData$UTC < (CH4_Peaks[k,2]), .preserve = FALSE)
+    testDFDown <- testDFDown[complete.cases(testDFDown[ , "X.CH4."]),]
+    CH4_Down <- as.data.frame(findpeaks(-testDFDown$X.CH4., npeaks = 1, sortstr=TRUE))
+    if (nrow(CH4_Down) == 0){
+      CH4_Down <- data.frame(NA, tail(testDFDown$UTC, n = 1), NA,NA )
+      names(CH4_Down) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+    }
+    else {
+      names(CH4_Down) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+      CH4_Down$UTC <- testDFDown[CH4_Down$UTC,"UTC"]
+    }
+    CH4_Peaks[k,"UTC_Beginning"] <- CH4_Down[1, "UTC"]
+  }
+  
+  
+  # Find the average during the Peak, (Average all values that lay between the Peak beginning and Peak End)
+  # get all Coloum Names
+  Heads <- colnames(TotalData)
+  Heads <- Heads[-1]
+  Heads <- Heads[-16]
+  for (j in Heads){
+    # Create new Coloums with same Names
+    CH4_Peaks[,j] <- NA
+    for(i in 1:nrow(CH4_Peaks)) {       # for-loop over rows
+      # Find the mean Values during the Peak
+      CH4_Peaks[i, j] <- mean(TotalData[TotalData$UTC >= CH4_Peaks[i,"UTC_Beginning"] & TotalData$UTC <= CH4_Peaks[i,"UTC_Ending"], j], na.rm = TRUE)
+    }
+  }
+  
   # Remove the "Peaks" at where no measurements were taken (12h)
   CH4_Peaks <- subset(CH4_Peaks, (UTC_Ending - UTC_Beginning) < 12*60 )
   
-  # Create a waterlevel data frame
-  WLData <- TotalData[complete.cases(TotalData[ , "Water_Level"]),c("UTC", "Water_Level")]
-  
-  
-  # Create a dataframe that will include all Points
-  CH4_Peaks$WL_Time <- NA
-  # Loop throgh all Peaks
-  for(j in 1:nrow(CH4_Peaks)){
-      
-      # Find the meak max time
-      Peak_Time <- CH4_Peaks[j, "UTC"]
-      
-      # Get the Waterlevel for the 12h before the Peak
-      WL_at_Peak <- WLData[WLData$UTC >= (Peak_Time - (12*60*60)) & WLData$UTC <= Peak_Time,]
-      
-      # Find the minimum Water level
-      MinWL <- WL_at_Peak[which.min(WL_at_Peak$Water_Level),]
-      
-      # Get all the Wind data between the Max CH4 Peak and the Waterlevel Lowpoint before the Peak plus 0.5 hour (One hour earlier)
-      All_Wind <- TotalData[TotalData$UTC >= (MinWL$UTC) & TotalData$UTC <= CH4_Peaks[j,"UTC"], ]  
-      
-      res <- CH4_Peaks[j,"UTC"] - MinWL$UTC
-      units(res) <- "hours"
-
-      CH4_Peaks[j, "WL_Time"] <- res
+  # Checks if the Data Should be returend to the Script ode exported into a CSV File
+  if (Export_CSV){
+    write.csv(CH4_Peaks, "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_Peaks_Medium.csv", row.names=TRUE)
+    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_PeaksMean_Medium.csv", row.names=TRUE)
+    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/Plots/18_New_Peakfinder_Medium/CH4_TotalMean_Medium.csv", row.names=TRUE)
   }
-  library(ggplot2)
-  # Basic scatter plot
-  WL_Peak_Plot <- ggplot(data =CH4_Peaks, aes(x = WL_Time, y = X.CH4.)) +
-    geom_point() +
-    geom_smooth() +
-    xlab("Time between CH4 peak and preavius low water, h")+
-    ylab("CH4 Concentration, ppb")+
-    ggtitle("CH4 Concentration vs. Time between peak and Low Water")
-  
-  ggsave("14_Low_WL_to_Peak.png", WL_Peak_Plot, path = "4_Data/OutputData/Plots/14_Low_WL_to_Peak", width = 10, height = 5)
-  
+  else {
+    return(CH4_Peaks)
+  }
+}
+
+#------------------------------------------------------------------------------------------------------------
+
+
+
+# source("3_Scripts/Functions.R")
+# source("3_Scripts/CH4_Transportmodel.R")
+
+StartTime <- as.POSIXct('2021-08-01 22:03:00', 
+                        format = "%Y-%m-%d %H:%M:%S", 
+                        tz ="utc")
+# Start Time: 2021-08-01 22:03:00
+
+FinishTime <- as.POSIXct('2022-03-29 00:00:00', 
+                         format = "%Y-%m-%d %H:%M:%S", 
+                         tz ="utc")
+
+# Total Timeseries: 2022-03-29 00:00:00
+# Hamburg Campagne Timeseries: 2021-09-06 00:00:00
+# Hamburg Campaine #2: 2021-09-17 10:21:00
+
+########### Read the CSV File #############
+
+TotalData <- import("4_Data/OutputData/CombineMeteorologicalData.csv")
+TotalData$UTC <- as.POSIXct(as.character(TotalData$UTC), 
+                            format = "%Y-%m-%d %H:%M:%S", 
+                            tz = "UTC")
+
+TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
+
+TotalData <- filter(TotalData, TotalData$UTC > StartTime & TotalData$UTC < FinishTime, .preserve = FALSE)
+
+TotalData$UTC <- as.POSIXct(TotalData$UTC, 
+                            format = "%d-%m-%Y %H:%M:%S", 
+                            tz = "utc")
+
+TotalData$Direction[TotalData$Direction > 361] <- NA
+TotalData$Speed[TotalData$Speed > 99] <- NA
+
+
+CH4_Peaks <- CH4_Peak_Finder(TotalData, FALSE)
+
+# # Get create a data frame with the CH4 values
+# CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+# 
+# ##### Find Loweres 15%
+# #Select the Data from Dataframe with CH4 Concentration
+# CH4Data <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+# 
+# # Sort the dataset in ascending order
+# sorted_data <- sort(CH4Data$X.CH4.)
+# 
+# # Determine the number of observations corresponding to the lowest 15% of the dataset
+# n_lowest <- round(length(sorted_data) * 0.15)
+# 
+# # Use the head() function to extract the lowest 15% of the dataset
+# lowest_15_percent <- max(head(sorted_data, n_lowest))
+# ######
+# 
+# 
+# # Find the Peaks in the timeline
+# CH4_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)) # Strict peaks: findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) , Peak like in the paper: findpeaks(CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+# 
+# 
+# # format the Dataframe time
+# names(CH4_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+# CH4_Peaks$UTC_Beginning <- CH4Data[CH4_Peaks$UTC_Beginning,"UTC"]
+# CH4_Peaks$UTC_Ending <- CH4Data[CH4_Peaks$UTC_Ending,"UTC"]
+# CH4_Peaks$UTC <- CH4Data[CH4_Peaks$UTC,"UTC"]
+
+# Remove the "Peaks" at where no measurements were taken (12h)
+CH4_Peaks <- subset(CH4_Peaks, (UTC_Ending - UTC_Beginning) < 12*60 )
+
+# Create a waterlevel data frame
+WLData <- TotalData[complete.cases(TotalData[ , "Water_Level"]),c("UTC", "Water_Level")]
+
+
+# Create a dataframe that will include all Points
+CH4_Peaks$WL_Time <- NA
+# Loop throgh all Peaks
+for(j in 1:nrow(CH4_Peaks)){
+    
+    # Find the peak max time
+    Peak_Time <- CH4_Peaks[j, "UTC"]
+    
+    # Get the Waterlevel for the 12h before the Peak
+    WL_at_Peak <- WLData[WLData$UTC >= (Peak_Time - (12*60*60)) & WLData$UTC <= Peak_Time,]
+    
+    # Find the minimum Water level
+    MinWL <- WL_at_Peak[which.min(WL_at_Peak$Water_Level),]
+    
+    # Get all the Wind data between the Max CH4 Peak and the Waterlevel Lowpoint before the Peak 
+    All_Wind <- TotalData[TotalData$UTC >= (MinWL$UTC) & TotalData$UTC <= CH4_Peaks[j,"UTC"], ]  
+    
+    res <- CH4_Peaks[j,"UTC"] - MinWL$UTC
+    units(res) <- "hours"
+
+    CH4_Peaks[j, "WL_Time"] <- res
+    
+    # Direction_averages <- mean(All_Wind$Direction, na.rm = TRUE)
+    # CH4_Peaks[j, "Wind_Direction"] <- Direction_averages
+    # 
+    # Speed_averages <- mean(All_Wind$Speed, na.rm = TRUE)
+    # CH4_Peaks[j, "Wind_Speed"] <- Speed_averages
+}
+
+
+# Define the bins for wind direction and wind speed
+wind_dir_bins <- seq(0, 360, by = 30)  # Bins of 10° for wind direction
+wind_speed_bins <- seq(0, 10, by = 2)  # Bins of 0.5 s/m for wind speed
+
+
+result <- CH4_Peaks[,c("WL_Time", "Wind_Direction", "Wind_Speed")] %>%
+  mutate(wind_dir_group = cut(Wind_Direction, breaks = wind_dir_bins, right = FALSE, include.lowest = TRUE),
+         wind_speed_group = cut(Wind_Speed, breaks = wind_speed_bins, right = FALSE, include.lowest = TRUE)) %>%
+  group_by(wind_dir_group, wind_speed_group) %>%
+  summarize(avg_time_traveled = ifelse(sum(!is.na(WL_Time)) >= 1, median(WL_Time, na.rm = TRUE), NA)) # mean() median()
+
+# Reshape the result into a 2D table or dataframe
+# library(reshape2)
+result_table <- dcast(result, wind_speed_group ~ wind_dir_group, value.var = "avg_time_traveled")
+
+write.csv(result_table, "4_Data/OutputData/Plots/14_Low_WL_to_Peak/CH4_Travel_Time.csv", row.names=TRUE)
+
+
+
+# Create the panel plot
+Travel_Time_Plot <-ggplot(result, aes(x = wind_dir_group, y = wind_speed_group, fill = avg_time_traveled)) +
+  geom_tile() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  labs(
+    x = "Wind Direction",
+    y = "Wind Speed (s/m)",
+    fill = "Average Time Traveled"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_fixed()
+
+ggsave("14_Travel_Time_Plot.png", Travel_Time_Plot, path = "4_Data/OutputData/Plots/14_Low_WL_to_Peak", width = 10, height = 5)
+
+
+
+# Basic scatter plot
+WL_Peak_Plot <- ggplot(data =CH4_Peaks, aes(x = WL_Time, y = X.CH4.)) +
+  geom_point() +
+  geom_smooth() +
+  xlab("Time between CH4 peak and preavius low water, h")+
+  ylab("CH4 Concentration, ppb")+
+  ggtitle("CH4 Concentration vs. Time between peak and Low Water")
+
+ggsave("14_Low_WL_to_Peak.png", WL_Peak_Plot, path = "4_Data/OutputData/Plots/14_Low_WL_to_Peak", width = 10, height = 5)
+
 
 

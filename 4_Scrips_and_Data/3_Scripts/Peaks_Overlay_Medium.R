@@ -213,9 +213,9 @@ CH4_Peak_Finder <- function(TotalData = TotalData, Export_CSV = TRUE){
   
   # Checks if the Data Should be returend to the Script ode exported into a CSV File
   if (Export_CSV){
-    write.csv(CH4_Peaks, "4_Data/OutputData/SecondPaper/Peak/CH4_Peaks_Large.csv", row.names=TRUE)
-    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_PeaksMean_Large.csv", row.names=TRUE)
-    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/SecondPaper/Peak/CH4_TotalMean_Large.csv", row.names=TRUE)
+    write.csv(CH4_Peaks, "4_Data/OutputData/Plots/22_Pleaks_Overlay_Medium/CH4_Peaks_Large.csv", row.names=TRUE)
+    write.csv(colMeans(CH4_Peaks[,c(1,5:29)], na.rm = TRUE), "4_Data/OutputData/Plots/22_Pleaks_Overlay_Medium/CH4_PeaksMean_Large.csv", row.names=TRUE)
+    write.csv(colMeans(TotalData[,2:27], na.rm = TRUE), "4_Data/OutputData/Plots/22_Pleaks_Overlay_Medium/CH4_TotalMean_Large.csv", row.names=TRUE)
   }
   else {
     return(CH4_Peaks)
