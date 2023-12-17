@@ -117,39 +117,70 @@ EMPA_TimeLine_Concentration <- function(EMPA_csv = EMPA_csv, TotalData = TotalDa
   
   TotalData_CH4 <- TotalData[complete.cases(TotalData[ , c("UTC", "X.CH4.")]),]
   
-  # Plot CH4, Waterlevel Vs Time
-  CH4_TimeLine <- ggplot(EMPA_Data) +
-    geom_line(aes(x = dtm.end,
-                  y = CH4),
-              col = "red") +
-    labs(x = "Fill Time [UTC]",
-         y =expression("EMPA CH"[4]*" concentration [ppb]"),
-         title = "Methane concentration EMPS & IRMS  vs. time") +
-    scale_x_datetime(date_breaks = "1 day",
-                     date_labels = "%d-%b") +
-    # limits = c(as.POSIXct('2021-08-01 00:00:00',
-    #                       format = "%Y-%m-%d %H:%M:%S",
-    #                       tz ="utc"), as.POSIXct('2021-08-18 00:00:00',
-    #                                              format = "%Y-%m-%d %H:%M:%S",
-    #                                              tz ="utc"))) +
-    theme(axis.text.x=element_text(angle=60, hjust=1),
-          axis.title.y = element_text(color = "red",
-                                      size=13),
-          axis.text.y = element_text(color = "red"),
-          axis.title.y.right = element_text(color = "blue",
-                                            size=13),
-          axis.text.y.right = element_text(color = "blue"),
-          strip.text.x = element_blank()) +
-    geom_line(data = TotalData_CH4, aes(x = UTC,
-                                        y = X.CH4.*1),
-              col = "blue") +
-    scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
-                                           name="IRMS"))+
-    facet_wrap(~panel, scales = 'free', nrow = m)
-  CH4_TimeLine
+  # # Plot CH4, Waterlevel Vs Time
+  # CH4_Concentration_TimeLine <- ggplot(EMPA_Data) +
+  #   geom_line(aes(x = dtm.end,
+  #                 y = CH4),
+  #             col = "red") +
+  #   labs(x = "Fill Time [UTC]",
+  #        y =expression("EMPA CH"[4]*" concentration [ppb]"),
+  #        title = "Methane concentration EMPS Model & IRMS Measument") +
+  #   scale_x_datetime(date_breaks = "10 day",
+  #                    date_labels = "%d-%b") +
+  #   # limits = c(as.POSIXct('2021-08-01 00:00:00',
+  #   #                       format = "%Y-%m-%d %H:%M:%S",
+  #   #                       tz ="utc"), as.POSIXct('2021-08-18 00:00:00',
+  #   #                                              format = "%Y-%m-%d %H:%M:%S",
+  #   #                                              tz ="utc"))) +
+  #   theme(axis.text.x=element_text(angle=60, hjust=1),
+  #         # axis.title.y = element_text(color = "red",
+  #         #                             size=13),
+  #         # axis.text.y = element_text(color = "red"),
+  #         # axis.title.y.right = element_text(color = "blue",
+  #         #                                   size=13),
+  #         # axis.text.y.right = element_text(color = "blue"),
+  #         strip.text.x = element_blank(),
+  #         legend.position = "bottom", 
+  #         legend.box = "horizontal") +
+  #   geom_line(data = TotalData_CH4, aes(x = UTC,
+  #                                       y = X.CH4.*1),
+  #             col = "blue") 
+  #   # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+  #   #                                        name="IRMS"))+
+  #   # facet_wrap(~panel, scales = 'free', nrow = m)
+  
+  
+  CH4_Concentration_TimeLine <- ggplot() +
+    geom_line(data = EMPA_Data, aes(x = dtm.end, y = CH4, color = "FLEXPART-COSMO Model"), alpha = 0.7) +
+    geom_line(data = TotalData_CH4, aes(x = UTC, y = X.CH4.*1, color = "IRMS Measument"), alpha = 0.7) +
+    labs(
+      x = "Fill Time [UTC]",
+      y = expression("EMPA CH"[4] * " concentration [ppb]"),
+      title = "Methane concentration EMPS Model & IRMS Measurement"
+    ) +
+    scale_x_datetime(date_breaks = "1 day", date_labels = "%d-%b",
+                     limits = c(as.POSIXct('2021-12-17 00:00:00',
+                                           format = "%Y-%m-%d %H:%M:%S",
+                                           tz ="utc"), 
+                                as.POSIXct('2021-12-30 00:00:00',
+                                            format = "%Y-%m-%d %H:%M:%S",
+                                            tz ="utc"))) +
+    theme(
+      axis.text.x = element_text(angle = 60, hjust = 1),
+      strip.text.x = element_blank(),
+      legend.position = "bottom",
+      legend.box = "horizontal"
+    ) +
+    scale_color_manual(
+      values = c("FLEXPART-COSMO Model" = "red", "IRMS Measument" = "blue"),
+      name = "Legend"
+    )
+  
+  
+  
   
   #Export the plot to PNG file
-  ggsave("24_EMPA_CH4.png", CH4_TimeLine, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
+  ggsave("24_EMPA_CH4.png", CH4_Concentration_TimeLine, path = "4_Data/OutputData/Plots/24_EMPA", width = 20, height = 10)
   
 }
 
@@ -194,83 +225,124 @@ CH4_TimeLine_total <- function(EMPA_csv = EMPA_csv, TotalData = TotalData, Start
   C13Data <- TotalData[complete.cases(TotalData[ , "d13C.VPDB"]),c("UTC", "d13C.VPDB")]
   DData <- TotalData[complete.cases(TotalData[ , "d2H.VPDB"]),c("UTC", "d2H.VPDB")]
   
+  
+  # column_names <- c("IRMS_XCH4", "IRMS_d13C", "IRMS_d2H", "EMPA_XCH4", "EMPA_d13C", "EMPA_d2H", "Diff_CH4", "Diff_d13C", "Diff_d2H")
+  # 
+  # # Create an empty dataframe with defined column names
+  # average_values <- data.frame(matrix(nrow = 0, ncol = length(column_names)))
+  # colnames(average_values) <- column_names
+  
+  
+  average_values <- data.frame()
+  
+  average_values[1,"IRMS_XCH4"] <- mean(CH4Data$X.CH4., na.rm = TRUE)
+  average_values[1,"EMPA_XCH4"] <- mean(EMPA_csv$CH4, na.rm = TRUE)
+  average_values[1,"Diff_XCH4"] <- average_values[1,"IRMS_XCH4"] - average_values[1,"EMPA_XCH4"]
+  #average_values[1,"R2_XCH4"] <- (cor(CH4Data$X.CH4., EMPA_csv$CH4))^2
+  
+  average_values[1,"IRMS_d13C"] <- mean(C13Data$d13C.VPDB, na.rm = TRUE)
+  average_values[1,"EMPA_d13C"] <- mean(EMPA_csv$d13C_CH4, na.rm = TRUE)
+  average_values[1,"Diff_d13C"] <- average_values[1,"IRMS_d13C"] - average_values[1,"EMPA_d13C"]
+  #average_values[1,"R2_d13C"] <- (cor(average_values[1,"IRMS_d13C"], average_values[1,"EMPA_d13C"]))^2
+  
+  average_values[1,"IRMS_d2H"] <- mean(DData$d2H.VPDB, na.rm = TRUE)
+  average_values[1,"EMPA_d2H"] <- mean(EMPA_csv$dD_CH4, na.rm = TRUE)
+  average_values[1,"Diff_d2H"] <- average_values[1,"IRMS_d2H"] - average_values[1,"EMPA_d2H"]
+  #average_values[1,"R2_d2H"] <- (cor(average_values[1,"IRMS_d2H"], average_values[1,"EMPA_d2H"]))^2
+  
+  
+  
+  
+  write.csv(average_values, file = "4_Data/OutputData/Plots/24_EMPA/24_EMPA_CH4_Isotope_Signature_Average.csv", row.names = TRUE)
+  
+
   # Create the Timeline plot
-  CH4_TL <- ggplot(CH4Data[, ], aes(x = UTC, y = X.CH4.)) +
-    geom_line() +
+  CH4_TL <- ggplot(CH4Data[, ], 
+                   aes(x = UTC, 
+                       y = X.CH4.)) +
+    geom_line(color = "blue") +
     labs(
       y = expression("CH"[4]*" con. [ppb]")) +
     scale_x_datetime(date_breaks = "15 day",
                      date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
-    geom_line(data = EMPA_csv, aes(x = dtm.end,
-                                        y = CH4*1),
-              col = "blue") +
-    scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
-                                           name="EMPA"))+
+    geom_line(data = EMPA_csv, 
+              aes(x = dtm.end,
+                  y = CH4*1),
+              col = "red") +
+    # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+    #                                        name="EMPA"))+
         theme(axis.text.x=element_blank(),
               axis.title.x=element_blank(),
               axis.ticks.x = element_blank(),
               strip.text.x = element_blank(),
-              legend.position="none",
-              axis.title.y = element_text(color = "black",
-                                          size=13),
-              axis.text.y = element_text(color = "black"),
-              axis.title.y.right = element_text(color = "blue",
-                                                size=13),
-              axis.text.y.right = element_text(color = "blue")) 
+              legend.position="none")
+              # axis.title.y = element_text(color = "blue",
+              #                             size=13),
+              # axis.text.y = element_text(color = "blue"),
+              # axis.title.y.right = element_text(color = "red",
+              #                                   size=13),
+              # axis.text.y.right = element_text(color = "red"))
 
   
-  CH4_13C_TimeLine <- ggplot(C13Data[, ], aes(x = UTC, y = d13C.VPDB)) +
-    geom_line() +
+  CH4_13C_TimeLine <- ggplot(C13Data[, ], 
+                             aes(x = UTC, 
+                                 y = d13C.VPDB)) +
+    geom_line(color = "blue") +
     labs(
       y = expression("δ"^13*"C VPDB [‰]")) +
     scale_x_datetime(date_breaks = "15 day",
                      date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
-    geom_line(data = EMPA_csv, aes(x = dtm.end,
-                                   y = d13C_CH4*1),
-              col = "blue") +
-    scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
-                                           name="EMPA"))+
+    geom_line(data = EMPA_csv, 
+              aes(x = dtm.end,
+                  y = d13C_CH4*1),
+              col = "red") +
+    # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+    #                                        name="EMPA"))+
     theme(axis.text.x=element_blank(),
           axis.title.x=element_blank(),
           axis.ticks.x = element_blank(),
           strip.text.x = element_blank(),
-          legend.position="none",
-          axis.title.y = element_text(color = "black",
-                                      size=13),
-          axis.text.y = element_text(color = "black"),
-          axis.title.y.right = element_text(color = "blue",
-                                            size=13),
-          axis.text.y.right = element_text(color = "blue"))
+          legend.position="none")
+          # axis.title.y = element_text(color = "blue",
+          #                             size=13),
+          # axis.text.y = element_text(color = "blue"),
+          # axis.title.y.right = element_text(color = "red",
+          #                                   size=13),
+          # axis.text.y.right = element_text(color = "red"))
   
-  CH4_2H_TimeLine <- ggplot(DData[, ], aes(x = UTC, y = d2H.VPDB)) +
-    geom_line() +
+  CH4_2H_TimeLine <- ggplot(DData[, ], 
+                            aes(x = UTC, 
+                                y = d2H.VPDB)) +
+    geom_line(color = "blue") +
     labs(x = "Fill Time [UTC]",
          y = expression("δD VSMOW [‰]")) +
     scale_x_datetime(date_breaks = "15 day",
                      date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
-    geom_line(data = EMPA_csv, aes(x = dtm.end,
-                                   y = dD_CH4*1),
-              col = "blue") +
-    scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
-                                           name="EMPA"))+
+    geom_line(data = EMPA_csv, 
+              aes(x = dtm.end,
+                  y = dD_CH4*1),
+              col = "red") +
+    # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+    #                                        name="EMPA"))+
     theme(axis.text.x=element_text(angle=60,
                                    hjust=1),
           axis.title.x=element_blank(),
-          strip.text.x = element_blank(),
-          legend.position="none",
-          axis.title.y = element_text(color = "black",
-                                      size=13),
-          axis.text.y = element_text(color = "black"),
-          axis.title.y.right = element_text(color = "blue",
-                                            size=13),
-          axis.text.y.right = element_text(color = "blue"))
+          strip.text.x = element_blank())  
+          # axis.title.y = element_text(color = "blue",
+          #                             size=13),
+          # axis.text.y = element_text(color = "blue"),
+          # axis.title.y.right = element_text(color = "red",
+          #                                   size=13),
+          # axis.text.y.right = element_text(color = "red"))
     
   
   
   Total_Timeline <- CH4_TL + CH4_13C_TimeLine + CH4_2H_TimeLine +
     plot_layout(ncol = 1, guides = "collect")+
     plot_annotation(
-      title = expression("CF-IRMS time series for methane concentration, δ"^13*"C and δD"))
+      title = expression("IRMS Measument and FLEXPART-COSMO Model, methane concentration, δ"^13*"C and δD"))+
+    theme(legend.position = "left", legend.box = "horizontal")
+ 
   
   Total_Timeline
   
@@ -381,7 +453,7 @@ EMPA_TimeLine_Sorces <- function(EMPA_csv = EMPA_csv, TotalData = TotalData, Sta
            col = cols,
            main = "Stacked area chart EMPA Sorces",
            xlab = "UTC",
-           ylab = "EMPA model concentration",
+           ylab = "FLEXPART-COSMO Model concentration",
            legend = TRUE,
            args.legend = list(x = "topleft", cex = 0.65))
 
@@ -407,7 +479,7 @@ EMPA_TimeLine_Sorces <- function(EMPA_csv = EMPA_csv, TotalData = TotalData, Sta
            col = cols,
            main = "Stacked area chart EMPA Sorces",
            xlab = "UTC",
-           ylab = "EMPA model concentration",
+           ylab = "FLEXPART-COSMO Model concentration",
            legend = TRUE,
            args.legend = list(x = "topleft", cex = 0.65),
            ylim = c(1800, 4200))
@@ -453,7 +525,7 @@ StartTime <- as.POSIXct('2021-08-01 22:03:00',
                         tz ="utc")
 # Start Time: 2021-08-01 22:03:00
 
-FinishTime <- as.POSIXct('2021-08-30 00:00:00', 
+FinishTime <- as.POSIXct('2022-03-29 00:00:00', 
                          format = "%Y-%m-%d %H:%M:%S", 
                          tz ="utc")
 

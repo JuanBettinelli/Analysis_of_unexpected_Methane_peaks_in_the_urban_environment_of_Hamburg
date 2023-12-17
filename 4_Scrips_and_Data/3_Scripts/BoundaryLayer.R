@@ -40,10 +40,11 @@ StartTime <- as.POSIXct('2021-08-01 22:03:00',
                         tz ="utc")
 # Start Time: 2021-08-01 22:03:00
 
-FinishTime <- as.POSIXct('2021-09-10 00:00:00', 
+FinishTime <- as.POSIXct('2021-08-14 00:00:00', 
                          format = "%Y-%m-%d %H:%M:%S", 
                          tz ="utc")
 
+# Total BLH Timeseries: 2021-11-07 00:00:00
 # Total Timeseries: 2022-03-29 00:00:00
 # Hamburg Campagne Timeseries: 2021-09-06 00:00:00
 # Hamburg Campaine #2: 2021-09-17 10:21:00
@@ -67,7 +68,7 @@ TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
 
 #Select Numer Of Panels
-n = 2
+n = 1
 
 #------------------------------------------------------------------------------------------------------------
 # plot using ggplot
@@ -88,13 +89,13 @@ m <- panel_No_function(n)
 #TotalData_CH4_BLH <- fill(TotalData_CH4_BLH, starts_with("LIDAR_BLH"), .direction = "up")
   
 # Plot CH4, Waterlevel Vs Time
-CH4_TimeLine <- ggplot(TotalData_CH4_BLH) +
+CH4_TimeLine_ERA5 <- ggplot(TotalData_CH4_BLH) +
   geom_line(aes(x = UTC,
                 y = X.CH4.),
-            col = "red") +
+            col = "black") +
   labs(x = "Fill Time [UTC]",
        y =expression("CH"[4]*" concentration [ppb]"),
-       title = "Methane concentration & BLH ERA5 vs. time") +
+       title = "ERA5 boundary layer height vs. Methane concentration") +
   scale_x_datetime(date_breaks = "1 day",
                    date_labels = "%d-%b") +
   # limits = c(as.POSIXct('2021-08-01 00:00:00', 
@@ -103,33 +104,37 @@ CH4_TimeLine <- ggplot(TotalData_CH4_BLH) +
   #                                              format = "%Y-%m-%d %H:%M:%S", 
   #                                              tz ="utc"))) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
-        axis.title.y = element_text(color = "red",
+        axis.title.y = element_text(color = "black",
                                     size=13),
-        axis.text.y = element_text(color = "red"),
-        axis.title.y.right = element_text(color = "blue",
+        axis.text.y = element_text(color = "black"),
+        axis.title.y.right = element_text(color = "red",
                                           size=13),
-        axis.text.y.right = element_text(color = "blue"),
+        axis.text.y.right = element_text(color = "red"),
         strip.text.x = element_blank()) +
   geom_line(aes(x = UTC,
-                y = ERA5_BLH*3),
-            col = "blue") +
-  scale_y_continuous(sec.axis = sec_axis(trans = ~./3,
-                                         name="BLH, m"))+
+                y = ERA5_BLH*2.5),
+            col = "red") +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./2.5,
+                                         name="Boundary layer height [m]"))+
   facet_wrap(~panel, scales = 'free', nrow = m)
-CH4_TimeLine
-  
+CH4_TimeLine_ERA5
+
+
+
+
+
 #Export the plot to PNG file
-ggsave("19_CH4_BLH_ERA5.png", CH4_TimeLine, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 5)
+ggsave("19_CH4_BLH_ERA5.png", CH4_TimeLine_ERA5, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 5)
 
 
 
-CH4_TimeLine <- ggplot(TotalData_CH4_BLH) +
+CH4_TimeLine_Lidar <- ggplot(TotalData_CH4_BLH) +
   geom_line(aes(x = UTC,
                 y = X.CH4.),
-            col = "red") +
+            col = "black") +
   labs(x = "Fill Time [UTC]",
        y =expression("CH"[4]*" concentration [ppb]"),
-       title = "Methane concentration & Elbe BLH LIDAR vs. time") +
+       title = "Lidar boundary layer height vs. Methane concentration") +
   scale_x_datetime(date_breaks = "1 day",
                    date_labels = "%d-%b") +
   # limits = c(as.POSIXct('2021-08-01 00:00:00', 
@@ -138,23 +143,82 @@ CH4_TimeLine <- ggplot(TotalData_CH4_BLH) +
   #                                              format = "%Y-%m-%d %H:%M:%S", 
   #                                              tz ="utc"))) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
-        axis.title.y = element_text(color = "red",
+        axis.title.y = element_text(color = "black",
                                     size=13),
-        axis.text.y = element_text(color = "red"),
+        axis.text.y = element_text(color = "black"),
         axis.title.y.right = element_text(color = "blue",
                                           size=13),
         axis.text.y.right = element_text(color = "blue"),
         strip.text.x = element_blank()) +
   geom_line(aes(x = UTC,
-                y = LIDAR_BLH*3),
+                y = LIDAR_BLH*2),
             col = "blue") +
-  scale_y_continuous(sec.axis = sec_axis(trans = ~./3,
-                                         name="BLH,m"))+
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./2,
+                                         name="Boundary layer height [m]"))+
   facet_wrap(~panel, scales = 'free', nrow = m)
-CH4_TimeLine
+CH4_TimeLine_Lidar
 
 #Export the plot to PNG file
-ggsave("19_CH4_BLH_LIDAR.png", CH4_TimeLine, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 5)  
+ggsave("19_CH4_BLH_LIDAR.png", CH4_TimeLine_Lidar, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 5)  
+
+#------------------------------------------------------------------------------------------------------------
+
+
+
+CH4_TimeLine_ERA5 <- ggplot(TotalData_CH4_BLH) +
+  geom_line(aes(x = UTC,
+                y = X.CH4.),
+            col = "black") +
+  labs(y =expression("CH"[4]*" concentration [ppb]"),
+       title = "Boundary layer height vs. Methane concentration",
+       x = NULL) +
+  scale_x_datetime(date_breaks = "1 day",
+                   date_labels = "%d-%b") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x =  element_blank(),
+        axis.title.y = element_text(color = "black",
+                                    size=13),
+        axis.text.y = element_text(color = "black"),
+        axis.title.y.right = element_text(color = "red",
+                                          size=13),
+        axis.text.y.right = element_text(color = "red"),
+        strip.text.x = element_blank()) +
+  geom_line(aes(x = UTC,
+                y = ERA5_BLH*2.5),
+            col = "red") +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./2.5,
+                                         name="ERA5 Boundary layer height [m]"))
+
+
+
+CH4_TimeLine_Lidar <- ggplot(TotalData_CH4_BLH) +
+  geom_line(aes(x = UTC,
+                y = X.CH4.),
+            col = "black") +
+  labs(x = "Fill Time [UTC]",
+       y =expression("CH"[4]*" concentration [ppb]")) +
+  scale_x_datetime(date_breaks = "1 day",
+                   date_labels = "%d-%b") +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        axis.title.y = element_text(color = "black",
+                                    size=13),
+        axis.text.y = element_text(color = "black"),
+        axis.title.y.right = element_text(color = "blue",
+                                          size=13),
+        axis.text.y.right = element_text(color = "blue"),
+        strip.text.x = element_blank()) +
+  geom_line(aes(x = UTC,
+                y = LIDAR_BLH*2),
+            col = "blue") +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./2,
+                                         name="Lidar Boundary layer height [m]"))
+
+
+combined_plot <- plot_grid(CH4_TimeLine_ERA5, CH4_TimeLine_Lidar, ncol = 1)
+
+#Export the plot to PNG file
+ggsave("19_CH4_BLH_ERA5_LIDAR.png", combined_plot, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 10)  
+
 
 
 #------------------------------------------------------------------------------------------------------------
@@ -235,3 +299,76 @@ mtext("CH4 Concentration",
        line=3)
  dev.off() 
  
+# Plot CH4, Waterlevel Vs Time
+CH4_TimeLine <- ggplot(TotalData_CH4_BLH) +
+  geom_line(aes(x = UTC,
+                y = X.CH4.),
+            col = "black") +
+  labs(x = "Fill Time [UTC]",
+       y =expression("CH"[4]*" concentration [ppb]"),
+       title = "ERA5 boundary layer height vs. Methane concentration") +
+  scale_x_datetime(date_breaks = "1 day",
+                   date_labels = "%d-%b") +
+  # limits = c(as.POSIXct('2021-08-01 00:00:00', 
+  #                       format = "%Y-%m-%d %H:%M:%S", 
+  #                       tz ="utc"), as.POSIXct('2021-08-18 00:00:00', 
+  #                                              format = "%Y-%m-%d %H:%M:%S", 
+  #                                              tz ="utc"))) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        axis.title.y = element_text(color = "black",
+                                    size=13),
+        axis.text.y = element_text(color = "black"),
+        axis.title.y.right = element_text(color = "red",
+                                          size=13),
+        axis.text.y.right = element_text(color = "red"),
+        strip.text.x = element_blank()) +
+  geom_line(aes(x = UTC,
+                y = ERA5_BLH*2.5),
+            col = "red") +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./2.5,
+                                         name="Boundary layer height [m]"))+
+  facet_wrap(~panel, scales = 'free', nrow = m)
+CH4_TimeLine
+
+
+
+
+
+#Export the plot to PNG file
+ggsave("19_CH4_BLH_ERA5.png", CH4_TimeLine, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 5)
+
+
+
+CH4_TimeLine <- ggplot(TotalData_CH4_BLH) +
+  geom_line(aes(x = UTC,
+                y = X.CH4.),
+            col = "black") +
+  labs(x = "Fill Time [UTC]",
+       y =expression("CH"[4]*" concentration [ppb]"),
+       title = "Lidar boundary layer height vs. Methane concentration") +
+  scale_x_datetime(date_breaks = "1 day",
+                   date_labels = "%d-%b") +
+  # limits = c(as.POSIXct('2021-08-01 00:00:00', 
+  #                       format = "%Y-%m-%d %H:%M:%S", 
+  #                       tz ="utc"), as.POSIXct('2021-08-18 00:00:00', 
+  #                                              format = "%Y-%m-%d %H:%M:%S", 
+  #                                              tz ="utc"))) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        axis.title.y = element_text(color = "black",
+                                    size=13),
+        axis.text.y = element_text(color = "black"),
+        axis.title.y.right = element_text(color = "red",
+                                          size=13),
+        axis.text.y.right = element_text(color = "red"),
+        strip.text.x = element_blank()) +
+  geom_line(aes(x = UTC,
+                y = LIDAR_BLH*2),
+            col = "red") +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./2,
+                                         name="Boundary layer height [m]"))+
+  facet_wrap(~panel, scales = 'free', nrow = m)
+CH4_TimeLine
+
+#Export the plot to PNG file
+ggsave("19_CH4_BLH_LIDAR.png", CH4_TimeLine, path = "4_Data/OutputData/Plots/19_BondaryLayer", width = 10, height = 5)  
+

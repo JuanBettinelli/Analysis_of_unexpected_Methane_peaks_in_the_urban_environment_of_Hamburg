@@ -251,6 +251,7 @@ KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("Keeling plot of complea
 
 ggsave("24_Keeling_Plot_Total.png", KP_Total, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
 
+# ----------------------------------------------------------------------------------------------------------------
 
 # Plot Keeling Plot Only Peaks
 KP_13C_Peaks <- ggplot(Total_Peaks, aes(x = c13C, y = d13C.VPDB)) +
@@ -298,6 +299,208 @@ ggsave("24_Keeling_Plot_Ex_Peaks.png", KP_Ex_Peaks, path = "4_Data/OutputData/Pl
 message("\n \nTotal timeseries: \n 12C, δ(13)C (mean = ", c13C_coef[[1]],"‰ ± ", c13C_se[[1]],"‰ s.e; n = 1)","\n D, δD  (mean =", c2H_coef[[1]],"‰ ±", c2H_se[[1]],"‰ s.e; n = 1)")
 message("Just the peaks: \n 12C, δ(13)C (mean = ", p_c13C_coef[[1]],"‰ ± ", p_c13C_se[[1]],"‰ s.e; n = 1)", " \n D, δD  (mean =", p_c2H_coef[[1]],"‰ ±", p_c2H_se[[1]],"‰ s.e; n = 1)")
 message("Excluding the peaks: \n 12C, δ(13)C (mean =", r_c13C_coef[[1]],"‰ ±", r_c13C_se[[1]],"‰ s.e; n = 1)","\n D, δD (mean =", r_c2H_coef[[1]],"‰ ±", r_c2H_se[[1]],"‰ s.e; n = 1)")
+
+
+
+
+
+
+# ==============================================================================================================
+# Strict peaks
+
+
+
+
+
+############# Find the Peaks and the  Create a dataframe with only the Peaks ###########
+
+
+
+
+# Find the Peaks in the timeline
+# The Peaks criteria can be selected hire, The comments give some usefull ones
+CH4_Large_Peaks <- as.data.frame(findpeaks(CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE)) # Strict peaks: CH4Data$X.CH4.,minpeakheight = 2400, minpeakdistance = 15, threshold = 5, sortstr=TRUE) ,medium peaks: CH4Data$X.CH4.,minpeakheight = 2100, minpeakdistance = 25, threshold = 5, sortstr=TRUE , Peak like in the paper: (CH4Data$X.CH4.,minpeakheight = lowest_15_percent, minpeakdistance = 5, threshold = 5, sortstr=TRUE)
+
+
+# Format the Peak Data frame 'CH4_Large_Peaks'
+# Rename the Columns
+names(CH4_Large_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+# Replace the Index with Timestemps 'UTC'
+CH4_Large_Peaks$UTC_Beginning <- CH4Data[CH4_Large_Peaks$UTC_Beginning,"UTC"]
+CH4_Large_Peaks$UTC_Ending <- CH4Data[CH4_Large_Peaks$UTC_Ending,"UTC"]
+CH4_Large_Peaks$UTC <- CH4Data[CH4_Large_Peaks$UTC,"UTC"]
+
+# Find the average during the Peak, (Average all values that lay between the Peak beginning and Peak End)
+# Get all Columns Names from 'TotalData
+Heads <- colnames(TotalData)
+# Remove empty Columns
+Heads <- Heads[-1]
+Heads <- Heads[-16]
+
+
+
+# # Format the Peak Dataframe
+# names(CH4_Large_Peaks) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+# CH4_Large_Peaks$UTC_Beginning <- CH4Data[CH4_Large_Peaks$UTC_Beginning,"UTC"]
+# CH4_Large_Peaks$UTC_Ending <- CH4Data[CH4_Large_Peaks$UTC_Ending,"UTC"]
+# CH4_Large_Peaks$UTC <- CH4Data[CH4_Large_Peaks$UTC,"UTC"]
+# 
+# # Find all the values in the TotalData Dataframe 12h before and 12 after the peak. The Time can be changed hire as needed
+# # than it findes the lowest value (troth) in that timeline
+# for (k in 1:nrow(CH4_Large_Peaks)){
+#   testDFUp <- filter(TotalData, TotalData$UTC > (CH4_Large_Peaks[k,2]) & TotalData$UTC < (CH4_Large_Peaks[k,2]+2*60*60), .preserve = FALSE)
+#   testDFUp <- testDFUp[complete.cases(testDFUp[ , "X.CH4."]),]
+#   CH4_Up <- as.data.frame(findpeaks(-testDFUp$X.CH4., npeaks = 1, sortstr=TRUE))
+#   if (nrow(CH4_Up) == 0){
+#     CH4_Up <- data.frame(NA, tail(testDFUp$UTC, n = 1), NA, NA )
+#     names(CH4_Up) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+#   }
+#   else{
+#     names(CH4_Up) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+#     CH4_Up$UTC <- testDFUp[CH4_Up$UTC,"UTC"]
+#   }
+#   CH4_Large_Peaks[k,"UTC_Ending"] <- CH4_Up[1, "UTC"]
+# 
+# 
+#   testDFDown <- filter(TotalData, TotalData$UTC > (CH4_Large_Peaks[k,2]-2*60*60) & TotalData$UTC < (CH4_Large_Peaks[k,2]), .preserve = FALSE)
+#   testDFDown <- testDFDown[complete.cases(testDFDown[ , "X.CH4."]),]
+#   CH4_Down <- as.data.frame(findpeaks(-testDFDown$X.CH4., npeaks = 1, sortstr=TRUE))
+#   if (nrow(CH4_Down) == 0){
+#     CH4_Down <- data.frame(NA, tail(testDFDown$UTC, n = 1), NA,NA )
+#     names(CH4_Down) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+#   }
+#   else {
+#     names(CH4_Down) <- c("X.CH4.", "UTC", "UTC_Beginning", "UTC_Ending")
+#     CH4_Down$UTC <- testDFDown[CH4_Down$UTC,"UTC"]
+#   }
+#   CH4_Large_Peaks[k,"UTC_Beginning"] <- CH4_Down[1, "UTC"]
+# }
+
+
+
+# Create Data frame with only peaks
+Total_Large_Peaks <- data.frame()
+# for-loop over rows
+for(i in 1:nrow(CH4_Large_Peaks)) {
+  Single_Peak <- TotalData[TotalData$UTC >= CH4_Large_Peaks[i,"UTC_Beginning"] & TotalData$UTC <= CH4_Large_Peaks[i,"UTC_Ending"], ]
+  Total_Large_Peaks <- rbind(Total_Large_Peaks,Single_Peak)
+}
+
+Total_Large_Peaks <- Total_Large_Peaks[complete.cases(Total_Large_Peaks[ , "X.CH4."]),]
+
+
+No_Large_Peaks <- subset(TotalData, UTC = Total_Large_Peaks$UTC) ###### check if it works!!!!
+No_Large_Peaks <- No_Large_Peaks[complete.cases(No_Large_Peaks[ , "X.CH4."]),]
+
+
+################ Keeling analyse ##############
+
+# Keeling Analyse for total data of the champagne Time series
+# For C13
+L_c13C_Line <- lm(d13C.VPDB ~ c13C, TotalData )
+L_c13C_coef <- coef(summary(L_c13C_Line))[, "Estimate"]
+L_c13C_se <- coef(summary(L_c13C_Line))[, "Std. Error"] 
+# For H2
+L_c2H_Line <- lm(d2H.VPDB ~ c2H, TotalData )
+L_c2H_coef <- coef(summary(L_c2H_Line))[, "Estimate"]
+L_c2H_se <- coef(summary(L_c2H_Line))[, "Std. Error"] 
+
+# Keeling analyse for Peaks
+# Peaks selected with Peak Finder
+# For C13
+p_L_c13C_Line <- lm(d13C.VPDB ~ c13C, Total_Large_Peaks )
+p_L_c13C_coef <- coef(summary(p_L_c13C_Line))[, "Estimate"]
+p_L_c13C_se <- coef(summary(p_L_c13C_Line))[, "Std. Error"]
+# For H2
+p_L_c2H_Line <- lm(d2H.VPDB ~ c2H, Total_Large_Peaks )
+p_L_c2H_coef <- coef(summary(p_L_c2H_Line))[, "Estimate"]
+p_L_c2H_se <- coef(summary(p_L_c2H_Line))[, "Std. Error"] 
+
+# Keeling analyse excluding the peaks 
+# Peaks selected with Peak Finder
+# For C13
+r_L_c13C_Line <- lm(d13C.VPDB ~ c13C, No_Large_Peaks )
+r_L_c13C_coef <- coef(summary(r_L_c13C_Line))[, "Estimate"]
+r_L_c13C_se <- coef(summary(r_L_c13C_Line))[, "Std. Error"] 
+# For H2
+r_L_c2H_Line <- lm(d2H.VPDB ~ c2H, No_Large_Peaks )
+r_L_c2H_coef <- coef(summary(r_L_c2H_Line))[, "Estimate"]
+r_L_c2H_se <- coef(summary(r_L_c2H_Line))[, "Std. Error"] 
+
+
+
+############## Keeling Plots ############
+
+# Complete Timeline including peaks and base measurements
+q <- ggplot(TotalData, aes(x = c13C, y = d13C.VPDB)) +
+  geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
+  expand_limits(x = 0) +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("13C, δ(13)C \n (mean = ", round(L_c13C_coef[[1]], digits = 1),"‰ ± ", round(L_c13C_se[[1]], digits = 1),"‰ s.e)")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        plot.title = element_text(size=10))
+
+k <- ggplot(TotalData, aes(x = c2H, y = d2H.VPDB)) +
+  expand_limits(x = 0) +
+  geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("2H, δ(2)H \n (mean = ", round(L_c2H_coef[[1]], digits = 1),"‰ ±", round(L_c2H_se[[1]], digits = 1),"‰ s.e)")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        plot.title = element_text(size=10))
+KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("Keeling plot of compleate measument campaign",gp=gpar(fontsize=15,font=3)))
+
+ggsave("24_Keeling_Plot_Total_Large.png", KP_Total, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
+
+
+# Plot Keeling Plot Only Peaks
+KP_13C_Peaks <- ggplot(Total_Large_Peaks, aes(x = c13C, y = d13C.VPDB)) +
+  geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
+  expand_limits(x = 0) +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("13C, δ(13)C \n (mean = ", round(p_L_c13C_coef[[1]], digits = 1),"‰ ± ", round(p_L_c13C_se[[1]], digits = 1),"‰ s.e)")) + 
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        plot.title = element_text(size=10))
+
+KP_2H_Peaks <- ggplot(Total_Large_Peaks, aes(x = c2H, y = d2H.VPDB)) +
+  expand_limits(x = 0) +
+  geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("D, δD \n (mean = ", round( p_L_c2H_coef[[1]], digits = 1),"‰ ± ", round(p_L_c2H_se[[1]], digits = 1),"‰ s.e)")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        plot.title = element_text(size=10))
+
+KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("Keeling plot of only the Large Peaks",gp=gpar(fontsize=15,font=3)))
+
+ggsave("24_Keeling_Plot_Large_Peaks.png", KP_Peaks, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
+
+# Plot Keeling Plot No Peaks
+KP_13C_NoPeaks <- ggplot(No_Large_Peaks, aes(x = c13C, y = d13C.VPDB)) +
+  geom_point(aes(x = c13C, y = d13C.VPDB), shape = 3, size = 1, col='red') +
+  expand_limits(x = 0) +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta^13*'C in ‰'), title = paste0("13C, δ(13)C \n (mean = ", round(r_L_c13C_coef[[1]], digits = 1),"‰ ± ", round( r_L_c13C_se[[1]], digits = 1),"‰ s.e)")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        plot.title = element_text(size=10))
+
+KP_2H_NoPeaks <- ggplot(No_Large_Peaks, aes(x = c2H, y = d2H.VPDB)) +
+  expand_limits(x = 0) +
+  geom_point(aes(x = c2H, y = d2H.VPDB), shape = 3, size = 1, col='blue') +
+  geom_smooth(method = "lm", se=TRUE, col='black', size=0.5, fullrange = TRUE) +
+  labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("D, δD \n (mean = ", round(r_L_c2H_coef[[1]], digits = 1),"‰ ± ", round(r_L_c2H_se[[1]], digits = 1),"‰ s.e)")) +
+  theme(axis.text.x=element_text(angle=60, hjust=1),
+        plot.title = element_text(size=10))
+
+KP_Ex_Peaks <- grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2,  top = textGrob("Keeling plot of compleate measument campaign excluding Large methane peaks",gp=gpar(fontsize=15,font=3)))
+
+ggsave("24_Keeling_Plot_Ex_Large_Peaks.png", KP_Ex_Peaks, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
+
+##### Show Keeling analyse Data in output Console ######
+message("\n \nTotal timeseries: \n 12C, δ(13)C (mean = ", c13C_coef[[1]],"‰ ± ", c13C_se[[1]],"‰ s.e; n = 1)","\n D, δD  (mean =", c2H_coef[[1]],"‰ ±", c2H_se[[1]],"‰ s.e; n = 1)")
+message("Just the peaks: \n 12C, δ(13)C (mean = ", p_c13C_coef[[1]],"‰ ± ", p_c13C_se[[1]],"‰ s.e; n = 1)", " \n D, δD  (mean =", p_c2H_coef[[1]],"‰ ±", p_c2H_se[[1]],"‰ s.e; n = 1)")
+message("Excluding the peaks: \n 12C, δ(13)C (mean =", r_c13C_coef[[1]],"‰ ±", r_c13C_se[[1]],"‰ s.e; n = 1)","\n D, δD (mean =", r_c2H_coef[[1]],"‰ ±", r_c2H_se[[1]],"‰ s.e; n = 1)")
+
+# ==============================================================================================================
+
 
 
 
@@ -473,7 +676,7 @@ k <- ggplot(EMPA_csv, aes(x = c2H, y = dD_CH4)) +
   labs(x = expression('(c'[CH[4]]*')'^-1*' in ppb'^-1), y = expression(delta*'D in ‰'), title = paste0("2H, δ(2)H \n (mean = ", round(c2H_coef_EMPA[[1]], digits = 1),"‰ ±", round(c2H_se_EMPA[[1]], digits = 1),"‰ s.e)")) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
-KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("EMPA Model Keeling plot of compleate measument campaign",gp=gpar(fontsize=15,font=3)))
+KP_Total <- grid.arrange(q,k, ncol = 2,  top = textGrob("FLEXPART-COSMO model Keeling plot of compleate measument campaign",gp=gpar(fontsize=15,font=3)))
 
 ggsave("24_Keeling_Plot_Total_EMPA.png", KP_Total, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
 
@@ -495,7 +698,7 @@ KP_2H_Peaks <- ggplot(Total_Peaks_EMPA, aes(x = c2H, y = dD_CH4)) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
-KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("EMPA Model Keeling plot of only the Peaks",gp=gpar(fontsize=15,font=3)))
+KP_Peaks <- grid.arrange(KP_13C_Peaks,KP_2H_Peaks, ncol = 2,  top = textGrob("FLEXPART-COSMO model Keeling plot of only the Peaks",gp=gpar(fontsize=15,font=3)))
 
 ggsave("24_Keeling_Plot_Peaks_EMPA.png", KP_Peaks, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
 
@@ -516,14 +719,14 @@ KP_2H_NoPeaks <- ggplot(No_Peaks_EMPA, aes(x = c2H, y = dD_CH4)) +
   theme(axis.text.x=element_text(angle=60, hjust=1),
         plot.title = element_text(size=10))
 
-KP_Ex_Peaks <- grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2,  top = textGrob("EMPA Model  Keeling plot of compleate measument campaign excluding methane peaks",gp=gpar(fontsize=15,font=3)))
+KP_Ex_Peaks <- grid.arrange(KP_13C_NoPeaks,KP_2H_NoPeaks, ncol = 2,  top = textGrob("FLEXPART-COSMO model  Keeling plot of compleate measument campaign excluding methane peaks",gp=gpar(fontsize=15,font=3)))
 
 ggsave("24_Keeling_Plot_Ex_Peaks_EMPA.png", KP_Ex_Peaks, path = "4_Data/OutputData/Plots/24_EMPA", width = 10, height = 5)
 
 ##### Show Keeling analyse Data in output Console ######
-message("\n \nTotal timeseries for EMPA Model: \n 12C, δ(13)C (mean = ", c13C_coef_EMPA[[1]],"‰ ± ", c13C_se_EMPA[[1]],"‰ s.e; n = 1)","\n D, δD  (mean =", c2H_coef_EMPA[[1]],"‰ ±", c2H_se_EMPA[[1]],"‰ s.e; n = 1)")
-message("Just the peaks for EMPA Model: \n 12C, δ(13)C (mean = ", p_c13C_coef_EMPA[[1]],"‰ ± ", p_c13C_se_EMPA[[1]],"‰ s.e; n = 1)", " \n D, δD  (mean =", p_c2H_coef_EMPA[[1]],"‰ ±", p_c2H_se_EMPA[[1]],"‰ s.e; n = 1)")
-message("Excluding the peaks for EMPA Model: \n 12C, δ(13)C (mean =", r_c13C_coef_EMPA[[1]],"‰ ±", r_c13C_se_EMPA[[1]],"‰ s.e; n = 1)","\n D, δD (mean =", r_c2H_coef_EMPA[[1]],"‰ ±", r_c2H_se_EMPA[[1]],"‰ s.e; n = 1)")
+message("\n \nTotal timeseries for FLEXPART-COSMO model: \n 12C, δ(13)C (mean = ", c13C_coef_EMPA[[1]],"‰ ± ", c13C_se_EMPA[[1]],"‰ s.e; n = 1)","\n D, δD  (mean =", c2H_coef_EMPA[[1]],"‰ ±", c2H_se_EMPA[[1]],"‰ s.e; n = 1)")
+message("Just the peaks for FLEXPART-COSMO model: \n 12C, δ(13)C (mean = ", p_c13C_coef_EMPA[[1]],"‰ ± ", p_c13C_se_EMPA[[1]],"‰ s.e; n = 1)", " \n D, δD  (mean =", p_c2H_coef_EMPA[[1]],"‰ ±", p_c2H_se_EMPA[[1]],"‰ s.e; n = 1)")
+message("Excluding the peaks for FLEXPART-COSMO model: \n 12C, δ(13)C (mean =", r_c13C_coef_EMPA[[1]],"‰ ±", r_c13C_se_EMPA[[1]],"‰ s.e; n = 1)","\n D, δD (mean =", r_c2H_coef_EMPA[[1]],"‰ ±", r_c2H_se_EMPA[[1]],"‰ s.e; n = 1)")
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -553,8 +756,8 @@ A <- data.frame(x = c(-50, -50, -25, -10, -10), y = c(-450, -300, -50, -50, -450
 
 
 p0 <- ggplot() +
-  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "EMPA"), color = "blue")+
-  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="EMPA"), width=.02, alpha=0.5, color = "blue") + #, position=pd
+  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "FLEXPART-COSMO"), color = "blue")+
+  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="FLEXPART-COSMO"), width=.02, alpha=0.5, color = "blue") + #, position=pd
   geom_point(data=Keeling_Measurment, aes(x = x, y = y, color = "Measurement"), color = "red")+
   geom_errorbar(data=Keeling_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement"), width=.02, alpha=0.5, color = "red") + #, position=pd
   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
@@ -574,13 +777,13 @@ p0 <- ggplot() +
 
 # fill only
 p1 <- ggplot() +
-  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "EMPA"))+
-  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="EMPA"), width=.02, alpha=0.5) + #, position=pd
+  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "FLEXPART-COSMO"))+
+  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="FLEXPART-COSMO"), width=.02, alpha=0.5) + #, position=pd
   geom_point(data=Keeling_Measurment, aes(x = x, y = y, color = "Measurement"))+
   geom_errorbar(data=Keeling_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement"), width=.02, alpha=0.5) + #, position=pd
   # scale_color_gradient2(name = "Wind Direction, °", midpoint=180, low="blue", mid="red",
   #                       high="blue", space ="Lab" )+
-  scale_color_manual(name = "Keeling", values = c("EMPA" = "blue", "Measurement" = "red"))+
+  scale_color_manual(name = "Keeling", values = c("FLEXPART-COSMO" = "blue", "Measurement" = "red"))+
   theme(legend.direction = "vertical", legend.box = "vertical")
 
 
@@ -653,6 +856,13 @@ Keeling_Peaks_Measurment <- data.frame(
   y_error = p_c2H_se[[1]]
 )
 
+Keeling_Large_Peaks_Measurment <- data.frame(
+  x = p_L_c13C_coef[[1]],
+  y = p_L_c2H_coef[[1]],
+  x_error = p_L_c13C_se[[1]],
+  y_error = p_L_c2H_se[[1]]
+)
+
 
 # Plotting the results in a combine isotope plot to identify emmittor type.
 # regions are highlightet for the emmition type
@@ -665,10 +875,12 @@ A <- data.frame(x = c(-50, -50, -25, -10, -10), y = c(-450, -300, -50, -50, -450
 
 
 p0 <- ggplot() +
-  geom_point(data=Keeling_Peaks_EMPA, aes(x = x, y = y, color = "EMPA"), color = "blue")+
-  geom_errorbar(data=Keeling_Peaks_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="EMPA"), width=.02, alpha=0.5, color = "blue") + #, position=pd
-  geom_point(data=Keeling_Peaks_Measurment, aes(x = x, y = y, color = "Measurement"), color = "red")+
-  geom_errorbar(data=Keeling_Peaks_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement"), width=.02, alpha=0.5, color = "red") + #, position=pd
+  geom_point(data=Keeling_Peaks_EMPA, aes(x = x, y = y, color = "FLEXPART-COSMO Peaks"), color = "blue")+
+  geom_errorbar(data=Keeling_Peaks_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="FLEXPART-COSMO"), width=.02, alpha=0.5, color = "blue") + #, position=pd
+  geom_point(data=Keeling_Peaks_Measurment, aes(x = x, y = y, color = "CF-IRMS Peaks"), color = "red")+
+  geom_errorbar(data=Keeling_Peaks_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="CF-IRMS Peaks"), width=.02, alpha=0.5, color = "red") + #, position=pd
+  geom_point(data=Keeling_Large_Peaks_Measurment, aes(x = x, y = y, color = "CF-IRMS Large Peaks"), color = "purple")+
+  geom_errorbar(data=Keeling_Peaks_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="CF-IRMS Large Peaks"), width=.02, alpha=0.5, color = "purple") + #, position=pd
   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
   geom_rect(aes(xmin=-70.6,xmax=-46.0,ymin=-361,ymax=-295),alpha=0.1, color = "green")+ # Agriculture 12C 68.0 [70.6; 46.0], 2H 319 [361; 295]
   geom_rect(aes(xmin=-73.9,xmax=-45.5,ymin=-312,ymax=-293),alpha=0.1, color = "purple")+ # Waste 12C 55 [73.9; 45.5], 2H 293 [312; 293]
@@ -686,13 +898,15 @@ p0 <- ggplot() +
 
 # fill only
 p1 <- ggplot() +
-  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "EMPA"))+
-  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="EMPA"), width=.02, alpha=0.5) + #, position=pd
-  geom_point(data=Keeling_Measurment, aes(x = x, y = y, color = "Measurement"))+
-  geom_errorbar(data=Keeling_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement"), width=.02, alpha=0.5) + #, position=pd
+  geom_point(data=Keeling_Peaks_EMPA, aes(x = x, y = y, color = "FLEXPART-COSMO  Peaks"))+
+  geom_errorbar(data=Keeling_Peaks_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="FLEXPART-COSMO Peaks"), width=.02, alpha=0.5) + #, position=pd
+  geom_point(data=Keeling_Peaks_Measurment, aes(x = x, y = y, color = "CF-IRMS  Peaks"))+
+  geom_errorbar(data=Keeling_Peaks_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="CF-IRMS Peaks"), width=.02, alpha=0.5) + #, position=pd
+  geom_point(data=Keeling_Large_Peaks_Measurment, aes(x = x, y = y, color = "CF-IRMS Large Peaks"))+
+  geom_errorbar(data=Keeling_Large_Peaks_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement Large Peaks"), width=.02, alpha=0.5) + #, position=pd
   # scale_color_gradient2(name = "Wind Direction, °", midpoint=180, low="blue", mid="red",
   #                       high="blue", space ="Lab" )+
-  scale_color_manual(name = "Keeling", values = c("EMPA" = "blue", "Measurement" = "red"))+
+  scale_color_manual(name = "Keeling", values = c("FLEXPART-COSMO Peaks" = "blue", "CF-IRMS Peaks" = "red", "CF-IRMS Large Peaks" = "purple"))+
   theme(legend.direction = "vertical", legend.box = "vertical")
 
 
@@ -775,8 +989,8 @@ A <- data.frame(x = c(-50, -50, -25, -10, -10), y = c(-450, -300, -50, -50, -450
 
 
 p0 <- ggplot() +
-  geom_point(data=Keeling_Peaks_EMPA, aes(x = x, y = y, color = "EMPA"), color = "blue")+
-  geom_errorbar(data=Keeling_Peaks_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="EMPA"), width=.02, alpha=0.5, color = "blue") + #, position=pd
+  geom_point(data=Keeling_Peaks_EMPA, aes(x = x, y = y, color = "FLEXPART-COSMO"), color = "blue")+
+  geom_errorbar(data=Keeling_Peaks_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="FLEXPART-COSMO"), width=.02, alpha=0.5, color = "blue") + #, position=pd
   geom_point(data=Keeling_Peaks_Measurment, aes(x = x, y = y, color = "Measurement"), color = "red")+
   geom_errorbar(data=Keeling_Peaks_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement"), width=.02, alpha=0.5, color = "red") + #, position=pd
   geom_rect(aes(xmin=-66.4,xmax=-30.9,ymin=-199,ymax=-175), alpha=0.1, color = "red")+ #fossil fuels & nonindustrial combustion 12C 40.0 [66.4; 30.9], 2H 175 [199; 175]
@@ -796,13 +1010,13 @@ p0 <- ggplot() +
 
 # fill only
 p1 <- ggplot() +
-  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "EMPA"))+
-  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="EMPA"), width=.02, alpha=0.5) + #, position=pd
+  geom_point(data=Keeling_EMPA, aes(x = x, y = y, color = "FLEXPART-COSMO"))+
+  geom_errorbar(data=Keeling_EMPA, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="FLEXPART-COSMO"), width=.02, alpha=0.5) + #, position=pd
   geom_point(data=Keeling_Measurment, aes(x = x, y = y, color = "Measurement"))+
   geom_errorbar(data=Keeling_Measurment, aes(x = x, xmin=x - x_error, xmax= x + x_error, y = y, ymin=y-y_error, ymax=y+y_error, colour="Measurement"), width=.02, alpha=0.5) + #, position=pd
   # scale_color_gradient2(name = "Wind Direction, °", midpoint=180, low="blue", mid="red",
   #                       high="blue", space ="Lab" )+
-  scale_color_manual(name = "Keeling", values = c("EMPA" = "blue", "Measurement" = "red"))+
+  scale_color_manual(name = "Keeling", values = c("FLEXPART-COSMO" = "blue", "Measurement" = "red"))+
   theme(legend.direction = "vertical", legend.box = "vertical")
 
 

@@ -24,6 +24,9 @@
 # library(pracma)
 
 
+# # Filter out all the dated that are outside the selected Strating and Finish time of the campaign
+# TotalData <- filter(TotalData, TotalData$UTC > StartTime & TotalData$UTC < FinishTime, .preserve = FALSE)
+
 
 
 library(pacman)
@@ -80,11 +83,13 @@ TotalData$UTC <- as.POSIXct(as.character(TotalData$UTC),
 
 TotalData$X.CH4. <- as.numeric(TotalData$X.CH4.)
 
+TotalData$UTC <- as.POSIXct(TotalData$UTC, 
+                            format = "%d-%m-%Y %H:%M:%S", 
+                            tz = "utc")
+
+
 TotalData <- filter(TotalData, TotalData$UTC > StartTime & TotalData$UTC < FinishTime, .preserve = FALSE)
 
-TotalData$UTC <- as.POSIXct(TotalData$UTC, 
-                                               format = "%d-%m-%Y %H:%M:%S", 
-                                               tz = "utc")
 
 TotalData$Direction[TotalData$Direction > 361] <- NA
 TotalData$Speed[TotalData$Speed > 99] <- NA
@@ -105,8 +110,8 @@ CH4_Peak_Finder(TotalData, TRUE)
 WindRose_Plots(TotalData)
 
 ### Comparison Plots (Plots 1, 2, 3 & 5) #####
-Compare_Timeline(TotalData, 4) # Use 0 for fixed Panels, any integer for rest
-Compare_Timeline2(TotalData, 10) # Use 0 for fixed Panels, any integer for rest
+Compare_Timeline(TotalData, 1) # Use 0 for fixed Panels, any integer for rest
+Compare_Timeline2(TotalData, 1) # Use 0 for fixed Panels, any integer for rest
 
 Compare_Timeline_Basic(TotalData) # Total Timeline
 
@@ -114,7 +119,7 @@ Compare_Timeline_Basic(TotalData) # Total Timeline
 
 
 ########### 4 Plot CH4 Concentration Timeseries (Plot 4)##############
-CH4_TimeLine(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
+CH4_TimeLine(TotalData, StartTime, FinishTime, 1, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 
 CH4_TimeLine_No_Peaks(TotalData, StartTime, FinishTime, 10, FALSE) #CH4_TimeLine(ImputDataFrame = , StartTime = , FinishTime =, MumberOfPanels = (0=FixedPanelForPaper), TURE = OnePlotMultiplePanels FALSE = MultipePlotsOnePanel)
 
@@ -154,21 +159,21 @@ Basic_CH4_WaterLevel_Wind_Speed(TotalData, StartTime, FinishTime)
 
 ######## Plot Rain/CH4 (Plot 8.3) #############
 # Basic_Rain_CH4(TotalData, StartTime, FinishTime)
-Rain_CH4(TotalData, 4)
+Rain_CH4(TotalData, 1)
 
 ######## Plot Temp/CH4 (Plot 8.2) #############
 # Basic_Temp_CH4(TotalData, StartTime, FinishTime)
-Temp_CH4(TotalData, 4)
+Temp_CH4(TotalData, 1)
 
 ######## Plot Humid/CH4 (Plot 8.1) #############  
 # Basic_Humidity_CH4(TotalData, StartTime, FinishTime)
-Humidity_CH4(TotalData, 4)
+Humidity_CH4(TotalData, 1)
 
 ######## Plot Radiation/CH4 (Plot 8.4) #############
-Radiation_CH4(TotalData, 4)
+Radiation_CH4(TotalData, 1)
 
 ######## Plot Pressure/CH4 (Plot 8.5) #############
-Pressure_CH4(TotalData, 4)
+Pressure_CH4(TotalData, 1)
 
 ######## Plot Dew/CH4 (Plot 8.6) #############
-Dew_CH4(TotalData, 4)
+Dew_CH4(TotalData, 1)

@@ -283,7 +283,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
       # Save the Plot
       ggsave(paste0("4_CH4_Timeline_Condition",i,".png"),
              CH4_TimeLine,
-             path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+             path = "4_Data/OutputData/Plots/25_Conditions",
              width = 10,
              height = 5)
     }
@@ -317,7 +317,7 @@ CH4_TimeLine <- function(TotalData = TotalData, StartTime = StartTime, FinishTim
     # Save the plot
     ggsave(paste0("4_CH4_Timeline_Panels_Condition.png"),
            CH4_TimeLine,
-           path = "4_Data/OutputData/SecondPaper/Peak/CH4_Timeline",
+           path = "4_Data/OutputData/Plots/25_Conditions",
            width = 10,
            height = 5)
   }
