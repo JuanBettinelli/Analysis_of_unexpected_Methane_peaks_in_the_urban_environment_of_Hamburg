@@ -106,6 +106,17 @@ EMPA_csv <- EMPA_csv[!is.na(EMPA_csv$dtm.end),]
 EMPA_csv$c13C <- 1/EMPA_csv$CH4
 EMPA_csv$c2H <- 1/EMPA_csv$CH4
 
+Contribution_Averages <- colMeans(EMPA_csv[, c("CH4_energy", "CH4_residential", "CH4_industrial", "CH4_natural_gas", "CH4_transport", "CH4_waste", "CH4_agriculture", "CH4_bg")])
+Contribution_Summery <- data.frame(AverageContributions = Contribution_Averages)
+Contribution_Summery$ContributionPercent <- (Contribution_Summery$AverageContributions / sum(Contribution_Summery$AverageContributions)) * 100
+Contribution_Summery <- round(Contribution_Summery, digits = 2)
+write.csv(Contribution_Summery, file = "4_Data/OutputData/Plots/24_EMPA/24_EMPA_CH4_Contribution_Summery.csv", row.names = TRUE)
+
+Contribution_Averages_no_bg <- colMeans(EMPA_csv[, c("CH4_energy", "CH4_residential", "CH4_industrial", "CH4_natural_gas", "CH4_transport", "CH4_waste", "CH4_agriculture")])
+Contribution_Summery_no_bg <- data.frame(AverageContributions = Contribution_Averages_no_bg)
+Contribution_Summery_no_bg$ContributionPercent <- (Contribution_Summery_no_bg$AverageContributions / sum(Contribution_Summery_no_bg$AverageContributions)) * 100
+Contribution_Summery_no_bg <- round(Contribution_Summery_no_bg, digits = 2)
+write.csv(Contribution_Summery_no_bg, file = "4_Data/OutputData/Plots/24_EMPA/24_EMPA_CH4_Contribution_Summery_no_bg.csv", row.names = TRUE)
 
 ################ Keeling analyse ##############
 

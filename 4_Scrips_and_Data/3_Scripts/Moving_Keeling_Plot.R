@@ -157,13 +157,18 @@ H <- 12
 result_df <- data.frame(UTC = as.POSIXct(character()), c13C_coef = numeric(), c2H_coef = numeric())
 CurrentTime <- StartTime
 
+MWK_Timeline <- data.frame()
+
 while (CurrentTime < FinishTime) {
   # Call the function to perform calculations and append to the result dataframe
   result <- Keeling_Caluclation(TotalData, CurrentTime, H)
   result_df <- bind_rows(result_df, result)
   
+  MWK_Timeline <- rbind(MWK_Timeline, result)
+  
   # Move 1 hour forward
   CurrentTime <- CurrentTime + hours(1)
+  
 }
 
 # hist(result_df$c13C_coef, main =  expression('Histogram of '*delta^13*'C in ‰'), xlab = expression(delta^13*'C in ‰'), ylab = "Number  with MKP", col = "blue", border = "black")
@@ -175,10 +180,14 @@ while (CurrentTime < FinishTime) {
 result_df_EMPA <- data.frame(dtm.end = as.POSIXct(character()), c13C_coef_EMPA = numeric(), c2H_coef_EMPA = numeric())
 CurrentTime <- StartTime
 
+MWK_Timeline_EMPA <- data.frame()
+
 while (CurrentTime < FinishTime) {
   # Call the function to perform calculations and append to the result dataframe
   result <- Keeling_Caluclation_Empa(EMPA_csv, CurrentTime, H)
   result_df_EMPA <- bind_rows(result_df_EMPA, result)
+  
+  MWK_Timeline_EMPA <- rbind(MWK_Timeline_EMPA, result)
   
   # Move 1 hour forward
   CurrentTime <- CurrentTime + hours(1)
@@ -380,5 +389,111 @@ Total_Plot <- plot_grid(p0,
 
 # Save and export the plot
 ggsave("24_Dual_Isotopes_Total_MWK.png", Total_Plot, path = "4_Data/OutputData/Plots/24_EMPA", width = 12, height = 5.2)
+
+
+
+
+
+
+
+TotalData_Plotting <- TotalData[complete.cases(TotalData[ , "X.CH4."]),c("UTC", "X.CH4.")]
+
+
+# Create the Timeline plot
+CH4_TL <- ggplot(TotalData_Plotting[, ], 
+                 aes(x = UTC, 
+                     y = X.CH4.)) +
+  geom_line(color = "blue") +
+  labs(
+    y = expression("CH"[4]*" con. [ppb]")) +
+  scale_x_datetime(date_breaks = "15 day",
+                   date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+  geom_line(data = EMPA_csv, 
+            aes(x = dtm.end,
+                y = CH4*1),
+            col = "red") +
+  # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+  #                                        name="EMPA"))+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x = element_blank(),
+        strip.text.x = element_blank(),
+        legend.position="none")
+# axis.title.y = element_text(color = "blue",
+#                             size=13),
+# axis.text.y = element_text(color = "blue"),
+# axis.title.y.right = element_text(color = "red",
+#                                   size=13),
+# axis.text.y.right = element_text(color = "red"))
+
+
+CH4_13C_TimeLine <- ggplot(MWK_Timeline[, ], 
+                           aes(x = UTC, 
+                               y = c13C_coef)) +
+  geom_line(color = "blue") +
+  labs(
+    y = expression("δ"^13*"C VPDB [‰]")) +
+  scale_x_datetime(date_breaks = "15 day",
+                   date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+  geom_line(data = MWK_Timeline_EMPA, 
+            aes(x = dtm.end,
+                y = c13C_coef_EMPA*1),
+            col = "red") +
+  # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+  #                                        name="EMPA"))+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x = element_blank(),
+        strip.text.x = element_blank(),
+        legend.position="none")
+# axis.title.y = element_text(color = "blue",
+#                             size=13),
+# axis.text.y = element_text(color = "blue"),
+# axis.title.y.right = element_text(color = "red",
+#                                   size=13),
+# axis.text.y.right = element_text(color = "red"))
+
+CH4_2H_TimeLine <- ggplot(MWK_Timeline[, ], 
+                          aes(x = UTC, 
+                              y = c2H_coef)) +
+  geom_line(color = "blue") +
+  labs(x = "Fill Time [UTC]",
+       y = expression("δD VSMOW [‰]")) +
+  scale_x_datetime(date_breaks = "15 day",
+                   date_labels = "%d-%b") + # , limit=c(as.POSIXct(StartTime),as.POSIXct(FinishTime))
+  geom_line(data = MWK_Timeline_EMPA, 
+            aes(x = dtm.end,
+                y = c2H_coef_EMPA*1),
+            col = "red") +
+  # scale_y_continuous(sec.axis = sec_axis(trans = ~./1,
+  #                                        name="EMPA"))+
+  theme(axis.text.x=element_text(angle=60,
+                                 hjust=1),
+        axis.title.x=element_blank(),
+        strip.text.x = element_blank())  
+# axis.title.y = element_text(color = "blue",
+#                             size=13),
+# axis.text.y = element_text(color = "blue"),
+# axis.title.y.right = element_text(color = "red",
+#                                   size=13),
+# axis.text.y.right = element_text(color = "red"))
+
+
+
+Total_Timeline <- CH4_TL + CH4_13C_TimeLine + CH4_2H_TimeLine +
+  plot_layout(ncol = 1, guides = "collect")+
+  plot_annotation(
+    title = expression("MKP IRMS Measument and FLEXPART-COSMO Model, methane concentration, δ"^13*"C and δD"))+
+  theme(legend.position = "left", legend.box = "horizontal")
+
+
+Total_Timeline
+
+# Save the Plot
+ggsave(paste0("24_MKP_EMPA_CH4_Isotope_Signature.png"),
+       Total_Timeline,
+       path = "4_Data/OutputData/Plots/24_EMPA",
+       width = 10,
+       height = 5)
 
 

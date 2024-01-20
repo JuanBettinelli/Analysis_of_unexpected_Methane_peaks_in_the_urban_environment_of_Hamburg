@@ -6,6 +6,7 @@ library(dplyr)
 library(plotly)
 library(rio)
 library(reshape2)
+library(pracma)
 
 #Set Working Directory, Set it into the folder "MasterThesis/4_Scrips_and_Data" to automatically access the data.
 setwd("/Users/juanbettinelli/Documents/Uni/MasterThesis/4_Scrips_and_Data")
@@ -227,7 +228,7 @@ result <- CH4_Peaks[,c("WL_Time", "Wind_Direction", "Wind_Speed")] %>%
 # library(reshape2)
 result_table <- dcast(result, wind_speed_group ~ wind_dir_group, value.var = "avg_time_traveled")
 
-write.csv(result_table, "4_Data/OutputData/Plots/14_Low_WL_to_Peak/CH4_Travel_Time.csv", row.names=TRUE)
+write.csv(result_table, "4_Data/OutputData/CH4_Low_WL_to_Peak_Travel_Time.csv", row.names=TRUE)
 
 
 
